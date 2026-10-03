@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2008/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Body>
+    <ReportItems>
+      <Tablix Name="Tablix1">
+        <TablixBody>
+          <TablixColumns>
+            <TablixColumn><Width>1in</Width></TablixColumn>
+            <TablixColumn><Width>2.5in</Width></TablixColumn>
+            <TablixColumn><Width>1in</Width></TablixColumn>
+            <TablixColumn><Width>1in</Width></TablixColumn>
+            <TablixColumn><Width>1in</Width></TablixColumn>
+          </TablixColumns>
+          <TablixRows>
+            <TablixRow>
+              <Height>0.25in</Height>
+              <TablixCells>
+                <TablixCell><CellContents><Textbox Name="Textbox1"><Value>Date</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="Textbox2"><Value>Party Name</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="Textbox3"><Value>Commission</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="Textbox4"><Value>Soodh</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="Textbox5"><Value>Net Amount</Value></Textbox></CellContents></TablixCell>
+              </TablixCells>
+            </TablixRow>
+            <TablixRow>
+              <Height>0.25in</Height>
+              <TablixCells>
+                <TablixCell><CellContents><Textbox Name="InvoiceDate"><Value>=Fields!InvoiceDate.Value</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="PartyName"><Value>=Fields!PartyName.Value</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="CommissionAmount"><Value>=Fields!CommissionAmount.Value</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="Soodh_Amount"><Value>=Fields!Soodh_Amount.Value</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="NetAmount"><Value>=Fields!NetAmount.Value</Value></Textbox></CellContents></TablixCell>
+              </TablixCells>
+            </TablixRow>
+          </TablixRows>
+        </TablixBody>
+        <TablixColumnHierarchy><TablixMembers><TablixMember /><TablixMember /><TablixMember /><TablixMember /><TablixMember /></TablixMembers></TablixColumnHierarchy>
+        <TablixRowHierarchy>
+          <TablixMembers>
+            <TablixMember><KeepWithGroup>After</KeepWithGroup></TablixMember>
+            <TablixMember><Group Name="Details" /></TablixMember>
+          </TablixMembers>
+        </TablixRowHierarchy>
+        <DataSetName>DataSet1</DataSetName>
+      </Tablix>
+      <Textbox Name="Title">
+        <Value>BROKERAGE COMMISSION REPORT</Value>
+        <Style><FontSize>14pt</FontSize><FontWeight>Bold</FontWeight></Style>
+        <Top>0in</Top><Height>0.4in</Height><Width>6.5in</Width>
+      </Textbox>
+    </ReportItems>
+    <Height>2in</Height>
+  </Body>
+  <DataSets>
+    <DataSet Name="DataSet1">
+      <Fields>
+        <Field Name="InvoiceDate"><DataField>InvoiceDate</DataField></Field>
+        <Field Name="PartyName"><DataField>PartyName</DataField></Field>
+        <Field Name="CommissionAmount"><DataField>CommissionAmount</DataField></Field>
+        <Field Name="Soodh_Amount"><DataField>Soodh_Amount</DataField></Field>
+        <Field Name="NetAmount"><DataField>NetAmount</DataField></Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+</Report>

@@ -1,0 +1,14 @@
+<Window x:Class="MyMandiSystem.Views.ReportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:rv="clr-namespace:Microsoft.Reporting.WinForms;assembly=Microsoft.ReportViewer.WinForms"
+        Title="agentcore - Report Print &amp; Export Preview" Height="800" Width="1000"
+        WindowStartupLocation="CenterScreen">
+    
+    <Grid>
+        <WindowsFormsHost Name="Host">
+            <rv:ReportViewer x:Name="Viewer"/>
+        </WindowsFormsHost>
+    </Grid>
+</Window>

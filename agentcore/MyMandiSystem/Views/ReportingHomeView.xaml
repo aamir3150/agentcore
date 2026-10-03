@@ -1,0 +1,113 @@
+<UserControl x:Class="MyMandiSystem.Views.ReportingHomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             Background="{StaticResource BrushSurfaceBg}"
+             d:DesignHeight="700" d:DesignWidth="1100"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             TextElement.Foreground="{StaticResource BrushTextPrimary}"
+             FontFamily="{DynamicResource MaterialDesignFont}">
+    
+    <Border Margin="12" Background="#FFFFFF" CornerRadius="16" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Effect="{StaticResource EffectCardShadow}">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header Banner -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="42" Height="42" CornerRadius="10" Background="{StaticResource BrushGradientPurple}" Margin="0,0,12,0" VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="ChartBoxMultipleOutline" Width="24" Height="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Reporting &amp; Financial Analytics Center" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                    <TextBlock Text="Audit statements, ledgers, commission summaries, and inventory forecasts" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="420"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Filters & Report Selection -->
+                <Border Grid.Column="0" CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="16">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock Text="Report Parameters" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
+
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                <DatePicker materialDesign:HintAssist.Hint="From Date" SelectedDate="{Binding FromDate}" Style="{StaticResource MaterialDesignFloatingHintDatePicker}"/>
+                                <DatePicker Grid.Column="2" materialDesign:HintAssist.Hint="To Date" SelectedDate="{Binding ToDate}" Style="{StaticResource MaterialDesignFloatingHintDatePicker}"/>
+                            </Grid>
+
+                            <ComboBox materialDesign:HintAssist.Hint="Account Title (Required for Ledger)" 
+                                      ItemsSource="{Binding Accounts}" 
+                                      SelectedItem="{Binding SelectedAccount}" 
+                                      DisplayMemberPath="Name" 
+                                      Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="0,0,0,16"/>
+
+                            <TextBlock Text="AVAILABLE REPORT CATALOG" FontSize="11" FontWeight="Bold" Margin="0,0,0,10" Foreground="{StaticResource BrushTextMuted}"/>
+                            
+                            <!-- Category 1: Accounts -->
+                            <Expander Header="General Ledger &amp; Cash Reports" IsExpanded="True" Margin="0,0,0,8" FontWeight="SemiBold">
+                                <StackPanel Margin="8,8,0,0">
+                                    <Button Content="Account Ledger" Command="{Binding ViewLedgerReportCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34" Margin="0,0,0,6"/>
+                                    <Button Content="Daily Day-Book" Command="{Binding ViewDayBookReportCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,0,6"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <!-- Category 2: Brokerage -->
+                            <Expander Header="Trade &amp; Brokerage" Margin="0,0,0,8" FontWeight="SemiBold">
+                                <StackPanel Margin="8,8,0,0">
+                                    <Button Content="Purchase Register" Command="{Binding ViewPurchaseRegisterCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,0,6"/>
+                                    <Button Content="Sale Register" Command="{Binding ViewSaleRegisterCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,0,6"/>
+                                    <Button Content="Commission Report" Command="{Binding ViewCommissionReportCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,0,6"/>
+                                    <Button Content="Gate Pass Register" Command="{Binding ViewGatePassRegisterCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <!-- Category 3: Pestro -->
+                            <Expander Header="Pestro &amp; Chemical Stocks" Margin="0,0,0,8" FontWeight="SemiBold">
+                                <StackPanel Margin="8,8,0,0">
+                                    <Button Content="Stock Summary" Command="{Binding ViewStockReportCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,0,6"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Days to Expiry Threshold" Text="{Binding DaysToExpiry}" Margin="0,0,0,6" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                    <Button Content="Expiry Forecast Report" Command="{Binding ViewPestroExpiryReportCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <!-- Category 4: Analytics -->
+                            <Expander Header="Profitability &amp; Master Lists" Margin="0,0,0,8" FontWeight="SemiBold">
+                                <StackPanel Margin="8,8,0,0">
+                                    <Button Content="Gross Profit Summary" Command="{Binding ViewProfitabilityReportCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,0,6"/>
+                                    <Button Content="Active Party Directory" Command="{Binding ViewPartiesListCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34"/>
+                                </StackPanel>
+                            </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Preview Area -->
+                <Border Grid.Column="2" CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="32">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Border Width="72" Height="72" CornerRadius="36" Background="#EEF2FF" Margin="0,0,0,16" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="FileChartOutline" Width="36" Height="36" Foreground="{StaticResource BrushAccentIndigo}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Report Preview Workspace" FontSize="16" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" TextAlignment="Center"/>
+                        <TextBlock Text="Configure parameters on the left and click any report to render the print/export preview." Foreground="{StaticResource BrushTextMuted}" FontSize="13" TextAlignment="Center" Margin="0,6,0,0" MaxWidth="380" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

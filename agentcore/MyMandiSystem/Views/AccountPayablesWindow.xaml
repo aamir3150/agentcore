@@ -1,0 +1,240 @@
+<Window x:Class="MyMandiSystem.Views.AccountPayablesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}" 
+        Height="540" Width="680"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#EAEAEA"
+        FontFamily="Segoe UI" FontSize="13">
+
+    <Window.Resources>
+        <!-- Classic / ERP Styled Button -->
+        <Style x:Key="ClassicReportButton" TargetType="Button">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="MinWidth" Value="88"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Background" Value="#F2F2F2"/>
+            <Setter Property="BorderBrush" Value="#707070"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="3" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="8,4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#E0EEF8"/>
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#0078D7"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#CCE4F7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <DockPanel LastChildFill="True">
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                       HEADER BANNER                        -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border DockPanel.Dock="Top" Height="78" Background="#3B7D23">
+                <Grid>
+                    <!-- Diagonal Overlay Texture Effect -->
+                    <Grid.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#4A9B2C" Offset="0"/>
+                            <GradientStop Color="#2E681A" Offset="0.85"/>
+                            <GradientStop Color="#1D4A0E" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Grid.Background>
+
+                    <!-- Title Header -->
+                    <StackPanel VerticalAlignment="Center" Margin="24,0,0,0">
+                        <TextBlock Text="{Binding HeaderTitle}" FontSize="26" FontWeight="ExtraBold" Foreground="#112200" FontFamily="Georgia">
+                            <TextBlock.Effect>
+                                <DropShadowEffect ShadowDepth="1" BlurRadius="2" Color="#FFFFFF" Opacity="0.5"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- Right Graphic Emblem -->
+                    <Border HorizontalAlignment="Right" Width="100" Height="78" Margin="0,0,16,0" ClipToBounds="True">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <Border Width="48" Height="48" CornerRadius="8" Background="#5BA832" BorderBrush="#8AD85F" BorderThickness="1.5">
+                                <materialDesign:PackIcon Kind="Tractor" Width="30" Height="30" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                     BOTTOM BUTTONS BAR                     -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border DockPanel.Dock="Bottom" Background="#DCDCDC" BorderBrush="#B8B8B8" BorderThickness="0,1,0,0" Padding="14,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <!-- Preview Button -->
+                        <Button Style="{StaticResource ClassicReportButton}" Command="{Binding PreviewCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FileEyeOutline" Width="16" Height="16" Foreground="#005A9E" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="Preview" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Print Button -->
+                        <Button Style="{StaticResource ClassicReportButton}" Command="{Binding PrintCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Printer" Width="16" Height="16" Foreground="#333333" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="Print" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Close Button -->
+                        <Button Style="{StaticResource ClassicReportButton}" Command="{Binding CloseCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="CloseCircle" Width="16" Height="16" Foreground="#D13438" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="Close" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Right Checkboxes (Urdu Print, Send SMS) -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <CheckBox Content="Urdu Print" IsChecked="{Binding UrduPrint}" VerticalAlignment="Center" Margin="0,0,16,0" FontWeight="SemiBold"/>
+                        <CheckBox Content="Send SMS" IsChecked="{Binding SendSMS}" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                      FORM CONTROLS                         -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Grid Background="#F5F5F5" Margin="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Date & Season Row -->
+                    <RowDefinition Height="*"/>    <!-- Filter Grid (Party Type, Group, City, Town, Sector, Amount) -->
+                    <RowDefinition Height="Auto"/> <!-- Sorting & Options -->
+                </Grid.RowDefinitions>
+
+                <!-- 1. Top Section: Date Radios (Left) + Crop Season (Right) -->
+                <Border Grid.Row="0" Background="#ECECEC" BorderBrush="#D0D0D0" BorderThickness="0,0,0,1" Padding="28,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Date Radios -->
+                        <StackPanel Grid.Column="0">
+                            <RadioButton Content="All Dates" IsChecked="{Binding IsAllDates}" Margin="0,2,0,6" FontWeight="SemiBold"/>
+                            
+                            <StackPanel Orientation="Horizontal" Margin="0,2,0,6">
+                                <RadioButton Content="Till Date" IsChecked="{Binding IsTillDate}" FontWeight="SemiBold" Width="90" VerticalAlignment="Center"/>
+                                <DatePicker SelectedDate="{Binding TillDate}" IsEnabled="{Binding IsTillDate}" Width="120" Height="26" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
+                                <RadioButton Content="Date Range" IsChecked="{Binding IsDateRange}" FontWeight="SemiBold" Width="90" VerticalAlignment="Center"/>
+                                <DatePicker SelectedDate="{Binding FromDate}" IsEnabled="{Binding IsDateRange}" Width="110" Height="26" VerticalAlignment="Center"/>
+                                <TextBlock Text="To" VerticalAlignment="Center" Margin="6,0,6,0" IsEnabled="{Binding IsDateRange}"/>
+                                <DatePicker SelectedDate="{Binding ToDate}" IsEnabled="{Binding IsDateRange}" Width="110" Height="26" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Crop Season (Right) -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="20,4,0,0" Width="200">
+                            <TextBlock Text="Crop Season" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding CropSeasons}" SelectedItem="{Binding SelectedCropSeason}" Height="28" Padding="6,2"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 2. Middle Section (Party, City, Town, Sector, Amount) -->
+                <Grid Grid.Row="1" Margin="28,14,28,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Row 1: Party Type (Left) | Party Group (Right) -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                        <TextBlock Text="Party Type" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding PartyTypes}" SelectedItem="{Binding SelectedPartyType}" Height="28" Padding="6,2"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,10">
+                        <TextBlock Text="Party Group" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding PartyGroups}" SelectedItem="{Binding SelectedPartyGroup}" Height="28" Padding="6,2"/>
+                    </StackPanel>
+
+                    <!-- Row 2: Amount Greator Then (Left) | City (Right) -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                        <TextBlock Text="Amount Greator Then" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding AmountGreaterThan, UpdateSourceTrigger=PropertyChanged}" Height="28" VerticalContentAlignment="Center" Padding="6,2" FontWeight="Bold" Foreground="#1E3A8A"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,10">
+                        <TextBlock Text="City" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding Cities}" SelectedItem="{Binding SelectedCity}" Height="28" Padding="6,2"/>
+                    </StackPanel>
+
+                    <!-- Row 3: Town Name (Left) | Sector Name (Right) -->
+                    <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,6">
+                        <TextBlock Text="Town Name" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding Towns}" SelectedItem="{Binding SelectedTown}" Height="28" Padding="6,2"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,6">
+                        <TextBlock Text="Sector Name" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding Sectors}" SelectedItem="{Binding SelectedSector}" Height="28" Padding="6,2"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 3. Bottom Options & Sorting Row -->
+                <Border Grid.Row="2" Background="#ECECEC" BorderBrush="#D0D0D0" BorderThickness="0,1,0,0" Padding="28,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Sorting Radios -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <RadioButton Content="Sort By Account Name" IsChecked="{Binding IsSortByAccountName}" FontWeight="SemiBold" Margin="0,0,20,0"/>
+                            <RadioButton Content="Sort By Account ID" IsChecked="{Binding IsSortByAccountId}" FontWeight="SemiBold"/>
+                        </StackPanel>
+
+                        <!-- Show Only Final Balance -->
+                        <CheckBox Grid.Column="1" Content="Show Only Final Balance" IsChecked="{Binding ShowOnlyFinalBalance}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </DockPanel>
+    </Grid>
+</Window>

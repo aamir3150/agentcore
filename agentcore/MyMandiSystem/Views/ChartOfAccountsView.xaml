@@ -1,0 +1,204 @@
+<UserControl x:Class="MyMandiSystem.Views.ChartOfAccountsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MyMandiSystem.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:core="clr-namespace:MyMandiSystem.Core.Enums;assembly=MyMandiSystem.Core"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1100"
+             TextElement.Foreground="{StaticResource BrushTextPrimary}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             Background="{StaticResource BrushSurfaceBg}"
+             FontFamily="{DynamicResource MaterialDesignFont}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        
+        <ObjectDataProvider x:Key="AccountTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="core:AccountType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </UserControl.Resources>
+
+    <Border Margin="12" Background="#FFFFFF" CornerRadius="16" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Effect="{StaticResource EffectCardShadow}">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="42" Height="42" CornerRadius="10" Background="{StaticResource BrushGradientTeal}" Margin="0,0,12,0" VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="BookOpenPageVariantOutline" Width="24" Height="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Chart of Accounts &amp; Financial Ledger Directory" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                    <TextBlock Text="Manage asset, liability, equity, revenue, and expense accounting heads" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                </StackPanel>
+            </Grid>
+            
+            <!-- Main Content Split -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.3*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="2.7*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- LEFT PANEL: ACCOUNT GROUPS -->
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Border Grid.Row="0" CornerRadius="10" Background="{StaticResource BrushGradientIndigo}" Padding="12,10">
+                        <TextBlock Text="Account Groups" FontSize="14" FontWeight="Bold" Foreground="White"/>
+                    </Border>
+                    
+                    <Border Grid.Row="1" CornerRadius="10" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True" Margin="0,10">
+                        <DataGrid ItemsSource="{Binding AccountGroups}" SelectedItem="{Binding SelectedGroup}" 
+                                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" 
+                                  SelectionMode="Single" SelectionUnit="FullRow"
+                                  Style="{StaticResource ModernDataGrid}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="GROUP NAME" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="TYPE" Binding="{Binding GroupType}" Width="90"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                    
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+                        <Button Content="+ Group" Command="{Binding AddNewGroupCommand}" Style="{StaticResource ModernPrimaryButton}" Height="32" Margin="0,0,6,0"/>
+                        <Button Content="Edit" Command="{Binding EditGroupCommand}" CommandParameter="{Binding SelectedGroup}" Style="{StaticResource ModernSecondaryButton}" Height="32" Margin="0,0,6,0"/>
+                        <Button Content="Delete" Command="{Binding DeleteGroupCommand}" CommandParameter="{Binding SelectedGroup}" Style="{StaticResource ModernDangerButton}" Height="32"/>
+                    </StackPanel>
+                    
+                    <!-- Group Form Card -->
+                    <Border Grid.Row="3" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="14"
+                            Visibility="{Binding IsGroupFormVisible, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+                            <TextBlock Text="Account Group Definition" FontSize="13" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,10"/>
+                            
+                            <TextBox materialDesign:HintAssist.Hint="Group Name" 
+                                     Text="{Binding CurrentGroup.Name, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                            
+                            <ComboBox materialDesign:HintAssist.Hint="Account Type" 
+                                      ItemsSource="{Binding Source={StaticResource AccountTypeEnum}}"
+                                      SelectedItem="{Binding CurrentGroup.GroupType}"
+                                      Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="0,0,0,14"/>
+                                      
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="Cancel" Command="{Binding CancelGroupFormCommand}" Style="{StaticResource ModernSecondaryButton}" Height="32" Margin="0,0,6,0"/>
+                                <Button Content="Save" Command="{Binding SaveGroupCommand}" Style="{StaticResource ModernPrimaryButton}" Height="32"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- RIGHT PANEL: ACCOUNTS IN GROUP -->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Border Grid.Row="0" CornerRadius="10" Background="{StaticResource BrushGradientTeal}" Padding="12,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding SelectedGroup.Name, FallbackValue='Select an Account Group'}" FontSize="14" FontWeight="Bold" Foreground="White"/>
+                            <TextBlock Text=" — General Ledger Accounts" FontSize="14" Foreground="#E6FFFA"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Border Grid.Row="1" CornerRadius="10" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True" Margin="0,10">
+                        <DataGrid ItemsSource="{Binding FilteredAccounts}" SelectedItem="{Binding SelectedAccount}" 
+                                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" 
+                                  SelectionMode="Single" SelectionUnit="FullRow"
+                                  Style="{StaticResource ModernDataGrid}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="A/C NO" Binding="{Binding AccountNo}" Width="90"/>
+                                <DataGridTextColumn Header="ACCOUNT TITLE" Binding="{Binding Name}" Width="2*"/>
+                                <DataGridTextColumn Header="URDU TITLE" Binding="{Binding UrduName}" Width="1.5*"/>
+                                <DataGridTextColumn Header="BALANCE (PKR)" Binding="{Binding CurrentBalance, StringFormat=N2}" Width="130">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridCheckBoxColumn Header="ACTIVE" Binding="{Binding IsActive}" Width="65"/>
+                                <DataGridCheckBoxColumn Header="SYSTEM" Binding="{Binding IsSystemAccount}" Width="65"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                    
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+                        <Button Content="+ Add Account" Command="{Binding AddNewAccountCommand}" Style="{StaticResource ModernPrimaryButton}" Height="32" Margin="0,0,6,0"/>
+                        <Button Content="Edit" Command="{Binding EditAccountCommand}" CommandParameter="{Binding SelectedAccount}" Style="{StaticResource ModernSecondaryButton}" Height="32" Margin="0,0,6,0"/>
+                        <Button Content="Delete" Command="{Binding DeleteAccountCommand}" CommandParameter="{Binding SelectedAccount}" Style="{StaticResource ModernDangerButton}" Height="32"/>
+                    </StackPanel>
+                    
+                    <!-- Account Form Card -->
+                    <Border Grid.Row="3" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="14"
+                            Visibility="{Binding IsAccountFormVisible, Converter={StaticResource BoolToVis}}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Account Ledger Details" FontSize="13" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,10"/>
+                            
+                            <TextBox Grid.Row="1" Grid.Column="0" materialDesign:HintAssist.Hint="Account No (Unique)" 
+                                     Text="{Binding CurrentAccount.AccountNo, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                     
+                            <TextBox Grid.Row="1" Grid.Column="2" materialDesign:HintAssist.Hint="Opening Balance (PKR)" 
+                                     Text="{Binding CurrentAccount.OpeningBalance, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+
+                            <TextBox Grid.Row="2" Grid.Column="0" materialDesign:HintAssist.Hint="Account Title (English)" 
+                                     Text="{Binding CurrentAccount.Name, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,12"/>
+
+                            <TextBox Grid.Row="2" Grid.Column="2" materialDesign:HintAssist.Hint="Account Title (اردو نام)" 
+                                     Text="{Binding CurrentAccount.UrduName, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,12" FontFamily="Urdu Typesetting, Arial"/>
+                                     
+                            <CheckBox Grid.Row="3" Grid.Column="0" Content="Active Account Status" IsChecked="{Binding CurrentAccount.IsActive}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+
+                            <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="Cancel" Command="{Binding CancelAccountFormCommand}" Style="{StaticResource ModernSecondaryButton}" Height="32" Margin="0,0,6,0"/>
+                                <Button Content="Save Account" Command="{Binding SaveAccountCommand}" Style="{StaticResource ModernPrimaryButton}" Height="32"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

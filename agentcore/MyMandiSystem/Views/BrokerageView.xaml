@@ -1,0 +1,224 @@
+<UserControl x:Class="MyMandiSystem.Views.BrokerageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MyMandiSystem.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1100"
+             TextElement.Foreground="{StaticResource BrushTextPrimary}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             Background="{StaticResource BrushSurfaceBg}"
+             FontFamily="{DynamicResource MaterialDesignFont}">
+    
+    <Border Margin="12" Background="#FFFFFF" CornerRadius="16" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Effect="{StaticResource EffectCardShadow}">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header Banner -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="42" Height="42" CornerRadius="10" Background="{StaticResource BrushGradientAmber}" Margin="0,0,12,0" VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="HandshakeOutline" Width="24" Height="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Brokerage, Contracts &amp; Commodity Trade" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                    <TextBlock Text="Manage purchase contracts, weighbridge gate passes, and commission settlement invoices" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                </StackPanel>
+            </Grid>
+
+            <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex}" BorderThickness="0" Background="Transparent">
+                
+                <!-- CONTRACTS TAB -->
+                <TabItem Header="Trade Contracts">
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="360"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Entry Form Card -->
+                        <Border CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="Contract Details" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
+                                <TextBox materialDesign:HintAssist.Hint="Contract No" Text="{Binding SelectedContract.ContractNo}" IsReadOnly="True" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                <DatePicker materialDesign:HintAssist.Hint="Contract Date" SelectedDate="{Binding SelectedContract.ContractDate}" Style="{StaticResource MaterialDesignFloatingHintDatePicker}" Margin="0,0,0,10"/>
+                                
+                                <ComboBox materialDesign:HintAssist.Hint="Select Buyer / Seller Party" ItemsSource="{Binding Parties}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedContract.PartyId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="0,0,0,10"/>
+                                
+                                <ComboBox materialDesign:HintAssist.Hint="Commodity / Product" ItemsSource="{Binding Products}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedContract.ProductId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="0,0,10,10"/>
+                                
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                    <TextBox materialDesign:HintAssist.Hint="Quantity (Bags/Kg)" Text="{Binding SelectedContract.Quantity}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                    <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Rate / Price (PKR)" Text="{Binding SelectedContract.Rate}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                </Grid>
+                                
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                                    <Button Content="New Contract" Command="{Binding NewContractCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,8,0"/>
+                                    <Button Content="Save Contract" Command="{Binding SaveContractCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Search/List Table -->
+                        <Border Grid.Column="2" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                            <DataGrid ItemsSource="{Binding Contracts}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" SelectionMode="Single"
+                                      Style="{StaticResource ModernDataGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="NO" Binding="{Binding ContractNo}" Width="90"/>
+                                    <DataGridTextColumn Header="DATE" Binding="{Binding ContractDate, StringFormat=d}" Width="100"/>
+                                    <DataGridTextColumn Header="TRADING PARTY" Binding="{Binding Party.Name}" Width="*"/>
+                                    <DataGridTextColumn Header="PRODUCT" Binding="{Binding Product.Name}" Width="130"/>
+                                    <DataGridTextColumn Header="QTY" Binding="{Binding Quantity}" Width="80"/>
+                                    <DataGridTextColumn Header="FULFILLED" Binding="{Binding FulfilledQty}" Width="80"/>
+                                    <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="100"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <!-- GATE PASS TAB -->
+                <TabItem Header="Gate Pass &amp; Arrivals">
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="360"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="Incoming Vehicle Entry" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
+                                <TextBox materialDesign:HintAssist.Hint="Gate Pass No" Text="{Binding SelectedGatePass.GatePassNo}" IsReadOnly="True" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="8"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                    <TextBox materialDesign:HintAssist.Hint="Vehicle / Truck No" Text="{Binding SelectedGatePass.VehicleNo}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                    <DatePicker Grid.Column="2" materialDesign:HintAssist.Hint="Arrival Date" SelectedDate="{Binding SelectedGatePass.GatePassDate}" Style="{StaticResource MaterialDesignFloatingHintDatePicker}"/>
+                                </Grid>
+
+                                <ComboBox materialDesign:HintAssist.Hint="Party" ItemsSource="{Binding Parties}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedGatePass.PartyId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="0,0,0,10"/>
+                                <ComboBox materialDesign:HintAssist.Hint="Commodity" ItemsSource="{Binding Products}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedGatePass.ProductId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="0,0,0,10"/>
+
+                                <Grid Margin="0,0,0,14">
+                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="8"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                    <TextBox materialDesign:HintAssist.Hint="Gross Weight" Text="{Binding SelectedGatePass.GrossWeight}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                    <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Tare Weight" Text="{Binding SelectedGatePass.TareWeight}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                </Grid>
+                                
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="New Entry" Command="{Binding NewGatePassCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,8,0"/>
+                                    <Button Content="Save Gate Pass" Command="{Binding SaveGatePassCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                            <DataGrid ItemsSource="{Binding GatePasses}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                                      Style="{StaticResource ModernDataGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="PASS NO" Binding="{Binding GatePassNo}" Width="100"/>
+                                    <DataGridTextColumn Header="VEHICLE NO" Binding="{Binding VehicleNo}" Width="110"/>
+                                    <DataGridTextColumn Header="PARTY" Binding="{Binding Party.Name}" Width="*"/>
+                                    <DataGridTextColumn Header="NET WEIGHT" Binding="{Binding NetWeight}" Width="110"/>
+                                    <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="100"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <!-- INVOICING TAB -->
+                <TabItem Header="Settlement Invoices">
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="400"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="16">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Text="Create Settlement Invoice" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
+                                    
+                                    <ComboBox materialDesign:HintAssist.Hint="Link to Contract" 
+                                              ItemsSource="{Binding Contracts}" 
+                                              DisplayMemberPath="ContractNo" 
+                                              SelectedValuePath="Id" 
+                                              SelectedValue="{Binding CurrentInvoice.ContractId}" 
+                                              Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="0,0,0,10"/>
+
+                                    <DatePicker materialDesign:HintAssist.Hint="Invoice Date" SelectedDate="{Binding CurrentInvoice.InvoiceDate}" Style="{StaticResource MaterialDesignFloatingHintDatePicker}" Margin="0,0,0,12"/>
+
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="8"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                        <TextBox materialDesign:HintAssist.Hint="Gross Amount" Text="{Binding CurrentInvoice.GrossAmount}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                        <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Commission" Text="{Binding CurrentInvoice.CommissionAmount}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                    </Grid>
+
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="8"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                        <TextBox materialDesign:HintAssist.Hint="WHT Amount" Text="{Binding CurrentInvoice.WHT_Amount}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                        <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Soodh / Int." Text="{Binding CurrentInvoice.Soodh_Amount}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                    </Grid>
+
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="8"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                        <TextBox materialDesign:HintAssist.Hint="Labor Charges" Text="{Binding CurrentInvoice.LaborCharges}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                        <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Mkt Fee" Text="{Binding CurrentInvoice.MarketCommitteeFee}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                    </Grid>
+
+                                    <Border Background="#ECFDF5" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="10" Padding="12,8" Margin="0,4,0,14">
+                                        <Grid>
+                                            <TextBlock Text="NET PAYABLE" FontWeight="Bold" Foreground="#065F46" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding CurrentInvoice.NetAmount, StringFormat=N2}" HorizontalAlignment="Right" FontSize="18" FontWeight="Black" Foreground="{StaticResource BrushAccentEmerald}"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="New" Command="{Binding NewInvoiceCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,6,0"/>
+                                        <Button Content="Post Ledger" Command="{Binding PostInvoiceCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,6,0"/>
+                                        <Button Content="Save Invoice" Command="{Binding SaveInvoiceCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+
+                        <Border Grid.Column="2" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                            <DataGrid ItemsSource="{Binding Invoices}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                                      Style="{StaticResource ModernDataGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="INV NO" Binding="{Binding InvoiceNo}" Width="100"/>
+                                    <DataGridTextColumn Header="DATE" Binding="{Binding InvoiceDate, StringFormat=d}" Width="100"/>
+                                    <DataGridTextColumn Header="PARTY" Binding="{Binding Party.Name}" Width="*"/>
+                                    <DataGridTextColumn Header="NET AMOUNT" Binding="{Binding NetAmount, StringFormat=N2}" Width="130">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="Foreground" Value="{StaticResource BrushAccentEmerald}"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridCheckBoxColumn Header="POSTED" Binding="{Binding IsPosted}" Width="70"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Border>
+</UserControl>

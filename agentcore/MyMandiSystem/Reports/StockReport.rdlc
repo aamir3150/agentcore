@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2008/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Body>
+    <ReportItems>
+      <Tablix Name="Tablix1">
+        <TablixBody>
+          <TablixColumns>
+            <TablixColumn><Width>1in</Width></TablixColumn>
+            <TablixColumn><Width>2.5in</Width></TablixColumn>
+            <TablixColumn><Width>1in</Width></TablixColumn>
+            <TablixColumn><Width>1in</Width></TablixColumn>
+            <TablixColumn><Width>1in</Width></TablixColumn>
+          </TablixColumns>
+          <TablixRows>
+            <TablixRow>
+              <Height>0.25in</Height>
+              <TablixCells>
+                <TablixCell><CellContents><Textbox Name="Textbox1"><Value>Code</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="Textbox2"><Value>Product Name</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="Textbox3"><Value>Qty In</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="Textbox4"><Value>Qty Out</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="Textbox5"><Value>Balance</Value></Textbox></CellContents></TablixCell>
+              </TablixCells>
+            </TablixRow>
+            <TablixRow>
+              <Height>0.25in</Height>
+              <TablixCells>
+                <TablixCell><CellContents><Textbox Name="ProductCode"><Value>=Fields!ProductCode.Value</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="Name"><Value>=Fields!Name.Value</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="TotalIn"><Value>=Fields!TotalIn.Value</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="TotalOut"><Value>=Fields!TotalOut.Value</Value></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="CurrentStock"><Value>=Fields!CurrentStock.Value</Value></Textbox></CellContents></TablixCell>
+              </TablixCells>
+            </TablixRow>
+          </TablixRows>
+        </TablixBody>
+        <TablixColumnHierarchy><TablixMembers><TablixMember /><TablixMember /><TablixMember /><TablixMember /><TablixMember /></TablixMembers></TablixColumnHierarchy>
+        <TablixRowHierarchy>
+          <TablixMembers>
+            <TablixMember><KeepWithGroup>After</KeepWithGroup></TablixMember>
+            <TablixMember><Group Name="Details" /></TablixMember>
+          </TablixMembers>
+        </TablixRowHierarchy>
+        <DataSetName>DataSet1</DataSetName>
+      </Tablix>
+      <Textbox Name="Title">
+        <Value>INVENTORY STOCK SUMMARY</Value>
+        <Top>0in</Top><Height>0.4in</Height><Width>6.5in</Width>
+      </Textbox>
+    </ReportItems>
+    <Height>2in</Height>
+  </Body>
+  <DataSources>
+    <DataSource Name="DataSource1">
+      <ConnectionProperties>
+        <DataProvider>System.Data.DataSet</DataProvider>
+        <ConnectString>/* Local Connection */</ConnectString>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="DataSet1">
+      <Query><DataSourceName>DataSource1</DataSourceName><CommandText>/* Local Query */</CommandText></Query>
+      <Fields>
+        <Field Name="ProductCode"><DataField>ProductCode</DataField><rd:TypeName>System.String</rd:TypeName></Field>
+        <Field Name="Name"><DataField>Name</DataField><rd:TypeName>System.String</rd:TypeName></Field>
+        <Field Name="TotalIn"><DataField>TotalIn</DataField><rd:TypeName>System.Decimal</rd:TypeName></Field>
+        <Field Name="TotalOut"><DataField>TotalOut</DataField><rd:TypeName>System.Decimal</rd:TypeName></Field>
+        <Field Name="CurrentStock"><DataField>CurrentStock</DataField><rd:TypeName>System.Decimal</rd:TypeName></Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+</Report>

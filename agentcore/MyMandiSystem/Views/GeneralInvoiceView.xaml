@@ -1,0 +1,190 @@
+<UserControl x:Class="MyMandiSystem.Views.GeneralInvoiceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MyMandiSystem.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="750" d:DesignWidth="1100"
+             TextElement.Foreground="{StaticResource BrushTextPrimary}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             Background="{StaticResource BrushSurfaceBg}"
+             FontFamily="{DynamicResource MaterialDesignFont}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+    
+    <Border Margin="12" Background="#FFFFFF" CornerRadius="16" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Effect="{StaticResource EffectCardShadow}">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- TITLE AND ACTIONS -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Width="42" Height="42" CornerRadius="10" Background="{StaticResource BrushGradientSky}" Margin="0,0,12,0" VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="FileDocumentMultipleOutline" Width="24" Height="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Title, FallbackValue='General Trade Invoicing'}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                    <TextBlock Text="Standard goods purchases, multi-item sales, and returns" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="New Invoice" Command="{Binding NewInvoiceCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,8,0"/>
+                    <Button Content="Post to GL" Command="{Binding PostInvoiceCommand}" Style="{StaticResource ModernSuccessButton}" Height="34"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- HEADER INFO CARD -->
+            <Border Grid.Row="1" CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="16" Margin="0,0,0,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="220"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox materialDesign:HintAssist.Hint="Invoice Number" Text="{Binding CurrentInvoice.InvoiceNo}" IsReadOnly="True" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                    
+                    <DatePicker Grid.Column="2" materialDesign:HintAssist.Hint="Invoice Date" SelectedDate="{Binding CurrentInvoice.InvoiceDate}" Style="{StaticResource MaterialDesignFloatingHintDatePicker}"/>
+
+                    <ComboBox Grid.Column="4" materialDesign:HintAssist.Hint="Trading Party (Customer / Vendor)" 
+                              ItemsSource="{Binding Parties}" 
+                              DisplayMemberPath="Name" 
+                              SelectedValuePath="Id" 
+                              SelectedValue="{Binding CurrentInvoice.PartyId}" 
+                              Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                              materialDesign:TextFieldAssist.HasClearButton="True"/>
+
+                    <TextBox Grid.Column="6" materialDesign:HintAssist.Hint="Search Item (F1 Quick Lookup)" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                </Grid>
+            </Border>
+
+            <!-- ITEMS GRID -->
+            <Border Grid.Row="2" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                <DataGrid ItemsSource="{Binding InvoiceDetails}" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single"
+                          Style="{StaticResource ModernDataGrid}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#" Binding="{Binding LineNo}" IsReadOnly="True" Width="45"/>
+                        <DataGridTemplateColumn Header="COMMODITY / ITEM" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Product.Name}" Padding="4" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding DataContext.Products, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                              SelectedValue="{Binding ProductId}" 
+                                              SelectedValuePath="Id" 
+                                              DisplayMemberPath="Name" 
+                                              IsEditable="True"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+                        
+                        <DataGridTemplateColumn Header="QUANTITY" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate><TextBlock Text="{Binding Quantity}" TextAlignment="Right" Padding="4" VerticalAlignment="Center"/></DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate><TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right"/></DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="RATE (PKR)" Width="130">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate><TextBlock Text="{Binding Rate, StringFormat=N2}" TextAlignment="Right" Padding="4" VerticalAlignment="Center"/></DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate><TextBox Text="{Binding Rate, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right"/></DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="LINE TOTAL (PKR)" Binding="{Binding Amount, StringFormat=N2}" IsReadOnly="True" Width="160">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="Padding" Value="0,0,10,0"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Foreground" Value="{StaticResource BrushAccentEmerald}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTemplateColumn Width="50">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                            CommandParameter="{Binding}" 
+                                            Background="Transparent" BorderThickness="0" Padding="0" Cursor="Hand">
+                                        <materialDesign:PackIcon Kind="TrashCanOutline" Foreground="{StaticResource BrushAccentRose}" Width="18" Height="18"/>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- FOOTER: TOTALS -->
+            <Border Grid.Row="3" CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="16" Margin="0,14,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="380"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                         <Button Content="+ Add Line Item" Command="{Binding AddRowCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1">
+                        <Grid Margin="0,0,0,4">
+                            <TextBlock Text="Sub Total:" VerticalAlignment="Center" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
+                            <TextBlock Text="{Binding CurrentInvoice.SubTotal, StringFormat=₨ {0:N2}}" HorizontalAlignment="Right" FontWeight="Bold" FontSize="13"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,4">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Tax / WHT (" VerticalAlignment="Center" FontSize="12.5" Foreground="{StaticResource BrushTextSecondary}"/>
+                                <TextBox Text="{Binding CurrentInvoice.TaxPercentage, UpdateSourceTrigger=PropertyChanged}" Width="32" TextAlignment="Center" FontSize="12"/>
+                                <TextBlock Text="%):" VerticalAlignment="Center" FontSize="12.5" Foreground="{StaticResource BrushTextSecondary}"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding CurrentInvoice.TaxAmount, StringFormat=₨ {0:N2}}" HorizontalAlignment="Right" FontWeight="Bold" FontSize="13"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,8">
+                            <TextBlock Text="Discount Allowed:" VerticalAlignment="Center" FontSize="12.5" Foreground="{StaticResource BrushTextSecondary}"/>
+                            <TextBox Text="{Binding CurrentInvoice.DiscountAmount, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Right" TextAlignment="Right" FontSize="12"/>
+                        </Grid>
+
+                        <Border Background="#ECFDF5" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="8" Padding="10,6">
+                            <Grid>
+                                <TextBlock Text="GRAND TOTAL:" FontWeight="Bold" Foreground="#065F46" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding CurrentInvoice.GrandTotal, StringFormat=₨ {0:N2}}" HorizontalAlignment="Right" FontSize="16" FontWeight="Black" Foreground="{StaticResource BrushAccentEmerald}"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,243 @@
+<UserControl x:Class="MyMandiSystem.Views.PartyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MyMandiSystem.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:core="clr-namespace:MyMandiSystem.Core.Entities;assembly=MyMandiSystem.Core"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1100"
+             TextElement.Foreground="{StaticResource BrushTextPrimary}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             Background="{StaticResource BrushSurfaceBg}"
+             FontFamily="{DynamicResource MaterialDesignFont}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        
+        <ObjectDataProvider x:Key="PartyTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="core:PartyType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </UserControl.Resources>
+
+    <Border Margin="12" Background="#FFFFFF" CornerRadius="16" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Effect="{StaticResource EffectCardShadow}">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header Banner -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="42" Height="42" CornerRadius="10" Background="{StaticResource BrushGradientIndigo}" Margin="0,0,12,0" VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="AccountGroupOutline" Width="24" Height="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Party &amp; Stakeholder Directory" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                    <TextBlock Text="Manage customers, vendors, agents, and sales representatives" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                </StackPanel>
+            </Grid>
+
+            <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex}" BorderThickness="0" Background="Transparent">
+                
+                <!-- CUSTOMERS TAB -->
+                <TabItem Header="Customers">
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="1.5*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Table Card -->
+                        <Border Grid.Column="0" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                            <DataGrid ItemsSource="{Binding FilteredParties}" SelectedItem="{Binding SelectedParty}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" SelectionMode="Single"
+                                      Style="{StaticResource ModernDataGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="CODE" Binding="{Binding PartyNo}" Width="90"/>
+                                    <DataGridTextColumn Header="CUSTOMER NAME" Binding="{Binding Name}" Width="*"/>
+                                    <DataGridTextColumn Header="TOWN" Binding="{Binding Town.Name}" Width="120"/>
+                                    <DataGridTextColumn Header="PHONE" Binding="{Binding Phone}" Width="120"/>
+                                    <DataGridCheckBoxColumn Header="ACTIVE" Binding="{Binding IsActive}" Width="70"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+
+                        <!-- Right Panel: Actions & Form -->
+                        <StackPanel Grid.Column="2">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+                                <Button Content="+ Add Customer" Command="{Binding AddPartyCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34" Margin="0,0,6,0"/>
+                                <Button Content="Edit" Command="{Binding EditPartyCommand}" CommandParameter="{Binding SelectedParty}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,6,0"/>
+                                <Button Content="Delete" Command="{Binding DeletePartyCommand}" CommandParameter="{Binding SelectedParty}" Style="{StaticResource ModernDangerButton}" Height="34"/>
+                            </StackPanel>
+                            
+                            <Border CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="16" Visibility="{Binding IsFormVisible, Converter={StaticResource BoolToVis}}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="460">
+                                    <StackPanel>
+                                        <TextBlock Text="Customer Information" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
+                                        
+                                        <TextBox materialDesign:HintAssist.Hint="Customer Name" Text="{Binding CurrentParty.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                        <TextBox materialDesign:HintAssist.Hint="Urdu Name (اردو نام)" Text="{Binding CurrentParty.UrduName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10" FontFamily="Urdu Typesetting, Arial"/>
+                                        
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                            <ComboBox Grid.Column="0" materialDesign:HintAssist.Hint="Town" ItemsSource="{Binding Towns}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding CurrentParty.TownId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+                                            <ComboBox Grid.Column="2" materialDesign:HintAssist.Hint="Sector" ItemsSource="{Binding Sectors}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding CurrentParty.SectorId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+                                        </Grid>
+                                        
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                            <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Phone Number" Text="{Binding CurrentParty.Phone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                            <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="CNIC" Text="{Binding CurrentParty.CNIC, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                        </Grid>
+
+                                        <TextBox materialDesign:HintAssist.Hint="Full Address" Text="{Binding CurrentParty.Address, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                        
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                            <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Credit Limit" Text="{Binding CurrentParty.CreditLimit, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                            <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="WHT %" Text="{Binding CurrentParty.WHT_Percentage, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                            <ComboBox Grid.Column="0" materialDesign:HintAssist.Hint="Party Type" ItemsSource="{Binding Source={StaticResource PartyTypeEnum}}" SelectedItem="{Binding CurrentParty.PartyType}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+                                            <ComboBox Grid.Column="2" materialDesign:HintAssist.Hint="Party Group" ItemsSource="{Binding PartyGroups}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding CurrentParty.PartyGroupId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+                                        </Grid>
+                                        
+                                        <CheckBox Content="Active Customer Status" IsChecked="{Binding CurrentParty.IsActive}" Margin="0,0,0,14" FontWeight="SemiBold"/>
+
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button Content="Cancel" Command="{Binding CancelPartyCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,8,0"/>
+                                            <Button Content="Save Customer" Command="{Binding SavePartyCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
+                <!-- VENDORS TAB -->
+                <TabItem Header="Vendors">
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="1.5*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Grid.Column="0" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                            <DataGrid ItemsSource="{Binding FilteredParties}" SelectedItem="{Binding SelectedParty}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" SelectionMode="Single"
+                                      Style="{StaticResource ModernDataGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="CODE" Binding="{Binding PartyNo}" Width="90"/>
+                                    <DataGridTextColumn Header="VENDOR NAME" Binding="{Binding Name}" Width="*"/>
+                                    <DataGridTextColumn Header="TOWN" Binding="{Binding Town.Name}" Width="120"/>
+                                    <DataGridTextColumn Header="PHONE" Binding="{Binding Phone}" Width="120"/>
+                                    <DataGridCheckBoxColumn Header="ACTIVE" Binding="{Binding IsActive}" Width="70"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+
+                        <StackPanel Grid.Column="2">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+                                <Button Content="+ Add Vendor" Command="{Binding AddPartyCommand}" Style="{StaticResource ModernSuccessButton}" Height="34" Margin="0,0,6,0"/>
+                                <Button Content="Edit" Command="{Binding EditPartyCommand}" CommandParameter="{Binding SelectedParty}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,6,0"/>
+                                <Button Content="Delete" Command="{Binding DeletePartyCommand}" CommandParameter="{Binding SelectedParty}" Style="{StaticResource ModernDangerButton}" Height="34"/>
+                            </StackPanel>
+                            
+                            <Border CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="16" Visibility="{Binding IsFormVisible, Converter={StaticResource BoolToVis}}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="460">
+                                    <StackPanel>
+                                        <TextBlock Text="Vendor Information" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
+                                        <TextBox materialDesign:HintAssist.Hint="Vendor Name" Text="{Binding CurrentParty.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                        <TextBox materialDesign:HintAssist.Hint="Urdu Name (اردو نام)" Text="{Binding CurrentParty.UrduName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10" FontFamily="Urdu Typesetting, Arial"/>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                            <ComboBox Grid.Column="0" materialDesign:HintAssist.Hint="Town" ItemsSource="{Binding Towns}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding CurrentParty.TownId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+                                            <ComboBox Grid.Column="2" materialDesign:HintAssist.Hint="Sector" ItemsSource="{Binding Sectors}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding CurrentParty.SectorId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+                                        </Grid>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                            <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Phone Number" Text="{Binding CurrentParty.Phone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                            <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="CNIC" Text="{Binding CurrentParty.CNIC, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                                        </Grid>
+                                        <TextBox materialDesign:HintAssist.Hint="Full Address" Text="{Binding CurrentParty.Address, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                            <ComboBox Grid.Column="0" materialDesign:HintAssist.Hint="Party Type" ItemsSource="{Binding Source={StaticResource PartyTypeEnum}}" SelectedItem="{Binding CurrentParty.PartyType}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+                                            <ComboBox Grid.Column="2" materialDesign:HintAssist.Hint="Party Group" ItemsSource="{Binding PartyGroups}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding CurrentParty.PartyGroupId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+                                        </Grid>
+                                        <CheckBox Content="Active Vendor Status" IsChecked="{Binding CurrentParty.IsActive}" Margin="0,0,0,14" FontWeight="SemiBold"/>
+
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button Content="Cancel" Command="{Binding CancelPartyCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,8,0"/>
+                                            <Button Content="Save Vendor" Command="{Binding SavePartyCommand}" Style="{StaticResource ModernSuccessButton}" Height="34"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
+                <!-- SALESMEN TAB -->
+                <TabItem Header="Sales Representatives">
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Grid.Column="0" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                            <DataGrid ItemsSource="{Binding Salesmen}" SelectedItem="{Binding SelectedSalesman}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" SelectionMode="Single"
+                                      Style="{StaticResource ModernDataGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                                    <DataGridTextColumn Header="SALESMAN NAME" Binding="{Binding Name}" Width="*"/>
+                                    <DataGridTextColumn Header="PHONE" Binding="{Binding Phone}" Width="150"/>
+                                    <DataGridTextColumn Header="COMMISSION %" Binding="{Binding CommissionRate}" Width="120"/>
+                                    <DataGridCheckBoxColumn Header="ACTIVE" Binding="{Binding IsActive}" Width="70"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+
+                        <StackPanel Grid.Column="2">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+                                <Button Content="+ Add Salesman" Command="{Binding AddSalesmanCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34" Margin="0,0,6,0"/>
+                                <Button Content="Edit" Command="{Binding EditSalesmanCommand}" CommandParameter="{Binding SelectedSalesman}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,6,0"/>
+                                <Button Content="Delete" Command="{Binding DeleteSalesmanCommand}" CommandParameter="{Binding SelectedSalesman}" Style="{StaticResource ModernDangerButton}" Height="34"/>
+                            </StackPanel>
+                            
+                            <Border CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="16" Visibility="{Binding IsSalesmanFormVisible, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="Sales Representative Information" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Full Name" Text="{Binding CurrentSalesman.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Phone Number" Text="{Binding CurrentSalesman.Phone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Commission Rate (%)" Text="{Binding CurrentSalesman.CommissionRate, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,14"/>
+                                    <CheckBox Content="Active Salesman Status" IsChecked="{Binding CurrentSalesman.IsActive}" Margin="0,0,0,14" FontWeight="SemiBold"/>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="Cancel" Command="{Binding CancelSalesmanCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,8,0"/>
+                                        <Button Content="Save Salesman" Command="{Binding SaveSalesmanCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
+            </TabControl>
+        </Grid>
+    </Border>
+</UserControl>

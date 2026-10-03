@@ -1,0 +1,1402 @@
+<Window x:Class="MyMandiSystem.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MyMandiSystem"
+        xmlns:viewmodels="clr-namespace:MyMandiSystem.ViewModels"
+        xmlns:views="clr-namespace:MyMandiSystem.Views"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="agentcore - Enterprise Management System" 
+        Height="880" Width="1360" MinHeight="750" MinWidth="1150"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BrushSurfaceBg}"
+        TextElement.Foreground="{StaticResource BrushTextPrimary}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        FontFamily="{DynamicResource MaterialDesignFont}">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
+
+    <Grid>
+        <!-- APP SHELL CONTAINER -->
+        <DockPanel LastChildFill="True">
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                   TOP APP HEADER & BRANDING                -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="0,0,0,1" Padding="16,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Brand / App Logo -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="42" Height="42" CornerRadius="10" Background="{StaticResource BrushGradientTeal}" Margin="0,0,12,0">
+                            <materialDesign:PackIcon Kind="HexagonMultiple" Width="24" Height="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="AGENTCORE" FontSize="18" FontWeight="Black" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                <Border Background="{StaticResource BrushAccentIndigo}" CornerRadius="4" Margin="6,2,0,2" Padding="6,1">
+                                    <TextBlock Text="ERP" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                </Border>
+                            </StackPanel>
+                            <TextBlock Text="Commodity Trade &amp; Financial Management System" FontSize="11" Foreground="{StaticResource BrushTextSecondary}" FontWeight="Medium"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Center Search / Quick Info Pill -->
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                        <Border Background="#F1F5F9" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" CornerRadius="20" Padding="14,6">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Magnify" Width="16" Height="16" Foreground="{StaticResource BrushTextMuted}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="Quick Search (Accounts, Vouchers, Invoices...)" FontSize="12" Foreground="{StaticResource BrushTextMuted}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Top Right Quick Info Chips -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        
+                        <!-- Financial Year Chip -->
+                        <Border Background="#EEF2FF" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="8" Padding="10,5" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="CalendarRange" Width="15" Height="15" Foreground="{StaticResource BrushAccentIndigo}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="{Binding CurrentYearDisplay}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrushAccentIndigoDark}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Live Digital Clock Chip -->
+                        <Border Background="#ECFDF5" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="8" Padding="10,5" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="ClockOutline" Width="15" Height="15" Foreground="{StaticResource BrushAccentEmerald}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="{Binding CurrentTime}" FontSize="12" FontWeight="Bold" Foreground="#047857" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Archive Warning Chip (If Any) -->
+                        <Border Background="#FEF3C7" BorderBrush="#FDE68A" BorderThickness="1" CornerRadius="8" Padding="10,5" Margin="0,0,8,0"
+                                Visibility="{Binding IsArchiveMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="{Binding ArchiveWarning}" FontSize="11" FontWeight="Bold" Foreground="#B45309" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- User Profile Chip -->
+                        <Border Background="#F8FAFC" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" CornerRadius="20" Padding="8,4">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="28" Height="28" CornerRadius="14" Background="{StaticResource BrushGradientIndigo}" Margin="0,0,8,0">
+                                    <materialDesign:PackIcon Kind="Account" Width="16" Height="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center" Margin="0,0,4,0">
+                                    <TextBlock Text="{Binding CurrentUser}" FontSize="12" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                    <TextBlock Text="Administrator" FontSize="10" Foreground="{StaticResource BrushTextMuted}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                   MODERN FLAT MENU BAR                     -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border DockPanel.Dock="Top" Background="#FAFAFA" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="0,0,0,1">
+                <Menu Background="Transparent" Padding="10,2" FontSize="13" Foreground="{StaticResource BrushPrimarySlate}">
+                    
+                    <MenuItem Header="_File">
+                        <MenuItem Header="_Users" Command="{Binding UsersCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AccountGroup" /></MenuItem.Icon>
+                            <MenuItem Header="Manage Users" />
+                        </MenuItem>
+                        <MenuItem Header="_Configuration" Command="{Binding ConfigurationCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Settings" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Backup Database" Command="{Binding BackupDatabaseCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="DatabaseSync" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Refresh System" Command="{Binding RefreshSystemCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Refresh" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Expense Type _Purchase" Command="{Binding ExpenseTypePurchaseCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="CashSync" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Expense Type _Sale" Command="{Binding ExpenseTypeSaleCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="CashFast" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Port Setting" Command="{Binding PortSettingCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="SerialPort" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Re _Calculate Stock" Command="{Binding ReCalculateStockCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Calculator" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_SMS Sending" Command="{Binding SmsSendingCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="MessageText" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Log off" Command="{Binding LogOffCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Logout" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="E_xit" Command="{Binding ExitCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Power" /></MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+
+                    <MenuItem Header="_Transaction">
+                        <MenuItem Header="_Cheque Book Generation" Command="{Binding ChequeBookGenerationCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="TicketOutline" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Bank Cheques _Editing" Command="{Binding BankChequesEditingCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="TicketOutline" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Bank Cheques _Issuing" Command="{Binding BankChequesIssuingCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Bank" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Bank Cheques _Reconciliation" Command="{Binding BankChequesReconciliationCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="BankCheck" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Cash _Deposit in Bank" Command="{Binding CashDepositBankCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="BankTransfer" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Cheque Deposit in Bank" Command="{Binding ChequeDepositBankCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="BankTransfer" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Deposit _Reconciliation" Command="{Binding DepositReconciliationCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="BankCheck" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Cash _Receiving Voucher" Command="{Binding CashReceivingVoucherEntryCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="CashPlus" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Cash _Payment Voucher" Command="{Binding CashPaymentVoucherEntryCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="CashMinus" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Cash Payment Voucher (_WHT)" Command="{Binding CashPaymentVoucherWhtEntryCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileDocumentOutline" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Journal Voucher" Command="{Binding JournalVoucherEntryCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Notebook" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Profit &amp; Loss Settings" Command="{Binding ProfitLossSettingsCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ChartBoxOutline" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Balance _Sheet Report Settings" Command="{Binding BalanceSheetSettingsCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ChartTimeline" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Expense Report Settings" Command="{Binding ExpenseReportSettingsCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ChartBar" /></MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+
+                    <MenuItem Header="_Catalog">
+                        <MenuItem Header="_Companies" Command="{Binding CompaniesDefCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="OfficeBuilding" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Groups" Command="{Binding GroupsDefCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AccountGroup" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Units" Command="{Binding UnitsDefCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Ruler" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Products" Command="{Binding ProductsDefCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="PackageVariant" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Towns" Command="{Binding TownsDefCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="MapMarker" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Sectors" Command="{Binding SectorsDefCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="VectorSquare" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Party _Groups" Command="{Binding PartyGroupsDefCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AccountGroup" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Customers" Command="{Binding CustomersDefCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Account" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Vendors" Command="{Binding VendorsDefCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AccountTie" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Salesmen" Command="{Binding SalesmenDefCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AccountVoice" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Accounts Management" Command="{Binding AccountsManagementCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AccountDetails" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Opening Balances for Accounts" Command="{Binding OpeningBalancesAccountsCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ScaleBalance" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Opening _Stock" Command="{Binding OpeningStockCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Warehouse" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Insurance" Command="{Binding InsuranceManagementCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ShieldCheck" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="P_romises" Command="{Binding PromisesManagementCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Handshake" /></MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+
+                    <MenuItem Header="_Brokerage">
+                        <MenuItem Header="_Gate Pass (Sale)" Command="{Binding GatePassSaleCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Gate" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Purchase Contract" Command="{Binding PurchaseContractCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Certificate" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Sale Contract" Command="{Binding SaleContractCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Certificate" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Brokerage _Purchase Invoice" Command="{Binding BrokeragePurchaseInvoiceCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileDocument" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Brokerage _Sale Invoice" Command="{Binding BrokerageSaleInvoiceCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileDocument" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Brokerage _Multi Invoice" Command="{Binding BrokerageMultiInvoiceCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileMultiple" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Brokerage Multi Invoice _Multi" Command="{Binding BrokerageMultiInvoiceMultiCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileMultiple" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Brokerage Multi Invoice (_New)" Command="{Binding BrokerageMultiInvoiceNewCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileMultiple" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Bro_krage Shortage" Command="{Binding BrokerageShortageCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileAlert" /></MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+
+                    <MenuItem Header="_Pestro">
+                        <MenuItem Header="_Opening Stock" Command="{Binding PestroOpeningStockCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Warehouse" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Purchase Invoice" Command="{Binding PestroPurchaseInvoiceCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileDocument" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Purchase Return (_With Invoice)" Command="{Binding PestroPurchaseReturnWithInvCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileUndo" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Purchase Return (Witho_ut Invoice)" Command="{Binding PestroPurchaseReturnNoInvCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileUndo" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Change Expiry Date" Command="{Binding PestroChangeExpiryDateCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="CalendarClock" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Sale Invoice _Auto Batch" Command="{Binding PestroSaleInvoiceAutoBatchCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileCog" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Sale Invoice _Manual Batch" Command="{Binding PestroSaleInvoiceManualBatchCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileCog" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Sale Return (W_ith Invoice)" Command="{Binding PestroSaleReturnWithInvCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileUndo" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Sale Return (Witho_ut Invoice)" Command="{Binding PestroSaleReturnNoInvCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileUndo" /></MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+
+                    <MenuItem Header="General _Purchase">
+                        <MenuItem Header="_Purchase Invoice" Command="{Binding GeneralPurchaseInvoiceCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileAccount" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Purchase _Return Invoice" Command="{Binding GeneralPurchaseReturnInvoiceCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileUndo" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Multi Invoice" Command="{Binding GeneralPurchaseMultiInvoiceCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileMultiple" /></MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+
+                    <MenuItem Header="General _Sale">
+                        <MenuItem Header="_Sale Invoice" Command="{Binding GeneralSaleInvoiceCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileAccount" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Sale _Return Invoice" Command="{Binding GeneralSaleReturnInvoiceCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileUndo" /></MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+
+                    <MenuItem Header="Account _Reports">
+                        <MenuItem Header="_Account Ledger" Command="{Binding RptAccountLedgerCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AccountDetails" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Account Ledger _Extended" Command="{Binding RptAccountLedgerExtendedCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AccountDetails" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Party Ledger Extended" Command="{Binding RptPartyLedgerExtendedCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AccountGroup" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Cash Book" Command="{Binding RptCashBookCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="BookOpen" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Day Book" Command="{Binding RptDayBookCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="BookOpenOutline" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Daily _Vouchers Detail" Command="{Binding RptDailyVouchersDetailCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileDocumentMultiple" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Accounts _Receiveable" Command="{Binding RptAccountsReceivableCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="CashPlus" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Accounts _Payable" Command="{Binding RptAccountsPayableCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="CashMinus" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_G/L Journal" Command="{Binding RptGLJournalCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Notebook" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Trial Balance" Command="{Binding RptTrialBalanceCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ScaleBalance" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Accounts _Balances" Command="{Binding RptAccountsBalancesCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AccountBox" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Balance Sheet" Command="{Binding RptBalanceSheetCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FileChart" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Bank _Statement" Command="{Binding RptBankStatementCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Bank" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Bank _Position" Command="{Binding RptBankPositionCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="BankCheck" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Bank _Markup Calculator" Command="{Binding RptBankMarkupCalcCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Calculator" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Party M_arkup Calculator" Command="{Binding RptPartyMarkupCalcCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Calculator" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Profit and Loss Statement" Command="{Binding RptProfitLossStatementCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ChartLine" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Monthly _Expense Chart" Command="{Binding RptMonthlyExpenseChartCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ChartBar" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Bank _Cheques Register" Command="{Binding RptBankChequesRegisterCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="TicketOutline" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Uncleared Cheques" Command="{Binding RptUnclearedChequesCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ClockOutline" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Lost Cheques" Command="{Binding RptLostChequesCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Ticket" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Bounced Cheques" Command="{Binding RptBouncedChequesCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="AlertCircleOutline" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_Opening Balances" Command="{Binding RptOpeningBalancesCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="Scale" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="C_hart of Accounts" Command="{Binding RptChartOfAccountsCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="FolderAccount" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Insurance Register" Command="{Binding RptInsuranceRegisterCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ShieldCheck" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="_User Log Register" Command="{Binding RptUserLogRegisterCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="ShieldAccount" /></MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+
+                    <MenuItem Header="System _Reports">
+                        <MenuItem Header="_Brokerage Reports">
+                            <MenuItem Header="_Current Stock" Command="{Binding RptBrkCurrentStockCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Store" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Commission _Report" Command="{Binding RptBrkCommissionCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="HandCoin" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Purchase And Sale _Contracts Register" Command="{Binding RptBrkContractsRegisterCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="FileSign" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Purchase And Sale _Invoices Register" Command="{Binding RptBrkInvoicesRegisterCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="FileDocument" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="_Purchase Register" Command="{Binding RptBrkPurchaseRegisterCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="FormatListBulleted" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="_Sale Register" Command="{Binding RptBrkSaleRegisterCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="FormatListBulleted" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="S_tock Report" Command="{Binding RptBrkStockReportCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="ChartPie" /></MenuItem.Icon>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem Header="Party _Ledger Extended" Command="{Binding RptBrkPartyLedgerExtendedCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="AccountDetails" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="_Monthly Commission/Soodh Report" Command="{Binding RptBrkMonthlyCommissionCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="CalendarMonth" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="_Purchase Summary Report" Command="{Binding RptBrkPurchaseSummaryCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Sigma" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Purchase Summary (_Party Wise)" Command="{Binding RptBrkPurchaseSummaryPartyWiseCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="AccountGroup" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Party Wise _W.H.T Report" Command="{Binding RptBrkPartyWiseWHTCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Percent" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="_Vehicle Wise Summary" Command="{Binding RptBrkVehicleWiseSummaryCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Truck" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="_Gate Pass Register" Command="{Binding RptBrkGatePassRegisterCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Gate" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="_Product Ledger" Command="{Binding RptBrkProductLedgerCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Animation" /></MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
+
+                        <MenuItem Header="_Daily Working Reports">
+                            <MenuItem Header="_Daily Business Activity" Command="{Binding RptDlyBusinessActivityCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="CalendarCheck" /></MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
+
+                        <MenuItem Header="_Pestro Reports">
+                            <MenuItem Header="Purchase _Register" Command="{Binding RptPestroPurchaseRegisterCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Cart" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Purchase _Summary" Command="{Binding RptPestroPurchaseSummaryCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="ChartBar" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Party Purchase _Ledger" Command="{Binding RptPestroPartyPurchaseLedgerCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Account" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Product Purchase L_edger" Command="{Binding RptPestroProductPurchaseLedgerCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="PackageVariant" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Product Wise P_urchases" Command="{Binding RptPestroProductWisePurchasesCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Tag" /></MenuItem.Icon>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem Header="Purchase Return L_edger" Command="{Binding RptPestroPurchaseReturnLedgerCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Undo" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Purchase Return S_ummary" Command="{Binding RptPestroPurchaseReturnSummaryCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="ChartPie" /></MenuItem.Icon>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem Header="_Sale Register" Command="{Binding RptPestroSaleRegisterCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Store" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Sale S_ummary" Command="{Binding RptPestroSaleSummaryCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="ChartLine" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Product Sale L_edger" Command="{Binding RptPestroProductSaleLedgerCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Account" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Product wise S_ales" Command="{Binding RptPestroProductWiseSalesCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="PackageVariant" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Sales and Stock S_tatement" Command="{Binding RptPestroSalesStockStatementCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="FileDocument" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Customer/Town/Sector Wise S_ale" Command="{Binding RptPestroCustomerTownSaleCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="MapMarker" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Company/Sector Wise S_ale" Command="{Binding RptPestroCompanySectorSaleCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="OfficeBuilding" /></MenuItem.Icon>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem Header="Sale Return L_edger" Command="{Binding RptPestroSaleReturnLedgerCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Undo" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Sale Return S_ummary" Command="{Binding RptPestroSaleReturnSummaryCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="ChartPie" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Product Sale Return L_edger" Command="{Binding RptPestroProductSaleReturnLedgerCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="PackageVariant" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Party Sale Return L_edger" Command="{Binding RptPestroPartySaleReturnLedgerCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="AccountRemove" /></MenuItem.Icon>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem Header="Salesman S_ummary" Command="{Binding RptPestroSalesmanSummaryCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="AccountTie" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Salesman _Commission" Command="{Binding RptPestroSalesmanCommissionCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="Cash" /></MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Salesman Monthly P_erformance" Command="{Binding RptPestroSalesmanMonthlyPerformanceCommand}">
+                                <MenuItem.Icon><materialDesign:PackIcon Kind="TrendingUp" /></MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
+                    </MenuItem>
+                </Menu>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                   MODERN BOTTOM STATUS BAR                 -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <StatusBar DockPanel.Dock="Bottom" Background="{StaticResource BrushPrimaryNavy}" Foreground="#94A3B8" Height="34" Padding="12,0">
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="8" Height="8" CornerRadius="4" Background="{StaticResource BrushAccentEmerald}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="agentcore Online" FontSize="11.5" Foreground="#E2E8F0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StatusBarItem>
+                <Separator Background="#334155" Height="14"/>
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Database" Width="14" Height="14" Foreground="{StaticResource BrushAccentTealLight}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding CurrentYearDisplay}" FontSize="11.5" Foreground="#CBD5E1" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StatusBarItem>
+                <Separator Background="#334155" Height="14"/>
+                <StatusBarItem>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CodeTags" Width="14" Height="14" Foreground="{StaticResource BrushAccentSky}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Developed by City Computers Marot 03447436314" FontSize="11.5" Foreground="#E2E8F0" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StatusBarItem>
+                <StatusBarItem HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="AccountTie" Width="14" Height="14" Foreground="{StaticResource BrushAccentIndigo}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Operator: " FontSize="11.5" Foreground="#94A3B8" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding CurrentUser}" FontSize="11.5" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StatusBarItem>
+            </StatusBar>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                 MAIN WORKSPACE WITH SIDEBAR                -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="12,12,12,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ── LEFT NAVIGATION SIDEBAR ── -->
+                <Border Grid.Column="0" CornerRadius="16" Background="{StaticResource BrushSidebarBg}" Padding="10,16" Margin="0,0,12,0" Effect="{StaticResource EffectCardShadow}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Sidebar Section Header -->
+                        <TextBlock Grid.Row="0" Text="NAVIGATION MODULES" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="14,0,0,12"/>
+
+                        <!-- Navigation Items -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <RadioButton Style="{StaticResource ModernSidebarNavButton}" IsChecked="True" 
+                                             Command="{Binding NavigateCommand}" CommandParameter="AccountsForms">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="32" Height="32" CornerRadius="8" Background="#1E293B" Margin="0,0,12,0">
+                                            <materialDesign:PackIcon Kind="ClipboardTextOutline" Width="18" Height="18" Foreground="{StaticResource BrushAccentTealLight}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="ACCOUNTS FORMS" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </RadioButton>
+
+                                <RadioButton Style="{StaticResource ModernSidebarNavButton}" 
+                                             Command="{Binding NavigateCommand}" CommandParameter="AccountsReports">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="32" Height="32" CornerRadius="8" Background="#1E293B" Margin="0,0,12,0">
+                                            <materialDesign:PackIcon Kind="ChartBoxOutline" Width="18" Height="18" Foreground="{StaticResource BrushAccentIndigo}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="ACCOUNTS REPORTS" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </RadioButton>
+
+                                <RadioButton Style="{StaticResource ModernSidebarNavButton}" 
+                                             Command="{Binding NavigateCommand}" CommandParameter="Brokerage">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="32" Height="32" CornerRadius="8" Background="#1E293B" Margin="0,0,12,0">
+                                            <materialDesign:PackIcon Kind="HandshakeOutline" Width="18" Height="18" Foreground="{StaticResource BrushAccentAmber}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="BROKERAGE" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </RadioButton>
+
+                                <RadioButton Style="{StaticResource ModernSidebarNavButton}" 
+                                             Command="{Binding NavigateCommand}" CommandParameter="General">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="32" Height="32" CornerRadius="8" Background="#1E293B" Margin="0,0,12,0">
+                                            <materialDesign:PackIcon Kind="FileDocumentMultipleOutline" Width="18" Height="18" Foreground="{StaticResource BrushAccentSky}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="GENERAL" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </RadioButton>
+
+                                <RadioButton Style="{StaticResource ModernSidebarNavButton}" 
+                                             Command="{Binding NavigateCommand}" CommandParameter="Pestro">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="32" Height="32" CornerRadius="8" Background="#1E293B" Margin="0,0,12,0">
+                                            <materialDesign:PackIcon Kind="Warehouse" Width="18" Height="18" Foreground="{StaticResource BrushAccentEmerald}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="PESTRO" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </RadioButton>
+
+                                <!-- Divider -->
+                                <Border Height="1" Background="#334155" Margin="12,12,12,12"/>
+                                
+                                <TextBlock Text="MASTER DATA" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="14,0,0,8"/>
+
+                                <Button Style="{StaticResource ModernSidebarActionButton}" Command="{Binding CustomersDefCommand}" HorizontalContentAlignment="Stretch">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="32" Height="32" CornerRadius="8" Background="#1E293B" Margin="0,0,12,0">
+                                            <materialDesign:PackIcon Kind="AccountGroupOutline" Width="18" Height="18" Foreground="#E2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="Parties Directory" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Style="{StaticResource ModernSidebarActionButton}" Command="{Binding ProductsDefCommand}" HorizontalContentAlignment="Stretch">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="32" Height="32" CornerRadius="8" Background="#1E293B" Margin="0,0,12,0">
+                                            <materialDesign:PackIcon Kind="PackageVariantClosed" Width="18" Height="18" Foreground="#E2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="Items &amp; Products" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Style="{StaticResource ModernSidebarActionButton}" Command="{Binding AccountsManagementCommand}" HorizontalContentAlignment="Stretch">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="32" Height="32" CornerRadius="8" Background="#1E293B" Margin="0,0,12,0">
+                                            <materialDesign:PackIcon Kind="BookOpenPageVariantOutline" Width="18" Height="18" Foreground="#E2E8F0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="Chart of Accounts" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Bottom Session Actions & Developer Branding -->
+                        <StackPanel Grid.Row="2" Margin="4,8,4,0">
+                            <!-- Developer Branding Card -->
+                            <Border Background="#0B132B" BorderBrush="#334155" BorderThickness="1" CornerRadius="10" Padding="10,8" Margin="0,0,0,8">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,3">
+                                        <materialDesign:PackIcon Kind="CodeTags" Width="13" Height="13" Foreground="{StaticResource BrushAccentTealLight}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <TextBlock Text="DEVELOPED BY" FontSize="9.5" FontWeight="Bold" Foreground="#94A3B8"/>
+                                    </StackPanel>
+                                    <TextBlock Text="City Computers Marot" FontSize="11.5" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="03447436314" FontSize="11.5" FontWeight="Bold" Foreground="{StaticResource BrushAccentEmerald}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Button Style="{StaticResource ModernDangerButton}" Height="36" Margin="0,0,0,0" Command="{Binding ExitCommand}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="Power" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Exit Application" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ── CENTER DASHBOARD CANVAS ── -->
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Hero KPI Metrics -->
+                        <RowDefinition Height="*"/>    <!-- Module Action Hub -->
+                    </Grid.RowDefinitions>
+
+                    <!-- ══════════════════════════════════════════════════════════ -->
+                    <!--                   HERO KPI METRICS CARDS                   -->
+                    <!-- ══════════════════════════════════════════════════════════ -->
+                    <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- KPI 1: Cash in Hand -->
+                        <Border Grid.Column="0" Background="#FFFFFF" CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Margin="0,0,8,0" Padding="14,12" Effect="{StaticResource EffectCardShadow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Cash in Hand" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
+                                    <TextBlock Text="{Binding CashInHand}" FontSize="20" FontWeight="Black" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,2,0,0"/>
+                                    <TextBlock Text="● Available Liquid" FontSize="10.5" Foreground="{StaticResource BrushAccentEmerald}" FontWeight="Bold" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Border Grid.Column="1" Width="44" Height="44" CornerRadius="12" Background="#ECFDF5" VerticalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="CashMultiple" Width="24" Height="24" Foreground="{StaticResource BrushAccentEmerald}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- KPI 2: Cash Received -->
+                        <Border Grid.Column="1" Background="#FFFFFF" CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Margin="4,0,4,0" Padding="14,12" Effect="{StaticResource EffectCardShadow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Cash Received" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
+                                    <TextBlock Text="{Binding CashReceived}" FontSize="20" FontWeight="Black" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,2,0,0"/>
+                                    <TextBlock Text="↓ Today's Inflow" FontSize="10.5" Foreground="{StaticResource BrushAccentTeal}" FontWeight="Bold" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Border Grid.Column="1" Width="44" Height="44" CornerRadius="12" Background="#F0FDFA" VerticalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="ArrowDownBoldCircleOutline" Width="24" Height="24" Foreground="{StaticResource BrushAccentTeal}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- KPI 3: Cash Paid -->
+                        <Border Grid.Column="2" Background="#FFFFFF" CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Margin="4,0,4,0" Padding="14,12" Effect="{StaticResource EffectCardShadow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Cash Paid Out" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
+                                    <TextBlock Text="{Binding CashPaid}" FontSize="20" FontWeight="Black" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,2,0,0"/>
+                                    <TextBlock Text="↑ Today's Outflow" FontSize="10.5" Foreground="{StaticResource BrushAccentRose}" FontWeight="Bold" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Border Grid.Column="1" Width="44" Height="44" CornerRadius="12" Background="#FFF1F2" VerticalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="ArrowUpBoldCircleOutline" Width="24" Height="24" Foreground="{StaticResource BrushAccentRose}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- KPI 4: Cheques Issued -->
+                        <Border Grid.Column="3" Background="#FFFFFF" CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Margin="8,0,0,0" Padding="14,12" Effect="{StaticResource EffectCardShadow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Cheques Issued" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
+                                    <TextBlock Text="{Binding ChequeIssued}" FontSize="20" FontWeight="Black" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,2,0,0"/>
+                                    <TextBlock Text="● Bank Processing" FontSize="10.5" Foreground="{StaticResource BrushAccentIndigo}" FontWeight="Bold" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Border Grid.Column="1" Width="44" Height="44" CornerRadius="12" Background="#EEF2FF" VerticalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="TicketOutline" Width="24" Height="24" Foreground="{StaticResource BrushAccentIndigo}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- ══════════════════════════════════════════════════════════ -->
+                    <!--                 DYNAMIC MODULE ACTION HUB                  -->
+                    <!-- ══════════════════════════════════════════════════════════ -->
+                    <Border Grid.Row="1" Background="#FFFFFF" CornerRadius="16" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Padding="20" Effect="{StaticResource EffectCardShadow}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+
+                                <!-- ── MODULE 1: ACCOUNTS FORMS ── -->
+                                <StackPanel>
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentView}" Value="AccountsForms">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+
+                                    <!-- Section Header -->
+                                    <Grid Margin="4,0,4,16">
+                                        <StackPanel>
+                                            <TextBlock Text="Accounts &amp; Voucher Operations" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                            <TextBlock Text="Create, record, and manage cash and journal financial transactions" FontSize="12.5" Foreground="{StaticResource BrushTextSecondary}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- 6 Action Tiles -->
+                                    <UniformGrid Columns="3">
+                                        
+                                        <!-- Cash Receiving Voucher -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding CashReceivingVoucherEntryCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientEmerald}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="CashPlus" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="CASH RECEIVING" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- Cash Payment Voucher -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding CashPaymentVoucherEntryCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientRose}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="CashMinus" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="CASH PAYMENT" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- Journal Voucher -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding JournalVoucherEntryCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientIndigo}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="NotebookEditOutline" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="JOURNAL VOUCHER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- Bank Cheque Deposit -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding ChequeDepositBankCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientSky}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="BankTransferIn" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="BANK CHEQUE DEPOSIT" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- Bank Cheque Issue -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding BankChequesIssuingCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientAmber}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="BankTransferOut" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="BANK CHEQUE ISSUE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- Cash Payment WHT -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding CashPaymentVoucherWhtEntryCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientPurple}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="FilePercentOutline" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="CASH PAYMENT (WHT)" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+                                    </UniformGrid>
+                                </StackPanel>
+
+                                <!-- ── MODULE 2: ACCOUNTS REPORTS ── -->
+                                <StackPanel>
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentView}" Value="AccountsReports">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+
+                                    <!-- Section Header -->
+                                    <Grid Margin="4,0,4,16">
+                                        <StackPanel>
+                                            <TextBlock Text="Financial &amp; General Ledger Reports" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                            <TextBlock Text="Generate ledger statements, balance sheet, trial balance, and cash books" FontSize="12.5" Foreground="{StaticResource BrushTextSecondary}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- 9 Action Tiles -->
+                                    <!-- 9 Action Tiles -->
+                                    <UniformGrid Columns="3">
+                                        <!-- 1. Account Ledger -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding RptAccountLedgerCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientTeal}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="Printer" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="ACCOUNT LEDGER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- 2. Account Payable -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding RptAccountsPayableCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientRose}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="Printer" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="ACCOUNT PAYABLE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- 3. Account Receivable -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding RptAccountsReceivableCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientEmerald}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="Printer" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="ACCOUNT RECEIVABLE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- 4. Bank Statement -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding RptBankStatementCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientSky}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="Printer" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="BANK STATEMENT" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- 5. Cash Book -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding RptCashBookCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientIndigo}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="Printer" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="CASH BOOK" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- 6. Daily Voucher Details -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding RptDailyVouchersDetailCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientAmber}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="TicketPercentOutline" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="DAILY VOCHURE DETAILS" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- 7. Trail Balance -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding RptTrialBalanceCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientPurple}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="ScaleBalance" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="TRAIL BALANCE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- 8. Profit & Loss Statements -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding RptProfitLossStatementCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientEmerald}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="CurrencyUsd" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="PROFIT &amp; LOSS STATEMENTS" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <!-- 9. Balance Sheet -->
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding RptBalanceSheetCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientIndigo}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="Scale" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="BALANCE SHEET" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+                                    </UniformGrid>
+                                </StackPanel>
+
+                                <!-- ── MODULE 3: BROKERAGE ── -->
+                                <StackPanel>
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentView}" Value="Brokerage">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+
+                                    <!-- Section Header -->
+                                    <Grid Margin="4,0,4,16">
+                                        <StackPanel>
+                                            <TextBlock Text="Brokerage &amp; Commodity Trade" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                            <TextBlock Text="Trade contracts, gate passes, and multi-invoicing" FontSize="12.5" Foreground="{StaticResource BrushTextSecondary}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Action Tiles -->
+                                    <UniformGrid Columns="3">
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding BrokeragePurchaseInvoiceCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientAmber}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="FileDocumentEditOutline" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="PURCHASE INVOICE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding BrokerageSaleInvoiceCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientTeal}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="FileCheckOutline" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="SALE INVOICE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding BrokerageMultiInvoiceCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientPurple}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="FolderMultipleOutline" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="MULTI INVOICE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+                                    </UniformGrid>
+                                </StackPanel>
+
+                                <!-- ── MODULE 4: GENERAL ── -->
+                                <StackPanel>
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentView}" Value="General">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+
+                                    <!-- Section Header -->
+                                    <Grid Margin="4,0,4,16">
+                                        <StackPanel>
+                                            <TextBlock Text="General Trade &amp; Invoices" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                            <TextBlock Text="Standard goods purchase, sales, and return management" FontSize="12.5" Foreground="{StaticResource BrushTextSecondary}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Action Tiles -->
+                                    <UniformGrid Columns="3">
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding GeneralPurchaseInvoiceCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientRose}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="CartArrowDown" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="PURCHASE INVOICE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding GeneralSaleInvoiceCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientEmerald}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="CartArrowUp" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="SALE INVOICE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding GeneralPurchaseMultiInvoiceCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientSky}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="FileMultipleOutline" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="MULTI INVOICE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+                                    </UniformGrid>
+                                </StackPanel>
+
+                                <!-- ── MODULE 5: PESTRO ── -->
+                                <StackPanel>
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentView}" Value="Pestro">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+
+                                    <!-- Section Header -->
+                                    <Grid Margin="4,0,4,16">
+                                        <StackPanel>
+                                            <TextBlock Text="Pestro &amp; Agricultural Chemicals" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                            <TextBlock Text="Pesticide batch tracking, expiry dates, and automated sales" FontSize="12.5" Foreground="{StaticResource BrushTextSecondary}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Action Tiles -->
+                                    <UniformGrid Columns="3">
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding PestroPurchaseCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientTeal}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="BottleTonicPlusOutline" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="PESTRO PURCHASE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding PestroSaleInvoiceAutoBatchCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientIndigo}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="FileSyncOutline" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="SALE AUTO BATCH" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding PestroSaleInvoiceManualBatchCommand}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48" CornerRadius="12" Background="{StaticResource BrushGradientAmber}" Margin="0,0,14,0">
+                                                    <materialDesign:PackIcon Kind="FileCogOutline" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="SALE MANUAL BATCH" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+                                    </UniformGrid>
+                                </StackPanel>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </Grid>
+        </DockPanel>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!--            MODERN GLASSMORPHIC TRIAL / DAILY MODAL         -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <Border Background="#800F172A" Visibility="{Binding IsTrialVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border.InputBindings>
+                <MouseBinding MouseAction="LeftClick" Command="{Binding DismissTrialCommand}"/>
+            </Border.InputBindings>
+
+            <Grid>
+                <Border Width="560" Background="#FFFFFF" CornerRadius="20" VerticalAlignment="Center" HorizontalAlignment="Center" Effect="{StaticResource EffectModalShadow}">
+                    <Grid Margin="28">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Modal Header -->
+                        <Grid Grid.Row="0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="36" Height="36" CornerRadius="10" Background="{StaticResource BrushGradientTeal}" Margin="0,0,12,0">
+                                    <materialDesign:PackIcon Kind="ChartTimelineVariant" Width="20" Height="20" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Daily Activity Control" FontSize="18" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                                    <TextBlock Text="Current fiscal day snapshot" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Button Command="{Binding DismissTrialCommand}" Style="{StaticResource MaterialDesignFlatButton}" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="4">
+                                <materialDesign:PackIcon Kind="Close" Width="20" Height="20" Foreground="{StaticResource BrushTextMuted}"/>
+                            </Button>
+                        </Grid>
+
+                        <Border Grid.Row="1" Height="1" Background="{StaticResource BrushSurfaceBorder}" Margin="0,16,0,16"/>
+
+                        <!-- Metrics Table -->
+                        <Grid Grid.Row="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Background="#F8FAFC" CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <materialDesign:PackIcon Kind="CashMultiple" Width="18" Height="18" Foreground="{StaticResource BrushAccentEmerald}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Cash in Hand" FontSize="13.5" FontWeight="SemiBold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding CashInHand}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Row="1" Background="#FFFFFF" CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <materialDesign:PackIcon Kind="ArrowUpBoldCircleOutline" Width="18" Height="18" Foreground="{StaticResource BrushAccentRose}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Cash Paid" FontSize="13.5" FontWeight="SemiBold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding CashPaid}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource BrushAccentRose}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Row="2" Background="#F8FAFC" CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <materialDesign:PackIcon Kind="ArrowDownBoldCircleOutline" Width="18" Height="18" Foreground="{StaticResource BrushAccentTeal}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Cash Received" FontSize="13.5" FontWeight="SemiBold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding CashReceived}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource BrushAccentTeal}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Row="3" Background="#FFFFFF" CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <materialDesign:PackIcon Kind="TicketOutline" Width="18" Height="18" Foreground="{StaticResource BrushAccentIndigo}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Cheque Issued" FontSize="13.5" FontWeight="SemiBold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding ChequeIssued}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource BrushAccentIndigo}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Row="4" Background="#F8FAFC" CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <materialDesign:PackIcon Kind="BankTransferIn" Width="18" Height="18" Foreground="{StaticResource BrushAccentSky}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Cheque Deposited" FontSize="13.5" FontWeight="SemiBold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding ChequeDeposited}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Row="5" Background="#FFFFFF" CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <materialDesign:PackIcon Kind="BankTransfer" Width="18" Height="18" Foreground="{StaticResource BrushAccentPurple}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Cash Deposited" FontSize="13.5" FontWeight="SemiBold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding CashDeposited}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Row="6" Background="#FEF3C7" CornerRadius="8" Padding="12,8">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <materialDesign:PackIcon Kind="ClockAlertOutline" Width="18" Height="18" Foreground="{StaticResource BrushAccentAmber}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Uncleared Cheques" FontSize="13.5" FontWeight="Bold" Foreground="#92400E" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding UnclearedCheques}" FontSize="15" FontWeight="Black" Foreground="#92400E" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <!-- Dismiss Action -->
+                        <Button Grid.Row="3" Style="{StaticResource ModernPrimaryButton}" Margin="0,18,0,0" Command="{Binding DismissTrialCommand}">
+                            <TextBlock Text="Continue to Dashboard" FontWeight="Bold"/>
+                        </Button>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+    </Grid>
+</Window>

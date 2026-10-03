@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyMandiSystem.Core\MyMandiSystem.Core.csproj" />
+    <ProjectReference Include="..\MyMandiSystem.Infrastructure\MyMandiSystem.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.3.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
+    <PackageReference Include="Microsoft.ReportingServices.ReportViewerControl.Winforms" Version="150.1537.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Reports\**\*.rdlc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    
+    <!-- Assembly & Product Information -->
+    <AssemblyName>agentcore</AssemblyName>
+    <RootNamespace>MyMandiSystem</RootNamespace>
+    <Product>agentcore</Product>
+    <AssemblyTitle>agentcore - Enterprise Management System</AssemblyTitle>
+    <Company>City Computers Marot</Company>
+    <Authors>City Computers Marot 03447436314</Authors>
+    <Description>agentcore - Commodity Trade &amp; Financial Management System</Description>
+    <Copyright>Copyright © 2026 City Computers Marot 03447436314</Copyright>
+    <FileVersion>2.5.0.0</FileVersion>
+    <AssemblyVersion>2.5.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+</Project>
