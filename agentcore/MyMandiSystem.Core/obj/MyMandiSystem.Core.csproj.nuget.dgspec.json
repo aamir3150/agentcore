@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj": {}
+    "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj": {}
   },
   "projects": {
-    "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj": {
+    "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj",
+        "projectUniqueName": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj",
         "projectName": "MyMandiSystem.Core",
-        "projectPath": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj",
+        "projectPath": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj",
         "packagesPath": "C:\\Users\\City Computers\\.nuget\\packages\\",
-        "outputPath": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\obj\\",
+        "outputPath": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\City Computers\\AppData\\Roaming\\NuGet\\NuGet.Config"

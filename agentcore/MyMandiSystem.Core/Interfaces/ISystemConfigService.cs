@@ -8,5 +8,6 @@ public interface ISystemConfigService
     void SetCurrentFinancialYear(string year);
     string GetDataDirectory();
     string GetDatabasePrefix();
+    string GetConnectionString(string dbName);
     bool IsReadOnly { get; set; }
 }

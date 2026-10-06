@@ -2,11 +2,15 @@ using Microsoft.Extensions.DependencyInjection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using MyMandiSystem.Core.Messages;
 using System.Windows;
 using MyMandiSystem.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using MyMandiSystem.Infrastructure;
 
 namespace MyMandiSystem.ViewModels
 {
@@ -25,31 +29,39 @@ namespace MyMandiSystem.ViewModels
         [ObservableProperty] private bool _isArchiveMode;
         [ObservableProperty] private string _archiveWarning = "";
 
-        public string CurrentUser { get; } = "Admin";
-        public string CurrentSeason { get; } = "2025-26";
-        public string Metric2 { get; } = "1.245";
+        [ObservableProperty] private string _currentUser = "Admin";
+        [ObservableProperty] private string _currentSeason = "";
+        [ObservableProperty] private string _metric2 = "0";
 
-
-        // Daily Activity Metrics
-        public string CashInHand { get; } = "1931472";
-        public string CashPaid { get; } = "308500";
-        public string CashReceived { get; } = "0";
-        public string ChequeIssued { get; } = "1000000";
-        public string ChequeDeposited { get; } = "0";
-        public string CashDeposited { get; } = "0";
-        public string UnclearedCheques { get; } = "0";
+        // Daily Activity Metrics (Real Live Data)
+        [ObservableProperty] private string _cashInHand = "0";
+        [ObservableProperty] private string _cashPaid = "0";
+        [ObservableProperty] private string _cashReceived = "0";
+        [ObservableProperty] private string _chequeIssued = "0";
+        [ObservableProperty] private string _chequeDeposited = "0";
+        [ObservableProperty] private string _cashDeposited = "0";
+        [ObservableProperty] private string _unclearedCheques = "0";
 
         private DispatcherTimer _timer;
         private readonly ISystemService _systemService;
         private readonly ISystemConfigService _configService;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly ICurrentUserService _currentUserService;
 
-        public MainViewModel(ISystemService systemService, ISystemConfigService configService)
+        public MainViewModel(
+            ISystemService systemService, 
+            ISystemConfigService configService,
+            IDbContextFactory<AppDbContext> contextFactory,
+            ICurrentUserService currentUserService)
         {
             _systemService = systemService;
             _configService = configService;
+            _contextFactory = contextFactory;
+            _currentUserService = currentUserService;
 
             CurrentYearDisplay = $"Financial Year: {_configService.GetCurrentFinancialYear()}";
             IsArchiveMode = _configService.IsReadOnly;
+            CurrentUser = _currentUserService.GetCurrentUserName();
             
             if (IsArchiveMode)
             {
@@ -67,6 +79,78 @@ namespace MyMandiSystem.ViewModels
             {
                 Navigate(m.Destination);
             });
+
+            // Load Real Metrics from Database
+            _ = LoadDashboardMetricsAsync();
+        }
+
+        public async Task LoadDashboardMetricsAsync()
+        {
+            try
+            {
+                using var context = await _contextFactory.CreateDbContextAsync();
+                var today = DateTime.Today;
+
+                // 1. Cash In Hand: from cash accounts or receipts - payments
+                var cashAccounts = await context.Accounts
+                    .Where(a => !a.IsDeleted && (a.Name.Contains("Cash") || a.AccountNo == "1001" || a.IsSystemAccount))
+                    .ToListAsync();
+
+                decimal totalCashInHand = 0m;
+                if (cashAccounts.Any())
+                {
+                    totalCashInHand = cashAccounts.Sum(a => a.CurrentBalance);
+                }
+                else
+                {
+                    var totalReceipts = await context.Vouchers
+                        .Where(v => v.VoucherType == Core.Enums.VoucherType.CashReceiving && v.Status != Core.Entities.VoucherStatus.Reversed)
+                        .SumAsync(v => (decimal?)v.TotalDebit) ?? 0m;
+
+                    var totalPayments = await context.Vouchers
+                        .Where(v => v.VoucherType == Core.Enums.VoucherType.CashPayment && v.Status != Core.Entities.VoucherStatus.Reversed)
+                        .SumAsync(v => (decimal?)v.TotalDebit) ?? 0m;
+
+                    totalCashInHand = totalReceipts - totalPayments;
+                }
+
+                // 2. Today's Inflow (Cash Received today)
+                var todayCashReceived = await context.Vouchers
+                    .Where(v => v.VoucherType == Core.Enums.VoucherType.CashReceiving && v.VoucherDate.Date == today && v.Status != Core.Entities.VoucherStatus.Reversed)
+                    .SumAsync(v => (decimal?)v.TotalDebit) ?? 0m;
+
+                // 3. Today's Outflow (Cash Paid today)
+                var todayCashPaid = await context.Vouchers
+                    .Where(v => v.VoucherType == Core.Enums.VoucherType.CashPayment && v.VoucherDate.Date == today && v.Status != Core.Entities.VoucherStatus.Reversed)
+                    .SumAsync(v => (decimal?)v.TotalDebit) ?? 0m;
+
+                // 4. Cheques Issued (Pending clearance)
+                var chequesIssued = await context.Cheques
+                    .Where(c => c.Status == Core.Entities.ChequeStatus.Issued)
+                    .SumAsync(c => (decimal?)c.Amount) ?? 0m;
+
+                // 5. Cheques Cleared
+                var chequesDeposited = await context.Cheques
+                    .Where(c => c.Status == Core.Entities.ChequeStatus.Cleared)
+                    .SumAsync(c => (decimal?)c.Amount) ?? 0m;
+
+                CashInHand = totalCashInHand.ToString("N0");
+                CashReceived = todayCashReceived.ToString("N0");
+                CashPaid = todayCashPaid.ToString("N0");
+                ChequeIssued = chequesIssued.ToString("N0");
+                ChequeDeposited = chequesDeposited.ToString("N0");
+
+                var activeSeasons = await _systemService.GetActiveSeasonsAsync();
+                CurrentSeason = activeSeasons.FirstOrDefault()?.Name ?? _configService.GetCurrentFinancialYear();
+            }
+            catch
+            {
+                CashInHand = "0";
+                CashReceived = "0";
+                CashPaid = "0";
+                ChequeIssued = "0";
+                ChequeDeposited = "0";
+            }
         }
 
         [RelayCommand]
@@ -92,7 +176,10 @@ namespace MyMandiSystem.ViewModels
         private void BackupDatabase() { /* Placeholder */ }
 
         [RelayCommand]
-        private void RefreshSystem() { /* Placeholder */ }
+        private async Task RefreshSystem() 
+        { 
+            await LoadDashboardMetricsAsync(); 
+        }
 
         [RelayCommand]
         private void ExpenseTypePurchase() { /* Placeholder */ }
@@ -136,6 +223,7 @@ namespace MyMandiSystem.ViewModels
             window.DataContext = App.ServiceProvider?.GetRequiredService<CashReceivingVoucherViewModel>();
             SafeSetOwner(window);
             window.ShowDialog(); 
+            _ = LoadDashboardMetricsAsync();
         }
         [RelayCommand] 
         private void CashPaymentVoucherEntry() 
@@ -144,6 +232,7 @@ namespace MyMandiSystem.ViewModels
             window.DataContext = App.ServiceProvider?.GetRequiredService<CashPaymentVoucherViewModel>();
             SafeSetOwner(window);
             window.ShowDialog(); 
+            _ = LoadDashboardMetricsAsync();
         }
         [RelayCommand] 
         private void CashPaymentVoucherWhtEntry() 
@@ -159,6 +248,7 @@ namespace MyMandiSystem.ViewModels
             window.DataContext = App.ServiceProvider?.GetRequiredService<JournalVoucherViewModel>();
             SafeSetOwner(window);
             window.ShowDialog(); 
+            _ = LoadDashboardMetricsAsync();
         }
         
         [RelayCommand] private void ProfitLossSettings() { /* Placeholder */ }

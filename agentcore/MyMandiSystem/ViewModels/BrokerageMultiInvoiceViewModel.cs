@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
 using System;
 using System.Collections.ObjectModel;
@@ -11,43 +12,43 @@ namespace MyMandiSystem.ViewModels;
 
 public class BrokerageMultiPurchaseItemDto : ObservableObject
 {
-    public string ProductId { get; set; } = "01002";
-    public string ProductName { get; set; } = "Cotton Premium";
-    public int TQty { get; set; } = 100;
-    public int BQty { get; set; } = 100;
+    public string ProductId { get; set; } = string.Empty;
+    public string ProductName { get; set; } = string.Empty;
+    public int TQty { get; set; } = 0;
+    public int BQty { get; set; } = 0;
     public int PQty { get; set; } = 0;
     public decimal WtPerBag { get; set; } = 50;
     public decimal ExtWt { get; set; } = 0;
     public decimal Shortage { get; set; } = 0;
     public decimal Deduction { get; set; } = 0;
-    public decimal TotalKgs { get; set; } = 5000;
+    public decimal TotalKgs { get; set; } = 0;
     public decimal MoundStandard { get; set; } = 37.324m;
     public string RateType { get; set; } = "Rate/Mound";
-    public decimal Rate { get; set; } = 8500;
+    public decimal Rate { get; set; } = 0;
     public decimal RateBardana { get; set; } = 0;
-    public decimal TotalValue { get; set; } = 1138664;
+    public decimal TotalValue { get; set; } = 0;
     public string ShortPer { get; set; } = "";
     public string ShortType { get; set; } = "";
 }
 
 public class BrokerageMultiSaleItemDto : ObservableObject
 {
-    public string ProductId { get; set; } = "01002";
-    public string ProductName { get; set; } = "Cotton Premium";
-    public int TQty { get; set; } = 100;
-    public string VehicleNo { get; set; } = "LES-8841";
-    public int BQty { get; set; } = 100;
+    public string ProductId { get; set; } = string.Empty;
+    public string ProductName { get; set; } = string.Empty;
+    public int TQty { get; set; } = 0;
+    public string VehicleNo { get; set; } = string.Empty;
+    public int BQty { get; set; } = 0;
     public int PQty { get; set; } = 0;
     public decimal WtPerBag { get; set; } = 50;
     public decimal ExtWt { get; set; } = 0;
     public decimal Shortage { get; set; } = 0;
     public decimal Deduction { get; set; } = 0;
-    public decimal TotalKgs { get; set; } = 5000;
+    public decimal TotalKgs { get; set; } = 0;
     public decimal MoundStandard { get; set; } = 37.324m;
     public string RateType { get; set; } = "Rate/Mound";
-    public decimal Rate { get; set; } = 8900;
+    public decimal Rate { get; set; } = 0;
     public decimal RateBardana { get; set; } = 0;
-    public decimal TotalValue { get; set; } = 1192246;
+    public decimal TotalValue { get; set; } = 0;
     public string ShortPer { get; set; } = "";
     public string ShortType { get; set; } = "";
     public string ContractId { get; set; } = "";
@@ -61,9 +62,9 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
     private readonly ISystemService _systemService;
 
     // Header Identifiers (Row 1)
-    [ObservableProperty] private string _multiId = "1";
-    [ObservableProperty] private string _purchaseId1 = "1357";
-    [ObservableProperty] private string _purchaseId2 = "1783";
+    [ObservableProperty] private string _multiId = "";
+    [ObservableProperty] private string _purchaseId1 = "";
+    [ObservableProperty] private string _purchaseId2 = "";
     [ObservableProperty] private string _contractId = "";
     [ObservableProperty] private DateTime _invoiceDate = DateTime.Today;
     [ObservableProperty] private string _billNo = "";
@@ -74,15 +75,15 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
     [ObservableProperty] private string _partyPhone = "";
 
     // Header Identifiers (Row 2 - Sale / Customer)
-    [ObservableProperty] private string _saleId1 = "426";
-    [ObservableProperty] private string _saleId2 = "1784";
+    [ObservableProperty] private string _saleId1 = "";
+    [ObservableProperty] private string _saleId2 = "";
     [ObservableProperty] private string _vehicleNo = "";
     [ObservableProperty] private string _customerId = "";
     [ObservableProperty] private string _customerName = "";
     [ObservableProperty] private string _customerAddress = "";
     [ObservableProperty] private string _customerPhone = "";
     [ObservableProperty] private ObservableCollection<string> _cropSeasons = new();
-    [ObservableProperty] private string _selectedCropSeason = "Cotton";
+    [ObservableProperty] private string _selectedCropSeason = string.Empty;
 
     // Purchase Section Controls
     [ObservableProperty] private string _purchaseVehicleNo = "";
@@ -90,7 +91,7 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
     [ObservableProperty] private string _purchaseMounds = "0- 0";
 
     // Purchase Entry Row Inputs
-    [ObservableProperty] private string _purchaseProductId = "01002";
+    [ObservableProperty] private string _purchaseProductId = string.Empty;
     [ObservableProperty] private string _purchaseProductName = "";
     [ObservableProperty] private int _purchaseTQty = 0;
     [ObservableProperty] private int _purchaseBQty = 0;
@@ -123,7 +124,7 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
     [ObservableProperty] private string _saleMounds = "";
 
     // Sale Entry Row Inputs
-    [ObservableProperty] private string _saleProductId = "01002";
+    [ObservableProperty] private string _saleProductId = string.Empty;
     [ObservableProperty] private string _saleProductName = "";
     [ObservableProperty] private int _saleTQty = 0;
     [ObservableProperty] private string _saleRowVehicleNo = "";
@@ -235,51 +236,30 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
 
     private async Task InitializeDataAsync()
     {
-        CropSeasons = new ObservableCollection<string> { "Cotton", "Wheat", "Rice", "Maize", "Mustard" };
-        SelectedCropSeason = "Cotton";
-
-        // Initial sample row for Purchase
-        PurchaseItems.Add(new BrokerageMultiPurchaseItemDto
+        try
         {
-            ProductId = "01002",
-            ProductName = "Cotton Phutti",
-            TQty = 100,
-            BQty = 100,
-            PQty = 0,
-            WtPerBag = 50,
-            ExtWt = 0,
-            Shortage = 0,
-            Deduction = 0,
-            TotalKgs = 5000,
-            MoundStandard = 37.324m,
-            RateType = "Rate/Mound",
-            Rate = 8500,
-            RateBardana = 0,
-            TotalValue = 1138664
-        });
+            var seasons = await _systemService.GetActiveSeasonsAsync();
+            if (seasons.Any())
+            {
+                CropSeasons = new ObservableCollection<string>(seasons.Select(s => s.Name));
+                SelectedCropSeason = seasons.FirstOrDefault(s => s.IsActive)?.Name ?? seasons.First().Name;
+            }
 
-        // Initial sample row for Sale
-        SaleItems.Add(new BrokerageMultiSaleItemDto
+            var year = await _systemService.GetCurrentYearAsync();
+            if (year != null)
+            {
+                PurchaseId1 = await _systemService.GetNextDocumentNoAsync(Core.Entities.DocumentType.BrokerageInvoice, year.Id);
+                SaleId1 = PurchaseId1;
+                MultiId = PurchaseId1;
+            }
+        }
+        catch
         {
-            ProductId = "01002",
-            ProductName = "Cotton Phutti",
-            TQty = 100,
-            VehicleNo = "LES-8841",
-            BQty = 100,
-            PQty = 0,
-            WtPerBag = 50,
-            ExtWt = 0,
-            Shortage = 0,
-            Deduction = 0,
-            TotalKgs = 5000,
-            MoundStandard = 37.324m,
-            RateType = "Rate/Mound",
-            Rate = 8900,
-            RateBardana = 0,
-            TotalValue = 1192246,
-            ContractId = ""
-        });
+            // Graceful fallback if database is not reachable
+        }
 
+        PurchaseItems.Clear();
+        SaleItems.Clear();
         RecalculateTotals();
     }
 
@@ -367,10 +347,225 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
         RecalculateTotals();
     }
 
-    [RelayCommand]
-    private void Save()
+    partial void OnPartyIdChanged(string value)
     {
-        System.Windows.MessageBox.Show("Brokerage Multi Invoice saved successfully!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            PartyName = "";
+            PartyAddress = "";
+            PartyPhone = "";
+            PurchasePreviousBalance = 0;
+            return;
+        }
+
+        _ = LookupPartyAsync(value);
+    }
+
+    private async Task LookupPartyAsync(string partyNo)
+    {
+        var party = await _partyService.GetPartyByNoAsync(partyNo);
+        if (party != null)
+        {
+            PartyName = party.Name;
+            PartyAddress = party.Address ?? "";
+            PartyPhone = party.Phone ?? "";
+            PurchasePreviousBalance = party.Account?.CurrentBalance ?? 0;
+            RecalculateTotals();
+        }
+    }
+
+    partial void OnCustomerIdChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            CustomerName = "";
+            CustomerAddress = "";
+            CustomerPhone = "";
+            SalePreviousBalance = 0;
+            return;
+        }
+
+        _ = LookupCustomerAsync(value);
+    }
+
+    private async Task LookupCustomerAsync(string partyNo)
+    {
+        var customer = await _partyService.GetPartyByNoAsync(partyNo);
+        if (customer != null)
+        {
+            CustomerName = customer.Name;
+            CustomerAddress = customer.Address ?? "";
+            CustomerPhone = customer.Phone ?? "";
+            SalePreviousBalance = customer.Account?.CurrentBalance ?? 0;
+            RecalculateTotals();
+        }
+    }
+
+    partial void OnPurchaseProductIdChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            PurchaseProductName = "";
+            return;
+        }
+
+        _ = LookupPurchaseProductAsync(value);
+    }
+
+    private async Task LookupPurchaseProductAsync(string code)
+    {
+        var prod = await _productService.GetProductByCodeAsync(code);
+        if (prod != null)
+        {
+            PurchaseProductName = prod.Name;
+            PurchaseBhartiKgs = 50;
+        }
+    }
+
+    partial void OnSaleProductIdChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            SaleProductName = "";
+            return;
+        }
+
+        _ = LookupSaleProductAsync(value);
+    }
+
+    private async Task LookupSaleProductAsync(string code)
+    {
+        var prod = await _productService.GetProductByCodeAsync(code);
+        if (prod != null)
+        {
+            SaleProductName = prod.Name;
+            SaleBhartiKgs = 50;
+        }
+    }
+
+    [RelayCommand]
+    private async Task Save()
+    {
+        if (!PurchaseItems.Any() && !SaleItems.Any())
+        {
+            System.Windows.MessageBox.Show("Please add at least one Purchase or Sale item.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var year = await _systemService.GetCurrentYearAsync();
+        if (year == null)
+        {
+            System.Windows.MessageBox.Show("Active Financial Year not found.", "System Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        var activeSeasons = await _systemService.GetActiveSeasonsAsync();
+        var activeSeason = activeSeasons.FirstOrDefault(s => s.Name == SelectedCropSeason) ?? activeSeasons.FirstOrDefault();
+
+        try
+        {
+            // 1. Save Purchase side if exists
+            if (PurchaseItems.Any() && !string.IsNullOrWhiteSpace(PartyId))
+            {
+                var party = await _partyService.GetPartyByNoAsync(PartyId);
+                if (party != null)
+                {
+                    var pInvoice = new BrokerageInvoice
+                    {
+                        InvoiceNo = PurchaseId1,
+                        InvoiceType = InvoiceType.BrkPurchase,
+                        InvoiceDate = InvoiceDate,
+                        FinancialYearId = year.Id,
+                        CropSeasonId = activeSeason?.Id ?? 1,
+                        PartyId = party.Id,
+                        GrossAmount = PurchaseGrossTotal,
+                        CommissionAmount = 0,
+                        NetAmount = PurchaseNetValue,
+                        VehicleNo = PurchaseVehicleNo,
+                        Status = InvoiceStatus.Draft
+                    };
+
+                    int lineNo = 1;
+                    foreach (var item in PurchaseItems)
+                    {
+                        var prod = await _productService.GetProductByCodeAsync(item.ProductId);
+                        if (prod != null)
+                        {
+                            pInvoice.Details.Add(new BrokerageInvoiceDetail
+                            {
+                                LineNo = lineNo++,
+                                ProductId = prod.Id,
+                                Bags = item.TQty,
+                                GrossWeight = item.TotalKgs,
+                                TareWeight = item.Deduction + item.Shortage,
+                                NetWeight = item.TotalKgs,
+                                Rate = item.Rate,
+                                Amount = item.TotalValue
+                            });
+                        }
+                    }
+
+                    await _brokerageService.SaveBrokerageInvoiceAsync(pInvoice);
+                    await _brokerageService.PostBrokerageInvoiceToGLAsync(pInvoice.Id);
+                }
+            }
+
+            // 2. Save Sale side if exists
+            if (SaleItems.Any() && !string.IsNullOrWhiteSpace(CustomerId))
+            {
+                var customer = await _partyService.GetPartyByNoAsync(CustomerId);
+                if (customer != null)
+                {
+                    var sInvoice = new BrokerageInvoice
+                    {
+                        InvoiceNo = !string.IsNullOrWhiteSpace(SaleId1) ? SaleId1 : PurchaseId1,
+                        InvoiceType = InvoiceType.BrkSale,
+                        InvoiceDate = InvoiceDate,
+                        FinancialYearId = year.Id,
+                        CropSeasonId = activeSeason?.Id ?? 1,
+                        PartyId = customer.Id,
+                        GrossAmount = SaleGrossTotal,
+                        CommissionAmount = 0,
+                        NetAmount = SaleNetValue,
+                        VehicleNo = VehicleNo,
+                        Status = InvoiceStatus.Draft
+                    };
+
+                    int lineNo = 1;
+                    foreach (var item in SaleItems)
+                    {
+                        var prod = await _productService.GetProductByCodeAsync(item.ProductId);
+                        if (prod != null)
+                        {
+                            sInvoice.Details.Add(new BrokerageInvoiceDetail
+                            {
+                                LineNo = lineNo++,
+                                ProductId = prod.Id,
+                                Bags = item.TQty,
+                                GrossWeight = item.TotalKgs,
+                                TareWeight = item.Deduction + item.Shortage,
+                                NetWeight = item.TotalKgs,
+                                Rate = item.Rate,
+                                Amount = item.TotalValue
+                            });
+                        }
+                    }
+
+                    await _brokerageService.SaveBrokerageInvoiceAsync(sInvoice);
+                    await _brokerageService.PostBrokerageInvoiceToGLAsync(sInvoice.Id);
+                }
+            }
+
+            System.Windows.MessageBox.Show($"Brokerage Multi Invoice {MultiId} saved to database and posted successfully!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+            Clear();
+            PurchaseId1 = await _systemService.GetNextDocumentNoAsync(DocumentType.BrokerageInvoice, year.Id);
+            SaleId1 = PurchaseId1;
+            MultiId = PurchaseId1;
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Error saving multi invoice: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     [RelayCommand]

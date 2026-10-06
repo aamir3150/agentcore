@@ -4,8 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MyMandiSystem.Views"
+             xmlns:helpers="clr-namespace:MyMandiSystem.Helpers"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:core="clr-namespace:MyMandiSystem.Core.Enums;assembly=MyMandiSystem.Core"
+             xmlns:core="clr-namespace:MyMandiSystem.Core.Entities;assembly=MyMandiSystem.Core"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="1100"
@@ -131,9 +132,9 @@
                                   SelectionMode="Single" SelectionUnit="FullRow"
                                   Style="{StaticResource ModernDataGrid}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="A/C NO" Binding="{Binding AccountNo}" Width="90"/>
+                                <DataGridTextColumn Header="A/c NO" Binding="{Binding AccountNo}" Width="90"/>
                                 <DataGridTextColumn Header="ACCOUNT TITLE" Binding="{Binding Name}" Width="2*"/>
-                                <DataGridTextColumn Header="URDU TITLE" Binding="{Binding UrduName}" Width="1.5*"/>
+                                <DataGridTextColumn Header="URDU TITLE / نام" Binding="{Binding UrduName}" Width="1.5*" ElementStyle="{StaticResource ModernUrduDataGridText}"/>
                                 <DataGridTextColumn Header="BALANCE (PKR)" Binding="{Binding CurrentBalance, StringFormat=N2}" Width="130">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
@@ -185,9 +186,8 @@
                                      Text="{Binding CurrentAccount.Name, UpdateSourceTrigger=PropertyChanged}" 
                                      Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,12"/>
 
-                            <TextBox Grid.Row="2" Grid.Column="2" materialDesign:HintAssist.Hint="Account Title (اردو نام)" 
-                                     Text="{Binding CurrentAccount.UrduName, UpdateSourceTrigger=PropertyChanged}" 
-                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,12" FontFamily="Urdu Typesetting, Arial"/>
+                            <TextBox Grid.Row="2" Grid.Column="2" materialDesign:HintAssist.Hint="اردو نام - Urdu Title" 
+                                     Text="{Binding CurrentAccount.UrduName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernUrduTextBox}" helpers:UrduHelper.IsUrduOnly="True" Margin="0,0,0,12"/>
                                      
                             <CheckBox Grid.Row="3" Grid.Column="0" Content="Active Account Status" IsChecked="{Binding CurrentAccount.IsActive}" VerticalAlignment="Center" FontWeight="SemiBold"/>
 

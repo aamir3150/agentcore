@@ -44,7 +44,7 @@ public class YearEndService : IYearEndService
             // 2. Clear Transactions and Carry Forward Balances in NEW DB
             // We use a temporary context pointing to the NEW database
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            string newConnString = $"Server=(localdb)\\mssqllocaldb;Database={dbPrefix}_{newYearCode};Trusted_Connection=True;TrustServerCertificate=True;";
+            string newConnString = _configService.GetConnectionString($"{dbPrefix}_{newYearCode}");
             optionsBuilder.UseSqlServer(newConnString);
 
             using (var context = new AppDbContext(optionsBuilder.Options))

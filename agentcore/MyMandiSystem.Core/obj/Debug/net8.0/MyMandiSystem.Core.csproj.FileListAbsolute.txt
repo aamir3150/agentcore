@@ -22,3 +22,4 @@ D:\Projects\agentcore\agentcore\MyMandiSystem.Core\obj\Debug\net8.0\MyMandiSyste
 D:\Projects\agentcore\agentcore\MyMandiSystem.Core\obj\Debug\net8.0\refint\MyMandiSystem.Core.dll
 D:\Projects\agentcore\agentcore\MyMandiSystem.Core\obj\Debug\net8.0\MyMandiSystem.Core.pdb
 D:\Projects\agentcore\agentcore\MyMandiSystem.Core\obj\Debug\net8.0\ref\MyMandiSystem.Core.dll
+D:\Projects\agentcore\agentcore\MyMandiSystem.Core\obj\Debug\net8.0\MyMandiSystem.Core.sourcelink.json

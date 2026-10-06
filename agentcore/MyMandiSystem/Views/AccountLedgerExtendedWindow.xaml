@@ -5,39 +5,89 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Account Ledger Extended" 
-        Height="540" Width="680"
+        Title="Account Ledger Extended - تفصیلی کھاتہ لیجر" 
+        Height="570" Width="720"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
-        Background="#EAEAEA"
+        ResizeMode="CanMinimize"
+        Background="#F1F5F9"
         FontFamily="Segoe UI" FontSize="13">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        
-        <!-- Classic / ERP Styled Button -->
-        <Style x:Key="ClassicReportButton" TargetType="Button">
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="MinWidth" Value="88"/>
+
+        <!-- Action Button Style -->
+        <Style x:Key="ModernActionButton" TargetType="Button">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="MinWidth" Value="92"/>
             <Setter Property="Margin" Value="4,0"/>
-            <Setter Property="Background" Value="#F2F2F2"/>
-            <Setter Property="BorderBrush" Value="#707070"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#1E293B"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="btnBorder" CornerRadius="3" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="8,4">
+                        <Border x:Name="btnBorder" CornerRadius="6" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="12,5">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#E0EEF8"/>
-                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#0078D7"/>
+                                <Setter TargetName="btnBorder" Property="Background" Value="#E2E8F0"/>
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#94A3B8"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#CCE4F7"/>
+                                <Setter TargetName="btnBorder" Property="Background" Value="#CBD5E1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Primary Action Button (Blue) -->
+        <Style x:Key="ModernPrimaryButton" TargetType="Button" BasedOn="{StaticResource ModernActionButton}">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#1D4ED8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="6" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="14,5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#1D4ED8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#1E40AF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Danger/Close Button -->
+        <Style x:Key="ModernDangerButton" TargetType="Button" BasedOn="{StaticResource ModernActionButton}">
+            <Setter Property="Background" Value="#FFF1F2"/>
+            <Setter Property="Foreground" Value="#E11D48"/>
+            <Setter Property="BorderBrush" Value="#FECDD3"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="6" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="12,5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#FEE2E2"/>
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#F87171"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#FCA5A5"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -52,33 +102,32 @@
             <!-- ══════════════════════════════════════════════════════════ -->
             <!--                       HEADER BANNER                        -->
             <!-- ══════════════════════════════════════════════════════════ -->
-            <Border DockPanel.Dock="Top" Height="78" Background="#3B7D23">
+            <Border DockPanel.Dock="Top" Height="82" Background="#0F172A">
                 <Grid>
-                    <!-- Diagonal Overlay Texture Effect -->
                     <Grid.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#4A9B2C" Offset="0"/>
-                            <GradientStop Color="#2E681A" Offset="0.85"/>
-                            <GradientStop Color="#1D4A0E" Offset="1"/>
+                            <GradientStop Color="#0F172A" Offset="0"/>
+                            <GradientStop Color="#1E293B" Offset="0.6"/>
+                            <GradientStop Color="#1E3A8A" Offset="1"/>
                         </LinearGradientBrush>
                     </Grid.Background>
 
                     <!-- Title Header -->
                     <StackPanel VerticalAlignment="Center" Margin="24,0,0,0">
-                        <TextBlock Text="Account Ledger Extended" FontSize="26" FontWeight="ExtraBold" Foreground="#112200" FontFamily="Georgia">
-                            <TextBlock.Effect>
-                                <DropShadowEffect ShadowDepth="1" BlurRadius="2" Color="#FFFFFF" Opacity="0.5"/>
-                            </TextBlock.Effect>
-                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="34" Height="34" CornerRadius="8" Background="#1E3A8A" Margin="0,0,10,0">
+                                <materialDesign:PackIcon Kind="BookAccountOutline" Width="22" Height="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Account Ledger Extended" FontSize="21" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="کھاتہ لیجر (تفصیلی اکاؤنٹ سٹیٹمنٹ رپورٹ)" FontSize="14" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
                     </StackPanel>
 
                     <!-- Right Graphic Emblem -->
-                    <Border HorizontalAlignment="Right" Width="100" Height="78" Margin="0,0,16,0" ClipToBounds="True">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <Border Width="48" Height="48" CornerRadius="8" Background="#5BA832" BorderBrush="#8AD85F" BorderThickness="1.5">
-                                <materialDesign:PackIcon Kind="Tractor" Width="30" Height="30" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                        </StackPanel>
+                    <Border HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,24,0">
+                        <Border Width="48" Height="48" CornerRadius="12" Background="#1E293B" BorderBrush="#334155" BorderThickness="1.5">
+                            <materialDesign:PackIcon Kind="Tractor" Width="28" Height="28" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </Border>
                 </Grid>
             </Border>
@@ -86,7 +135,7 @@
             <!-- ══════════════════════════════════════════════════════════ -->
             <!--                     BOTTOM BUTTONS BAR                     -->
             <!-- ══════════════════════════════════════════════════════════ -->
-            <Border DockPanel.Dock="Bottom" Background="#DCDCDC" BorderBrush="#B8B8B8" BorderThickness="0,1,0,0" Padding="14,10">
+            <Border DockPanel.Dock="Bottom" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="20,12">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -95,39 +144,44 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <!-- Preview Button -->
-                        <Button Style="{StaticResource ClassicReportButton}" Command="{Binding PreviewCommand}">
+                        <Button Style="{StaticResource ModernPrimaryButton}" Command="{Binding PreviewCommand}">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="FileEyeOutline" Width="16" Height="16" Foreground="#005A9E" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <materialDesign:PackIcon Kind="FileEyeOutline" Width="16" Height="16" Foreground="White" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <TextBlock Text="Preview" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
                         <!-- Print Button -->
-                        <Button Style="{StaticResource ClassicReportButton}" Command="{Binding PrintCommand}">
+                        <Button Style="{StaticResource ModernActionButton}" Command="{Binding PrintCommand}">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Printer" Width="16" Height="16" Foreground="#333333" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <materialDesign:PackIcon Kind="Printer" Width="16" Height="16" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <TextBlock Text="Print" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
                         <!-- Close Button -->
-                        <Button Style="{StaticResource ClassicReportButton}" Command="{Binding CloseCommand}">
+                        <Button Style="{StaticResource ModernDangerButton}" Command="{Binding CloseCommand}">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="CloseCircle" Width="16" Height="16" Foreground="#D13438" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <materialDesign:PackIcon Kind="CloseCircleOutline" Width="16" Height="16" Foreground="#E11D48" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <TextBlock Text="Close" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
 
                     <!-- Urdu Print Checkbox -->
-                    <CheckBox Grid.Column="1" Content="Urdu Print" IsChecked="{Binding UrduPrint}" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                    <CheckBox Grid.Column="1" IsChecked="{Binding UrduPrint}" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="Urdu Print" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="(اردو پرنٹ)" FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="14" Foreground="#475569" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </CheckBox>
                 </Grid>
             </Border>
 
             <!-- ══════════════════════════════════════════════════════════ -->
             <!--                      FORM CONTROLS                         -->
             <!-- ══════════════════════════════════════════════════════════ -->
-            <Grid Background="#F5F5F5" Margin="0">
+            <Grid Background="#F8FAFC" Margin="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- Crop Season Row -->
                     <RowDefinition Height="Auto"/> <!-- Account Row -->
@@ -136,88 +190,92 @@
                 </Grid.RowDefinitions>
 
                 <!-- 1. Top Filters Row (Crop Season & Grouping) -->
-                <Border Grid.Row="0" Background="#ECECEC" BorderBrush="#D0D0D0" BorderThickness="0,0,0,1" Padding="24,12">
+                <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="24,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="230"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="Crop Season" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,10,0"/>
-                        <ComboBox Grid.Column="1" ItemsSource="{Binding CropSeasons}" SelectedItem="{Binding SelectedCropSeason}" Height="28" Padding="6,2"/>
+                        <TextBlock Text="Crop Season:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,10,0"/>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding CropSeasons}" SelectedItem="{Binding SelectedCropSeason}" Height="30" Padding="8,2"/>
 
-                        <CheckBox Grid.Column="2" Content="With Summary" IsChecked="{Binding WithSummary}" VerticalAlignment="Center" Margin="18,0,0,0" FontWeight="Medium"/>
-                        <CheckBox Grid.Column="3" Content="Show Grouping" IsChecked="{Binding ShowGrouping}" VerticalAlignment="Center" Margin="14,0,0,0" FontWeight="Medium"/>
+                        <CheckBox Grid.Column="2" Content="With Summary" IsChecked="{Binding WithSummary}" VerticalAlignment="Center" Margin="22,0,0,0" FontWeight="Medium" Foreground="#334155"/>
+                        <CheckBox Grid.Column="3" Content="Show Grouping" IsChecked="{Binding ShowGrouping}" VerticalAlignment="Center" Margin="16,0,0,0" FontWeight="Medium" Foreground="#334155"/>
                     </Grid>
                 </Border>
 
                 <!-- 2. Account Selection Row -->
-                <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#D0D0D0" BorderThickness="0,0,0,1" Padding="24,14">
+                <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="24,14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- A/c No. -->
-                        <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
-                            <TextBlock Text="A/c No." FontWeight="SemiBold" Margin="0,0,0,4"/>
-                        </StackPanel>
+                        <TextBlock Grid.Column="0" Text="A/c No." FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         
-                        <TextBox Grid.Column="1" Text="{Binding AccountNo, UpdateSourceTrigger=PropertyChanged}" Height="28" VerticalContentAlignment="Center" Padding="4" FontWeight="Bold" Foreground="#1E3A8A"/>
+                        <TextBox Grid.Column="1" Text="{Binding AccountNo, UpdateSourceTrigger=PropertyChanged}" Height="32" VerticalContentAlignment="Center" Padding="8,2" FontWeight="Bold" Foreground="#1E3A8A" Background="#F8FAFC" BorderBrush="#CBD5E1"/>
 
                         <!-- Lookup Button [...] -->
-                        <Button Grid.Column="2" Style="{StaticResource ClassicReportButton}" Command="{Binding OpenAccountLookupCommand}" MinWidth="32" Height="28" Margin="4,0,14,0" ToolTip="Lookup / Select Account">
-                            <TextBlock Text="..." FontWeight="Black" FontSize="14"/>
+                        <Button Grid.Column="2" Command="{Binding OpenAccountLookupCommand}" Width="36" Height="32" Margin="6,0,14,0" 
+                                Background="#1E3A8A" Foreground="White" BorderThickness="0" ToolTip="Select Account (کھاتہ تلاش کریں)" Cursor="Hand">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                            <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18"/>
                         </Button>
 
                         <!-- A/c Name -->
-                        <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,8,0">
-                            <TextBlock Text="A/c Name" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                        </StackPanel>
+                        <TextBlock Grid.Column="3" Text="A/c Name" FontWeight="SemiBold" Foreground="#334155" VerticalAlignment="Center" Margin="0,0,10,0"/>
 
-                        <TextBox Grid.Column="4" Text="{Binding AccountName}" IsReadOnly="True" Background="#E8ECEF" Height="28" VerticalContentAlignment="Center" Padding="6,4" FontWeight="SemiBold" Foreground="#1F2937"/>
+                        <TextBox Grid.Column="4" Text="{Binding AccountName}" IsReadOnly="True" Background="#F1F5F9" BorderBrush="#E2E8F0" Height="32" VerticalContentAlignment="Center" Padding="8,4" FontWeight="SemiBold" Foreground="#0F172A"/>
                     </Grid>
                 </Border>
 
                 <!-- 3. Dates Filter Options -->
-                <Grid Grid.Row="2" Margin="32,16,32,10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                <Border Grid.Row="2" Margin="24,14,24,10" Background="White" CornerRadius="8" BorderBrush="#E2E8F0" BorderThickness="1" Padding="24,16">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                    <!-- All Dates Option -->
-                    <RadioButton Grid.Row="0" Content="All Dates" IsChecked="{Binding IsAllDates}" Margin="0,6,0,10" FontWeight="SemiBold" FontSize="14"/>
+                        <!-- All Dates Option -->
+                        <RadioButton Grid.Row="0" Content="All Dates (تمام تاریخیں)" IsChecked="{Binding IsAllDates}" Margin="0,2,0,14" FontWeight="SemiBold" FontSize="13.5" Foreground="#1E293B"/>
 
-                    <!-- Single Date Option -->
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,10">
-                        <RadioButton Content="Single Date" IsChecked="{Binding IsSingleDate}" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" Width="140"/>
-                        <DatePicker SelectedDate="{Binding SingleDate}" IsEnabled="{Binding IsSingleDate}" Width="160" Height="28" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                    </StackPanel>
+                        <!-- Single Date Option -->
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,14">
+                            <RadioButton Content="Single Date" IsChecked="{Binding IsSingleDate}" FontWeight="SemiBold" FontSize="13.5" Foreground="#1E293B" VerticalAlignment="Center" Width="140"/>
+                            <DatePicker SelectedDate="{Binding SingleDate}" IsEnabled="{Binding IsSingleDate}" Width="160" Height="30" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
 
-                    <!-- Date Range Option -->
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,4,0,10">
-                        <RadioButton Content="Date Range" IsChecked="{Binding IsDateRange}" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" Width="140"/>
-                        <TextBlock Text="From:" VerticalAlignment="Center" Margin="10,0,6,0" IsEnabled="{Binding IsDateRange}"/>
-                        <DatePicker SelectedDate="{Binding FromDate}" IsEnabled="{Binding IsDateRange}" Width="130" Height="28" VerticalAlignment="Center"/>
-                        <TextBlock Text="To:" VerticalAlignment="Center" Margin="12,0,6,0" IsEnabled="{Binding IsDateRange}"/>
-                        <DatePicker SelectedDate="{Binding ToDate}" IsEnabled="{Binding IsDateRange}" Width="130" Height="28" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
+                        <!-- Date Range Option -->
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,4">
+                            <RadioButton Content="Date Range" IsChecked="{Binding IsDateRange}" FontWeight="SemiBold" FontSize="13.5" Foreground="#1E293B" VerticalAlignment="Center" Width="140"/>
+                            <TextBlock Text="From:" VerticalAlignment="Center" FontWeight="Medium" Foreground="#475569" Margin="10,0,6,0" IsEnabled="{Binding IsDateRange}"/>
+                            <DatePicker SelectedDate="{Binding FromDate}" IsEnabled="{Binding IsDateRange}" Width="140" Height="30" VerticalAlignment="Center"/>
+                            <TextBlock Text="To:" VerticalAlignment="Center" FontWeight="Medium" Foreground="#475569" Margin="14,0,6,0" IsEnabled="{Binding IsDateRange}"/>
+                            <DatePicker SelectedDate="{Binding ToDate}" IsEnabled="{Binding IsDateRange}" Width="140" Height="30" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
 
                 <!-- 4. Bottom Options Checkboxes -->
-                <Border Grid.Row="3" Background="#F0F0F0" Padding="24,12" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0">
+                <Border Grid.Row="3" Background="#F1F5F9" Padding="24,12" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <CheckBox Content="Without Opening" IsChecked="{Binding WithoutOpening}" Margin="0,0,24,0" FontWeight="Medium"/>
-                        <CheckBox Content="Show Full JV Narration" IsChecked="{Binding ShowFullJVNarration}" Margin="0,0,24,0" FontWeight="Medium"/>
-                        <CheckBox Content="Hide Invoice Narration" IsChecked="{Binding HideInvoiceNarration}" FontWeight="Medium"/>
+                        <CheckBox Content="Without Opening" IsChecked="{Binding WithoutOpening}" Margin="0,0,24,0" FontWeight="Medium" Foreground="#334155"/>
+                        <CheckBox Content="Show Full JV Narration" IsChecked="{Binding ShowFullJVNarration}" Margin="0,0,24,0" FontWeight="Medium" Foreground="#334155"/>
+                        <CheckBox Content="Hide Invoice Narration" IsChecked="{Binding HideInvoiceNarration}" FontWeight="Medium" Foreground="#334155"/>
                     </StackPanel>
                 </Border>
 
@@ -227,8 +285,13 @@
         <!-- ══════════════════════════════════════════════════════════ -->
         <!--                 ACCOUNT LOOKUP MODAL OVERLAY               -->
         <!-- ══════════════════════════════════════════════════════════ -->
-        <Grid Background="#66000000" Visibility="{Binding IsAccountLookupOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Border Width="520" Height="420" Background="White" CornerRadius="8" BorderBrush="#707070" BorderThickness="1" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="14">
+        <Grid Background="#800F172A" Visibility="{Binding IsAccountLookupOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Width="620" Height="490" Background="White" CornerRadius="12" BorderBrush="#CBD5E1" BorderThickness="1" 
+                    VerticalAlignment="Center" HorizontalAlignment="Center" Padding="20">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="25" ShadowDepth="6" Color="#000000" Opacity="0.25"/>
+                </Border.Effect>
+
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -237,26 +300,136 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Select Account" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" Foreground="#1E3A8A"/>
+                    <!-- Modal Title Bar -->
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#EFF6FF" Width="36" Height="36" CornerRadius="8" Margin="0,0,10,0">
+                                <materialDesign:PackIcon Kind="AccountSearchOutline" Width="20" Height="20" Foreground="#2563EB" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Select Account" FontSize="16" FontWeight="Bold" Foreground="#0F172A"/>
+                                <TextBlock Text="کھاتہ منتخب کریں" FontSize="13" Foreground="#64748B" FontFamily="{StaticResource FontJameelNooriNastaleeq}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Close X Button -->
+                        <Button Grid.Column="1" Command="{Binding CloseAccountLookupCommand}" Width="28" Height="28" Padding="0" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Close">
+                            <materialDesign:PackIcon Kind="Close" Width="18" Height="18" Foreground="#64748B"/>
+                        </Button>
+                    </Grid>
 
                     <!-- Search Box -->
-                    <TextBox Grid.Row="1" Text="{Binding LookupSearchQuery, UpdateSourceTrigger=PropertyChanged}" Height="30" Padding="6,4" Margin="0,0,0,10"
-                             materialDesign:HintAssist.Hint="Type account code or name to filter..."/>
+                    <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Height="36" Margin="0,0,0,12" Padding="8,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18" Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBox Grid.Column="1" Text="{Binding LookupSearchQuery, UpdateSourceTrigger=PropertyChanged}" 
+                                     VerticalAlignment="Center" BorderThickness="0" Background="Transparent" FontSize="13"
+                                     materialDesign:HintAssist.Hint="Type account number, name, or Urdu name to filter..."/>
+                        </Grid>
+                    </Border>
 
-                    <!-- Accounts List -->
-                    <DataGrid Grid.Row="2" ItemsSource="{Binding FilteredAccounts}" SelectedItem="{Binding SelectedAccount}" AutoGenerateColumns="False" IsReadOnly="True"
-                              SelectionMode="Single" HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="28">
+                    <!-- Accounts List DataGrid (Generous RowHeight & Nastaleeq Font Support) -->
+                    <DataGrid x:Name="AccountsLookupGrid" Grid.Row="2" ItemsSource="{Binding FilteredAccounts}" SelectedItem="{Binding SelectedAccount}" 
+                              AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" HeadersVisibility="Column" 
+                              GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0"
+                              Background="#FFFFFF" RowHeight="38" AlternatingRowBackground="#F8FAFC"
+                              BorderBrush="#E2E8F0" BorderThickness="1" CanUserResizeRows="False"
+                              FontSize="13" MouseDoubleClick="AccountsLookupGrid_MouseDoubleClick">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#F1F5F9"/>
+                                <Setter Property="Foreground" Value="#334155"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="FontSize" Value="12.5"/>
+                                <Setter Property="Height" Value="34"/>
+                                <Setter Property="Padding" Value="10,0"/>
+                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                            </Style>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#E0F2FE"/>
+                                        <Setter Property="Foreground" Value="#0F172A"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.Resources>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="A/c No." Binding="{Binding AccountNo}" Width="100"/>
-                            <DataGridTextColumn Header="Account Name" Binding="{Binding Name}" Width="*"/>
-                            <DataGridTextColumn Header="Urdu Name" Binding="{Binding UrduName}" Width="120"/>
+                            <!-- A/c No. Column -->
+                            <DataGridTextColumn Header="A/c No." Binding="{Binding AccountNo}" Width="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Foreground" Value="#1E3A8A"/>
+                                        <Setter Property="Padding" Value="10,0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Account Name Column -->
+                            <DataGridTextColumn Header="Account Name" Binding="{Binding Name}" Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="FontWeight" Value="Normal"/>
+                                        <Setter Property="Foreground" Value="#0F172A"/>
+                                        <Setter Property="Padding" Value="10,0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Urdu Name Column (Jameel Noori Nastaleeq + RTL) -->
+                            <DataGridTextColumn Header="Urdu Name / نام" Binding="{Binding UrduName}" Width="170">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="FontFamily" Value="{StaticResource FontJameelNooriNastaleeq}"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FlowDirection" Value="RightToLeft"/>
+                                        <Setter Property="Foreground" Value="#0F172A"/>
+                                        <Setter Property="Padding" Value="10,0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
 
                     <!-- Modal Actions -->
-                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                        <Button Style="{StaticResource ClassicReportButton}" Content="Select" Command="{Binding SelectAccountFromLookupCommand}" CommandParameter="{Binding SelectedAccount}" Margin="0,0,8,0"/>
-                        <Button Style="{StaticResource ClassicReportButton}" Content="Cancel" Command="{Binding CloseAccountLookupCommand}"/>
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                        <Button Command="{Binding SelectAccountFromLookupCommand}" CommandParameter="{Binding SelectedAccount}" 
+                                Height="34" MinWidth="95" Background="#1E3A8A" Foreground="White" BorderThickness="0" Margin="0,0,10,0" FontWeight="SemiBold" Cursor="Hand">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="6"/>
+                                </Style>
+                            </Button.Resources>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Check" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="Select" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding CloseAccountLookupCommand}" 
+                                Height="34" MinWidth="85" Background="#F1F5F9" Foreground="#475569" BorderBrush="#CBD5E1" BorderThickness="1" FontWeight="SemiBold" Cursor="Hand">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="6"/>
+                                </Style>
+                            </Button.Resources>
+                            <TextBlock Text="Cancel" VerticalAlignment="Center"/>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>

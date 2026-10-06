@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
 using System;
 using System.Collections.ObjectModel;
@@ -11,21 +12,21 @@ namespace MyMandiSystem.ViewModels;
 
 public class BrokerageSaleItemDto : ObservableObject
 {
-    public string ProductId { get; set; } = "01002";
-    public string ProductName { get; set; } = "Wheat Super Fine";
-    public int TQty { get; set; } = 100;
-    public int BQty { get; set; } = 100;
+    public string ProductId { get; set; } = string.Empty;
+    public string ProductName { get; set; } = string.Empty;
+    public int TQty { get; set; } = 0;
+    public int BQty { get; set; } = 0;
     public int PQty { get; set; } = 0;
-    public decimal WtPerBag { get; set; } = 50;
+    public decimal WtPerBag { get; set; } = 0;
     public decimal ExtWt { get; set; } = 0;
     public decimal Shortage { get; set; } = 0;
     public decimal Deduction { get; set; } = 0;
-    public decimal TotalKgs { get; set; } = 5000;
+    public decimal TotalKgs { get; set; } = 0;
     public decimal MoundStandard { get; set; } = 40;
     public string RateType { get; set; } = "Rate/Mound";
-    public decimal Rate { get; set; } = 4200;
+    public decimal Rate { get; set; } = 0;
     public decimal RateBardana { get; set; } = 0;
-    public decimal TotalValue { get; set; } = 525000;
+    public decimal TotalValue { get; set; } = 0;
 }
 
 public partial class BrokerageSaleInvoiceViewModel : ObservableObject
@@ -36,8 +37,8 @@ public partial class BrokerageSaleInvoiceViewModel : ObservableObject
     private readonly ISystemService _systemService;
 
     // Header Document Fields
-    [ObservableProperty] private string _saleId1 = "426";
-    [ObservableProperty] private string _saleId2 = "1783";
+    [ObservableProperty] private string _saleId1 = "";
+    [ObservableProperty] private string _saleId2 = "";
     [ObservableProperty] private string _contractId = "";
     [ObservableProperty] private string _partyId = "";
     [ObservableProperty] private DateTime _invoiceDate = DateTime.Today;
@@ -57,14 +58,14 @@ public partial class BrokerageSaleInvoiceViewModel : ObservableObject
 
     // Crop Season
     [ObservableProperty] private ObservableCollection<string> _cropSeasons = new();
-    [ObservableProperty] private string _selectedCropSeason = "Cotton";
+    [ObservableProperty] private string _selectedCropSeason = string.Empty;
 
     // Delivery & Shortage Flags & Load Purchase
     [ObservableProperty] private bool _withShortage = false;
     [ObservableProperty] private bool _contractWithDelivery = false;
 
     // Line Item Entry Inputs
-    [ObservableProperty] private string _currentProductId = "01002";
+    [ObservableProperty] private string _currentProductId = string.Empty;
     [ObservableProperty] private string _currentProductName = "";
     [ObservableProperty] private int _currentTQty = 0;
     [ObservableProperty] private int _currentBQty = 0;
@@ -161,29 +162,18 @@ public partial class BrokerageSaleInvoiceViewModel : ObservableObject
 
     private async Task InitializeDataAsync()
     {
-        CropSeasons = new ObservableCollection<string> { "Cotton", "Wheat", "Rice", "Maize", "Mustard" };
-        SelectedCropSeason = "Cotton";
+        var seasons = await _systemService.GetActiveSeasonsAsync();
+        CropSeasons = new ObservableCollection<string>(seasons.Select(s => s.Name));
+        SelectedCropSeason = CropSeasons.FirstOrDefault() ?? string.Empty;
 
-        // Initial sample line item
-        Items.Add(new BrokerageSaleItemDto
+        var year = await _systemService.GetCurrentYearAsync();
+        if (year != null)
         {
-            ProductId = "01002",
-            ProductName = "Phutti Super Quality",
-            TQty = 100,
-            BQty = 100,
-            PQty = 0,
-            WtPerBag = 50,
-            ExtWt = 0,
-            Shortage = 0,
-            Deduction = 0,
-            TotalKgs = 5000,
-            MoundStandard = 40,
-            RateType = "Rate/Mound",
-            Rate = 8900,
-            RateBardana = 0,
-            TotalValue = 1112500
-        });
+            SaleId1 = await _systemService.GetNextDocumentNoAsync(Core.Entities.DocumentType.BrokerageInvoice, year.Id);
+        }
 
+        // Clean initial state - no dummy line items
+        Items.Clear();
         RecalculateTotals();
     }
 
@@ -253,10 +243,130 @@ public partial class BrokerageSaleInvoiceViewModel : ObservableObject
         System.Windows.MessageBox.Show("Biometric Thumb Registration initiated for Party / Customer.", "Biometric Register", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
-    [RelayCommand]
-    private void Save()
+    partial void OnPartyIdChanged(string value)
     {
-        System.Windows.MessageBox.Show("Brokerage Sale Invoice saved successfully!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            PartyName = "";
+            Address = "";
+            Phone = "";
+            PreviousBalance = 0;
+            return;
+        }
+
+        _ = LookupCustomerAsync(value);
+    }
+
+    private async Task LookupCustomerAsync(string partyNo)
+    {
+        var party = await _partyService.GetPartyByNoAsync(partyNo);
+        if (party != null)
+        {
+            PartyName = party.Name;
+            Address = party.Address ?? "";
+            Phone = party.Phone ?? "";
+            PreviousBalance = party.Account?.CurrentBalance ?? 0;
+            RecalculateTotals();
+        }
+    }
+
+    partial void OnCurrentProductIdChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            CurrentProductName = "";
+            return;
+        }
+
+        _ = LookupProductAsync(value);
+    }
+
+    private async Task LookupProductAsync(string code)
+    {
+        var prod = await _productService.GetProductByCodeAsync(code);
+        if (prod != null)
+        {
+            CurrentProductName = prod.Name;
+            CurrentBhartiKgs = 50;
+        }
+    }
+
+    [RelayCommand]
+    private async Task Save()
+    {
+        if (!Items.Any())
+        {
+            System.Windows.MessageBox.Show("Please add at least one line item.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var year = await _systemService.GetCurrentYearAsync();
+        if (year == null)
+        {
+            System.Windows.MessageBox.Show("Active Financial Year not found.", "System Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        var party = await _partyService.GetPartyByNoAsync(PartyId);
+        if (party == null)
+        {
+            System.Windows.MessageBox.Show("Please enter a valid Customer / Party No.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var activeSeasons = await _systemService.GetActiveSeasonsAsync();
+        var activeSeason = activeSeasons.FirstOrDefault(s => s.Name == SelectedCropSeason) ?? activeSeasons.FirstOrDefault();
+
+        try
+        {
+            var invoice = new BrokerageInvoice
+            {
+                InvoiceNo = SaleId1,
+                InvoiceType = InvoiceType.BrkSale,
+                InvoiceDate = InvoiceDate,
+                FinancialYearId = year.Id,
+                CropSeasonId = activeSeason?.Id ?? 1,
+                PartyId = party.Id,
+                GrossAmount = GrossTotal,
+                CommissionAmount = DamiValue,
+                WHT_Amount = WhtValue,
+                LaborCharges = Bardana,
+                NetAmount = NetValue,
+                VehicleNo = VehicleNo,
+                Status = InvoiceStatus.Draft
+            };
+
+            int lineNo = 1;
+            foreach (var item in Items)
+            {
+                var prod = await _productService.GetProductByCodeAsync(item.ProductId);
+                if (prod != null)
+                {
+                    invoice.Details.Add(new BrokerageInvoiceDetail
+                    {
+                        LineNo = lineNo++,
+                        ProductId = prod.Id,
+                        Bags = item.TQty,
+                        GrossWeight = item.TotalKgs,
+                        TareWeight = item.Deduction + item.Shortage,
+                        NetWeight = item.TotalKgs,
+                        Rate = item.Rate,
+                        Amount = item.TotalValue
+                    });
+                }
+            }
+
+            await _brokerageService.SaveBrokerageInvoiceAsync(invoice);
+            await _brokerageService.PostBrokerageInvoiceToGLAsync(invoice.Id);
+
+            System.Windows.MessageBox.Show($"Brokerage Sale Invoice {invoice.InvoiceNo} saved to database and posted successfully!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+            Clear();
+            SaleId1 = await _systemService.GetNextDocumentNoAsync(DocumentType.BrokerageInvoice, year.Id);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Error saving invoice: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     [RelayCommand]

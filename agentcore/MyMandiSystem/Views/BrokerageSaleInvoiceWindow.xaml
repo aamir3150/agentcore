@@ -4,9 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:helpers="clr-namespace:MyMandiSystem.Helpers"
         mc:Ignorable="d"
         Title="Brokerage Sale Invoice" 
-        Height="800" Width="1040"
+        Height="680" Width="1040"
+        MinHeight="500" MinWidth="850"
         WindowStartupLocation="CenterScreen"
         Background="#EAEAEA"
         FontFamily="Segoe UI" FontSize="11.5">
@@ -560,7 +562,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Grid.Column="0" Text="Narration In Urdu:" VerticalAlignment="Center"/>
-                                <TextBox Grid.Column="1" Text="{Binding NarrationInUrdu}" Margin="0,0,12,0"/>
+                                <TextBox Grid.Column="1" Text="{Binding NarrationInUrdu}" Style="{StaticResource ModernUrduStandardTextBox}" helpers:UrduHelper.IsUrduOnly="True" Height="38" Margin="0,0,12,0"/>
 
                                 <CheckBox Grid.Column="2" Content="Show Thumb" IsChecked="{Binding ShowThumb}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <Button Grid.Column="3" Style="{StaticResource ClassicButton}" Command="{Binding ThumbRegisterCommand}" Height="23">

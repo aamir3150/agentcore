@@ -83,9 +83,11 @@ public partial class PartyViewModel : ObservableObject
     [RelayCommand]
     private void AddParty()
     {
+        var defaultGroup = PartyGroups.FirstOrDefault();
         CurrentParty = new Party 
         { 
             PartyType = SelectedTabIndex == 0 ? PartyType.Customer : PartyType.Vendor,
+            PartyGroupId = defaultGroup?.Id ?? 0,
             IsActive = true 
         };
         IsFormVisible = true;
@@ -165,7 +167,8 @@ public partial class PartyViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show($"Error saving party: {ex.Message}");
+            var msg = ex.InnerException != null ? $"{ex.Message}\nDetails: {ex.InnerException.Message}" : ex.Message;
+            System.Windows.MessageBox.Show($"Error saving party: {msg}", "Validation / Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

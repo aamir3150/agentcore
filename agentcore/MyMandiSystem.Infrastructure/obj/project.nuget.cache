@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RqiQRXEXqVU=",
+  "dgSpecHash": "ZnWynOlNj3Q=",
   "success": true,
-  "projectFilePath": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Infrastructure\\MyMandiSystem.Infrastructure.csproj",
+  "projectFilePath": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Infrastructure\\MyMandiSystem.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\City Computers\\.nuget\\packages\\azure.core\\1.41.0\\azure.core.1.41.0.nupkg.sha512",
     "C:\\Users\\City Computers\\.nuget\\packages\\azure.identity\\1.12.1\\azure.identity.1.12.1.nupkg.sha512",

@@ -520,3 +520,5 @@ D:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Views\Bro
 D:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Views\BrokerageSaleInvoiceWindow.g.cs
 D:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Views\BrokerageMultiInvoiceWindow.baml
 D:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Views\BrokerageMultiInvoiceWindow.g.cs
+D:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\MyMandiSystem.sourcelink.json
+D:\Projects\agentcore\agentcore\MyMandiSystem\bin\Debug\net8.0-windows\appsettings.json

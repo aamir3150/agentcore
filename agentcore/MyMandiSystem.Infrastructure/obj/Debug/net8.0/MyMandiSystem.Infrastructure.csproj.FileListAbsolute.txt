@@ -32,3 +32,4 @@ D:\Projects\agentcore\agentcore\MyMandiSystem.Infrastructure\obj\Debug\net8.0\re
 D:\Projects\agentcore\agentcore\MyMandiSystem.Infrastructure\obj\Debug\net8.0\MyMandiSystem.Infrastructure.pdb
 D:\Projects\agentcore\agentcore\MyMandiSystem.Infrastructure\obj\Debug\net8.0\MyMandiSystem.Infrastructure.genruntimeconfig.cache
 D:\Projects\agentcore\agentcore\MyMandiSystem.Infrastructure\obj\Debug\net8.0\ref\MyMandiSystem.Infrastructure.dll
+D:\Projects\agentcore\agentcore\MyMandiSystem.Infrastructure\obj\Debug\net8.0\MyMandiSystem.Infrastructure.sourcelink.json

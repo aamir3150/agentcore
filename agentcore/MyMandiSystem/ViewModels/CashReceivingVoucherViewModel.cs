@@ -19,10 +19,13 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
     private DateTime _voucherDate = DateTime.Today;
 
     [ObservableProperty]
-    private string _cropSeason = "Wheat";
+    private ObservableCollection<string> _cropSeasons = new();
 
     [ObservableProperty]
-    private string _cashInHand = "1931472";
+    private string _cropSeason = string.Empty;
+
+    [ObservableProperty]
+    private string _cashInHand = "0";
 
     [ObservableProperty]
     private string _accountNo = string.Empty;
@@ -59,6 +62,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
     private readonly IVoucherService _voucherService;
     private readonly IAccountService _accountService;
     private readonly ISystemService _systemService;
+    private List<CropSeason> _loadedSeasons = new();
 
     public CashReceivingVoucherViewModel(IVoucherService voucherService, IAccountService accountService, ISystemService systemService)
     {
@@ -71,10 +75,30 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
 
     private async void LoadInitialData()
     {
+        var seasonsList = await _systemService.GetActiveSeasonsAsync();
+        _loadedSeasons = seasonsList.ToList();
+        CropSeasons = new ObservableCollection<string>(_loadedSeasons.Select(s => s.Name));
+        if (CropSeasons.Any())
+        {
+            CropSeason = _loadedSeasons.FirstOrDefault(s => s.IsActive)?.Name ?? CropSeasons.First();
+        }
+
         var year = await _systemService.GetCurrentYearAsync();
         if (year != null)
         {
             VoucherNo = await _voucherService.GetNextVoucherNoAsync(Core.Enums.VoucherType.CashReceiving, year.Id);
+        }
+
+        try
+        {
+            var accounts = await _accountService.GetAllAccountsAsync();
+            var cashAccounts = accounts.Where(a => !a.IsDeleted && (a.Name.Contains("Cash") || a.AccountNo == "1001"));
+            decimal bal = cashAccounts.Sum(a => a.CurrentBalance);
+            CashInHand = bal.ToString("N0");
+        }
+        catch
+        {
+            CashInHand = "0";
         }
     }
 
@@ -148,12 +172,14 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         var year = await _systemService.GetCurrentYearAsync();
         if (year == null) return;
 
+        var selectedSeason = _loadedSeasons.FirstOrDefault(s => s.Name == CropSeason);
+
         var voucher = new Voucher
         {
             VoucherNo = VoucherNo,
             VoucherDate = VoucherDate,
             FinancialYearId = year.Id,
-            CropSeasonId = CropSeason == "Wheat" ? 1 : 2, // Map to DB IDs
+            CropSeasonId = selectedSeason?.Id,
             TotalCredit = TotalAmount,
             TotalDebit = TotalAmount,
             VoucherType = Core.Enums.VoucherType.CashReceiving,

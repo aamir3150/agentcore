@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:MyMandiSystem.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:core="clr-namespace:MyMandiSystem.Core.Entities;assembly=MyMandiSystem.Core"
+             xmlns:helpers="clr-namespace:MyMandiSystem.Helpers"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="1100"
@@ -64,6 +65,7 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="CODE" Binding="{Binding PartyNo}" Width="90"/>
                                     <DataGridTextColumn Header="CUSTOMER NAME" Binding="{Binding Name}" Width="*"/>
+                                    <DataGridTextColumn Header="URDU TITLE / نام" Binding="{Binding UrduName}" Width="140" ElementStyle="{StaticResource ModernUrduDataGridText}"/>
                                     <DataGridTextColumn Header="TOWN" Binding="{Binding Town.Name}" Width="120"/>
                                     <DataGridTextColumn Header="PHONE" Binding="{Binding Phone}" Width="120"/>
                                     <DataGridCheckBoxColumn Header="ACTIVE" Binding="{Binding IsActive}" Width="70"/>
@@ -85,7 +87,7 @@
                                         <TextBlock Text="Customer Information" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
                                         
                                         <TextBox materialDesign:HintAssist.Hint="Customer Name" Text="{Binding CurrentParty.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
-                                        <TextBox materialDesign:HintAssist.Hint="Urdu Name (اردو نام)" Text="{Binding CurrentParty.UrduName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10" FontFamily="Urdu Typesetting, Arial"/>
+                                        <TextBox materialDesign:HintAssist.Hint="اردو نام - Urdu Name" Text="{Binding CurrentParty.UrduName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernUrduTextBox}" helpers:UrduHelper.IsUrduOnly="True" Margin="0,0,0,10"/>
                                         
                                         <Grid Margin="0,0,0,10">
                                             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
@@ -141,6 +143,7 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="CODE" Binding="{Binding PartyNo}" Width="90"/>
                                     <DataGridTextColumn Header="VENDOR NAME" Binding="{Binding Name}" Width="*"/>
+                                    <DataGridTextColumn Header="URDU TITLE / نام" Binding="{Binding UrduName}" Width="140" ElementStyle="{StaticResource ModernUrduDataGridText}"/>
                                     <DataGridTextColumn Header="TOWN" Binding="{Binding Town.Name}" Width="120"/>
                                     <DataGridTextColumn Header="PHONE" Binding="{Binding Phone}" Width="120"/>
                                     <DataGridCheckBoxColumn Header="ACTIVE" Binding="{Binding IsActive}" Width="70"/>
@@ -160,7 +163,7 @@
                                     <StackPanel>
                                         <TextBlock Text="Vendor Information" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
                                         <TextBox materialDesign:HintAssist.Hint="Vendor Name" Text="{Binding CurrentParty.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
-                                        <TextBox materialDesign:HintAssist.Hint="Urdu Name (اردو نام)" Text="{Binding CurrentParty.UrduName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10" FontFamily="Urdu Typesetting, Arial"/>
+                                        <TextBox materialDesign:HintAssist.Hint="اردو نام - Urdu Name" Text="{Binding CurrentParty.UrduName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ModernUrduTextBox}" helpers:UrduHelper.IsUrduOnly="True" Margin="0,0,0,10"/>
                                         <Grid Margin="0,0,0,10">
                                             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
                                             <ComboBox Grid.Column="0" materialDesign:HintAssist.Hint="Town" ItemsSource="{Binding Towns}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding CurrentParty.TownId}" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>

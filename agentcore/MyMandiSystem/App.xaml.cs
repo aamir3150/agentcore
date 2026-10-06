@@ -37,12 +37,15 @@ public partial class App : System.Windows.Application
         var splash = new Views.SplashScreenWindow();
         splash.Show();
 
-        splash.UpdateProgress(15, "Loading configuration & environment...");
-        await System.Threading.Tasks.Task.Delay(250);
+        splash.UpdateProgress(20, "Loading configuration & environment...");
 
         // 2. Build Configuration
+        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        var configPath = Path.Combine(baseDir, "appsettings.json");
+        var basePath = File.Exists(configPath) ? baseDir : Directory.GetCurrentDirectory();
+
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
+            .SetBasePath(basePath)
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .Build();
 
@@ -58,8 +61,7 @@ public partial class App : System.Windows.Application
             }
         }
 
-        splash.UpdateProgress(35, "Registering dependency services...");
-        await System.Threading.Tasks.Task.Delay(200);
+        splash.UpdateProgress(45, "Registering dependency services...");
 
         // 4. Register Services
         var serviceCollection = new ServiceCollection();
@@ -67,22 +69,18 @@ public partial class App : System.Windows.Application
         ConfigureServices(serviceCollection, configuration, requestedYear, isReadOnly);
         ServiceProvider = serviceCollection.BuildServiceProvider();
 
-        splash.UpdateProgress(60, "Verifying database migrations & schemas...");
+        splash.UpdateProgress(75, "Verifying database connection & schemas...");
         await System.Threading.Tasks.Task.Run(() =>
         {
             InitializeDatabase();
         });
 
-        splash.UpdateProgress(85, "Preparing agentcore workspace & dashboard...");
-        await System.Threading.Tasks.Task.Delay(250);
+        splash.UpdateProgress(95, "Starting agentcore ERP...");
 
         // 5. Launch UI
         var mainWindow = new MainWindow();
         var mainVm = ServiceProvider.GetRequiredService<MainViewModel>();
         mainWindow.DataContext = mainVm;
-
-        splash.UpdateProgress(100, "Starting agentcore ERP...");
-        await System.Threading.Tasks.Task.Delay(200);
 
         this.MainWindow = mainWindow;
         mainWindow.Show();
@@ -94,11 +92,28 @@ public partial class App : System.Windows.Application
         var contextFactory = ServiceProvider!.GetRequiredService<IDbContextFactory<AppDbContext>>();
         using var context = contextFactory.CreateDbContext();
         
-        // Ensure database is up to date
-        context.Database.Migrate();
-
-        // Seed Core Data (Idempotent)
-        SeedMasterData(context);
+        try
+        {
+            if (context.Database.CanConnect())
+            {
+                var pendingMigrations = context.Database.GetPendingMigrations();
+                if (pendingMigrations.Any())
+                {
+                    context.Database.Migrate();
+                    SeedMasterData(context);
+                }
+            }
+            else
+            {
+                context.Database.Migrate();
+                SeedMasterData(context);
+            }
+        }
+        catch
+        {
+            context.Database.Migrate();
+            SeedMasterData(context);
+        }
     }
 
     private void SeedMasterData(AppDbContext context)
@@ -143,14 +158,80 @@ public partial class App : System.Windows.Application
             context.SaveChanges();
         }
 
-        // 3. Seed Default Account Group
-        if (!context.AccountGroups.Any())
+        // 3. Seed Default Account Groups
+        if (!context.AccountGroups.Any(g => g.GroupType == Core.Entities.AccountType.Asset))
         {
             context.AccountGroups.Add(new Core.Entities.AccountGroup 
             { 
-                Name = "General Assets", 
+                Name = "Accounts Receivable (Customers)", 
                 GroupType = Core.Entities.AccountType.Asset 
             });
+        }
+        if (!context.AccountGroups.Any(g => g.GroupType == Core.Entities.AccountType.Liability))
+        {
+            context.AccountGroups.Add(new Core.Entities.AccountGroup 
+            { 
+                Name = "Accounts Payable (Zamindaraan)", 
+                GroupType = Core.Entities.AccountType.Liability 
+            });
+        }
+        if (!context.AccountGroups.Any(g => g.GroupType == Core.Entities.AccountType.Revenue))
+        {
+            context.AccountGroups.Add(new Core.Entities.AccountGroup 
+            { 
+                Name = "Mandi Commission & Income", 
+                GroupType = Core.Entities.AccountType.Revenue 
+            });
+        }
+        if (!context.AccountGroups.Any(g => g.GroupType == Core.Entities.AccountType.Expense))
+        {
+            context.AccountGroups.Add(new Core.Entities.AccountGroup 
+            { 
+                Name = "Operating Expenses", 
+                GroupType = Core.Entities.AccountType.Expense 
+            });
+        }
+        context.SaveChanges();
+
+        // 4. Seed Cash Account
+        if (!context.Accounts.Any(a => a.AccountNo == "1001"))
+        {
+            var assetGroup = context.AccountGroups.FirstOrDefault(g => g.GroupType == Core.Entities.AccountType.Asset);
+            if (assetGroup != null)
+            {
+                context.Accounts.Add(new Core.Entities.Account
+                {
+                    AccountNo = "1001",
+                    Name = "Cash in Hand",
+                    UrduName = "روکڑ / کیش ان ہینڈ",
+                    AccountGroupId = assetGroup.Id,
+                    AccountType = Core.Entities.AccountType.Asset,
+                    IsSystemAccount = true,
+                    IsActive = true
+                });
+                context.SaveChanges();
+            }
+        }
+
+        // 5. Seed Default Party Groups
+        if (!context.PartyGroups.Any())
+        {
+            context.PartyGroups.AddRange(
+                new Core.Entities.PartyGroup { Name = "General Customers" },
+                new Core.Entities.PartyGroup { Name = "Zamindaraan (Farmers)" },
+                new Core.Entities.PartyGroup { Name = "Beopari / Traders" }
+            );
+            context.SaveChanges();
+        }
+
+        // 6. Seed Default Units
+        if (!context.Units.Any())
+        {
+            context.Units.AddRange(
+                new Core.Entities.Unit { ShortName = "BAG", Name = "Bag (بوری)" },
+                new Core.Entities.Unit { ShortName = "KG", Name = "Kilogram (کلو)" },
+                new Core.Entities.Unit { ShortName = "MND", Name = "Mound / Mann (من)" }
+            );
             context.SaveChanges();
         }
     }
@@ -168,9 +249,7 @@ public partial class App : System.Windows.Application
         // Build Dynamic Connection String
         string year = yearArg ?? configService.GetCurrentFinancialYear();
         string dbName = $"MyMandi_{year}";
-        string connTemplate = configuration.GetConnectionString("DefaultConnection") 
-            ?? "Server=(localdb)\\mssqllocaldb;Database={0};Trusted_Connection=True;TrustServerCertificate=True;";
-        string connectionString = string.Format(connTemplate, dbName);
+        string connectionString = configService.GetConnectionString(dbName);
 
         services.AddSingleton<AuditInterceptor>();
         

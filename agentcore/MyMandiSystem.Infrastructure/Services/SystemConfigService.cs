@@ -13,7 +13,7 @@ public class SystemConfigService : ISystemConfigService
     public SystemConfigService(IConfiguration configuration)
     {
         _configuration = configuration;
-        _currentYear = _configuration["AppSettings:CurrentFinancialYear"] ?? "2024-25";
+        _currentYear = _configuration["AppSettings:CurrentFinancialYear"] ?? "2025-26";
     }
 
     public string GetCurrentFinancialYear() => _currentYear;
@@ -30,6 +30,13 @@ public class SystemConfigService : ISystemConfigService
     }
 
     public string GetDatabasePrefix() => _configuration["AppSettings:DatabasePrefix"] ?? "MyMandi";
+
+    public string GetConnectionString(string dbName)
+    {
+        string connTemplate = _configuration.GetConnectionString("DefaultConnection") 
+            ?? "Server=.\\SQLEXPRESS;Database={0};Trusted_Connection=True;TrustServerCertificate=True;";
+        return string.Format(connTemplate, dbName);
+    }
 
     public bool IsReadOnly { get; set; }
 }

@@ -6,7 +6,8 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="Brokerage Multi Invoice" 
-        Height="850" Width="1080"
+        Height="680" Width="1080"
+        MinHeight="500" MinWidth="900"
         WindowStartupLocation="CenterScreen"
         Background="#EAEAEA"
         FontFamily="Segoe UI" FontSize="11">

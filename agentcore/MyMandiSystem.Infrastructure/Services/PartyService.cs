@@ -43,26 +43,60 @@ public class PartyService : IPartyService
     {
         using var context = await _contextFactory.CreateDbContextAsync();
         
-        // Auto-create Ledger Account
+        // 1. Sanitize nullable foreign keys
+        if (party.TownId.HasValue && party.TownId.Value <= 0)
+        {
+            party.TownId = null;
+        }
+        if (party.SectorId.HasValue && party.SectorId.Value <= 0)
+        {
+            party.SectorId = null;
+        }
+
+        // 2. Ensure PartyGroup exists and is valid
+        if (party.PartyGroupId <= 0)
+        {
+            var defaultGroup = await context.PartyGroups.FirstOrDefaultAsync(pg => !pg.IsDeleted);
+            if (defaultGroup == null)
+            {
+                defaultGroup = new PartyGroup 
+                { 
+                    Name = party.PartyType == PartyType.Vendor ? "Zamindaraan (Farmers)" : "General Customers" 
+                };
+                context.PartyGroups.Add(defaultGroup);
+                await context.SaveChangesAsync();
+            }
+            party.PartyGroupId = defaultGroup.Id;
+        }
+
+        // 3. Auto-create Ledger Account
         if (party.Account == null)
         {
-            // Find appropriate group based on PartyType
             var accountGroups = await context.AccountGroups.ToListAsync();
-            int groupId = accountGroups.FirstOrDefault()?.Id ?? 1; // Fallback to 1
+            AccountGroup? targetGroup = null;
 
             if (party.PartyType == PartyType.Customer)
-                groupId = accountGroups.FirstOrDefault(g => g.GroupType == AccountType.Asset)?.Id ?? groupId;
+                targetGroup = accountGroups.FirstOrDefault(g => g.GroupType == AccountType.Asset);
             else if (party.PartyType == PartyType.Vendor)
-                groupId = accountGroups.FirstOrDefault(g => g.GroupType == AccountType.Liability)?.Id ?? groupId;
+                targetGroup = accountGroups.FirstOrDefault(g => g.GroupType == AccountType.Liability);
+
+            if (targetGroup == null)
+            {
+                var groupType = party.PartyType == PartyType.Vendor ? AccountType.Liability : AccountType.Asset;
+                var groupName = party.PartyType == PartyType.Vendor ? "Accounts Payable (Zamindaraan)" : "Accounts Receivable (Customers)";
+                targetGroup = new AccountGroup { Name = groupName, GroupType = groupType };
+                context.AccountGroups.Add(targetGroup);
+                await context.SaveChangesAsync();
+            }
 
             party.Account = new Account
             {
-                AccountNo = "P-" + DateTime.Now.Ticks.ToString().Substring(10), // Temporary hash
+                AccountNo = !string.IsNullOrWhiteSpace(party.PartyNo) ? party.PartyNo : "P-" + DateTime.Now.Ticks.ToString().Substring(10),
                 Name = party.Name,
                 UrduName = party.UrduName,
-                AccountGroupId = groupId,
-                AccountType = party.PartyType == PartyType.Vendor ? AccountType.Liability : AccountType.Asset,
-                IsSystemAccount = true, // Prevents accidental deletion from GL side
+                AccountGroupId = targetGroup.Id,
+                AccountType = targetGroup.GroupType,
+                IsSystemAccount = true,
                 IsActive = true
             };
         }
@@ -71,19 +105,38 @@ public class PartyService : IPartyService
         await context.SaveChangesAsync();
 
         // Update AccountNo to match PartyNo to maintain standard tracking
-        if (party.PartyNo != null)
+        if (party.PartyNo != null && party.Account != null && party.Account.AccountNo != party.PartyNo)
         {
-             party.Account.AccountNo = party.PartyNo;
-             await context.SaveChangesAsync();
+            party.Account.AccountNo = party.PartyNo;
+            await context.SaveChangesAsync();
         }
     }
 
     public async Task UpdatePartyAsync(Party party)
     {
         using var context = await _contextFactory.CreateDbContextAsync();
+        
+        if (party.TownId.HasValue && party.TownId.Value <= 0)
+        {
+            party.TownId = null;
+        }
+        if (party.SectorId.HasValue && party.SectorId.Value <= 0)
+        {
+            party.SectorId = null;
+        }
+
         context.Parties.Update(party);
         
-        // Also update linked account name if changed ideally, but leaving basic update for now
+        if (party.AccountId > 0)
+        {
+            var account = await context.Accounts.FindAsync(party.AccountId);
+            if (account != null)
+            {
+                account.Name = party.Name;
+                account.UrduName = party.UrduName;
+            }
+        }
+
         await context.SaveChangesAsync();
     }
 

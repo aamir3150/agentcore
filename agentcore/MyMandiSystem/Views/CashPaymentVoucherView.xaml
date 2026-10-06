@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:helpers="clr-namespace:MyMandiSystem.Helpers"
              mc:Ignorable="d" 
              Background="{StaticResource BrushSurfaceBg}"
              d:DesignHeight="700" d:DesignWidth="960"
@@ -180,7 +181,7 @@
                     <!-- Urdu Narration -->
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Urdu Narration (تفصیل)" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}" Margin="0,0,0,2"/>
-                        <TextBox Text="{Binding NarrationUrdu}" FontFamily="Urdu Typesetting, Jameel Noori Nastaleeq, Arial" FontSize="16" Height="32" Padding="6,2" Background="#FFFFFF" BorderBrush="{StaticResource BrushSurfaceBorderDark}"/>
+                        <TextBox Text="{Binding NarrationUrdu}" Style="{StaticResource ModernUrduStandardTextBox}" helpers:UrduHelper.IsUrduOnly="True" Height="38" Background="#FFFFFF" BorderBrush="{StaticResource BrushSurfaceBorderDark}"/>
                     </StackPanel>
 
                     <!-- Total Amount Display -->

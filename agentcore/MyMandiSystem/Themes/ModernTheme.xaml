@@ -57,6 +57,39 @@
     <SolidColorBrush x:Key="BrushTextSecondary" Color="{StaticResource ColorTextSecondary}" />
     <SolidColorBrush x:Key="BrushTextMuted" Color="{StaticResource ColorTextMuted}" />
 
+    <!-- Jameel Noori Nastaleeq Font Family (Assembly Pack URI + System Fonts Fallback) -->
+    <FontFamily x:Key="FontJameelNooriNastaleeq">pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, pack://application:,,,/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Urdu Typesetting, Tahoma, Arial</FontFamily>
+
+    <!-- Professional Floating Hint Urdu TextBox Style -->
+    <Style x:Key="ModernUrduTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+        <Setter Property="FontFamily" Value="{StaticResource FontJameelNooriNastaleeq}" />
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FlowDirection" Value="RightToLeft" />
+        <Setter Property="TextAlignment" Value="Right" />
+        <Setter Property="Padding" Value="8,4,8,6" />
+        <Setter Property="MinHeight" Value="42" />
+    </Style>
+
+    <!-- Standard Bordered Urdu TextBox Style (Vouchers & Invoices) -->
+    <Style x:Key="ModernUrduStandardTextBox" TargetType="TextBox">
+        <Setter Property="FontFamily" Value="{StaticResource FontJameelNooriNastaleeq}" />
+        <Setter Property="FontSize" Value="16.5" />
+        <Setter Property="FlowDirection" Value="RightToLeft" />
+        <Setter Property="TextAlignment" Value="Right" />
+        <Setter Property="Padding" Value="8,4,8,4" />
+        <Setter Property="MinHeight" Value="38" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <!-- Standard Urdu DataGrid Text Style (DataGrid Urdu Columns) -->
+    <Style x:Key="ModernUrduDataGridText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource FontJameelNooriNastaleeq}"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FlowDirection" Value="RightToLeft"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="6,0,10,0"/>
+    </Style>
+
     <!-- Gradient Brushes for Highlights & Badges -->
     <LinearGradientBrush x:Key="BrushGradientTeal" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#0D9488" Offset="0"/>

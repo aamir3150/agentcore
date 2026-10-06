@@ -50,33 +50,32 @@
             <!-- ══════════════════════════════════════════════════════════ -->
             <!--                       HEADER BANNER                        -->
             <!-- ══════════════════════════════════════════════════════════ -->
-            <Border DockPanel.Dock="Top" Height="78" Background="#3B7D23">
+            <Border DockPanel.Dock="Top" Height="82" Background="#0F172A">
                 <Grid>
-                    <!-- Diagonal Overlay Texture Effect -->
                     <Grid.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#4A9B2C" Offset="0"/>
-                            <GradientStop Color="#2E681A" Offset="0.85"/>
-                            <GradientStop Color="#1D4A0E" Offset="1"/>
+                            <GradientStop Color="#0F172A" Offset="0"/>
+                            <GradientStop Color="#1E293B" Offset="0.6"/>
+                            <GradientStop Color="#1E3A8A" Offset="1"/>
                         </LinearGradientBrush>
                     </Grid.Background>
 
                     <!-- Title Header -->
                     <StackPanel VerticalAlignment="Center" Margin="24,0,0,0">
-                        <TextBlock Text="Cash Book" FontSize="26" FontWeight="ExtraBold" Foreground="#112200" FontFamily="Georgia">
-                            <TextBlock.Effect>
-                                <DropShadowEffect ShadowDepth="1" BlurRadius="2" Color="#FFFFFF" Opacity="0.5"/>
-                            </TextBlock.Effect>
-                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="34" Height="34" CornerRadius="8" Background="#1E3A8A" Margin="0,0,10,0">
+                                <materialDesign:PackIcon Kind="CashMultiple" Width="22" Height="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Cash Book" FontSize="21" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="روکڑ بہی (کیش بک روزانہ کھاتہ رپورٹ)" FontSize="14" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
                     </StackPanel>
 
                     <!-- Right Graphic Emblem -->
-                    <Border HorizontalAlignment="Right" Width="100" Height="78" Margin="0,0,16,0" ClipToBounds="True">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <Border Width="48" Height="48" CornerRadius="8" Background="#5BA832" BorderBrush="#8AD85F" BorderThickness="1.5">
-                                <materialDesign:PackIcon Kind="Tractor" Width="30" Height="30" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                        </StackPanel>
+                    <Border HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,24,0">
+                        <Border Width="48" Height="48" CornerRadius="12" Background="#1E293B" BorderBrush="#334155" BorderThickness="1.5">
+                            <materialDesign:PackIcon Kind="Tractor" Width="28" Height="28" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </Border>
                 </Grid>
             </Border>
