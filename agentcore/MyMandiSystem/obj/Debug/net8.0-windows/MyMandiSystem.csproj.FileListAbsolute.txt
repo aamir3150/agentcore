@@ -522,3 +522,13 @@ D:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Views\Bro
 D:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Views\BrokerageMultiInvoiceWindow.g.cs
 D:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\MyMandiSystem.sourcelink.json
 D:\Projects\agentcore\agentcore\MyMandiSystem\bin\Debug\net8.0-windows\appsettings.json
+d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Printing\Controls\PrintHeader.baml
+d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Printing\Controls\SignatureBlock.baml
+d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Printing\PrintTemplates.baml
+d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Printing\Controls\PrintFooter.g.cs
+d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Printing\Controls\PrintHeader.g.cs
+d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Printing\Controls\SignatureBlock.g.cs
+d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Printing\Controls\PrintFooter.baml
+d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Printing\Templates\CashLoanSlip.baml
+d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Printing\Templates\CreditVoucherSlip.baml
+d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\Printing\Templates\VoucherSlip.baml

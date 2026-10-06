@@ -1,0 +1,86 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:m="clr-namespace:MyMandiSystem.Core.PrintModels;assembly=MyMandiSystem.Core"
+    xmlns:pc="clr-namespace:MyMandiSystem.Printing.Controls"
+    xmlns:cv="clr-namespace:MyMandiSystem.Printing.Converters">
+
+    <cv:AmountInWordsConverter x:Key="AmountInWords"/>
+    <cv:PrintDateConverter x:Key="PrintDateConverter"/>
+
+    <DataTemplate DataType="{x:Type m:CashLoanSlip}">
+        <Border Background="White" Padding="24,20" BorderBrush="#0F172A" BorderThickness="1.5">
+            <StackPanel>
+                <pc:PrintHeader Title="CASH UDHAAR SLIP (نقد ادھار پرچی)" Subtitle="LOAN RECEIPT"/>
+
+                <!-- Party & Slip Details -->
+                <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="12,10" Margin="0,6,0,12" Background="#F8FAFC">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Party Info -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock FontSize="15" FontWeight="Bold" Foreground="#0F172A">
+                                <Run Text="{Binding PartyName}"/>
+                                <Run Text=" "/>
+                                <Run Text="{Binding PartyUrduName}" FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Arial" FontSize="17"/>
+                            </TextBlock>
+                            <TextBlock Text="{Binding PartyPhone, StringFormat='Phone: {0}'}" FontSize="11" Foreground="#475569" Margin="0,3,0,0"/>
+                            <TextBlock Text="{Binding PartyAddress, StringFormat='Address: {0}'}" FontSize="11" Foreground="#475569" Margin="0,2,0,0"/>
+                        </StackPanel>
+
+                        <!-- Slip Number & Date -->
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Border Background="#0F172A" CornerRadius="3" Padding="8,3" HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding VoucherNo, StringFormat='Slip # {0}'}" FontWeight="Bold" Foreground="White" FontSize="12"/>
+                            </Border>
+                            <TextBlock Text="{Binding Date, Converter={StaticResource PrintDateConverter}, StringFormat='Date: {0}'}" 
+                                       FontSize="11.5" Foreground="#334155" Margin="0,5,0,0" HorizontalAlignment="Right"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Loan Amount Highlight Box -->
+                <Border Background="#FEF3C7" BorderBrush="#D97706" BorderThickness="1.5" CornerRadius="4" Padding="16,12" Margin="0,8,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="Loan Amount (ادھار دی گئی رقم):" FontWeight="Bold" FontSize="12" Foreground="#92400E"/>
+                            <TextBlock Text="{Binding Amount, Converter={StaticResource AmountInWords}}" 
+                                       FontStyle="Italic" FontWeight="SemiBold" FontSize="11.5" Foreground="#78350F" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Background="White" BorderBrush="#B45309" BorderThickness="1" CornerRadius="4" Padding="12,6" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Amount, StringFormat='Rs. {0:N0}'}" 
+                                       FontWeight="Bold" FontSize="18" Foreground="#92400E"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- Narration / Statement of Debt -->
+                <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="4" Padding="12,10" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="I acknowledge receipt of the above cash loan amount on credit." 
+                                   FontSize="11" FontStyle="Italic" Foreground="#334155"/>
+                        <TextBlock Text="میں اقرار کرتا ہوں کہ مندرجہ بالا نقد رقم بطور ادھار وصول پائی۔" 
+                                   FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Arial"
+                                   FontSize="13.5" FlowDirection="RightToLeft" Foreground="#1E293B" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding Narration, StringFormat='Reason/تفصیل: {0}'}" 
+                                   FontSize="11" Foreground="#475569" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Signatures -->
+                <pc:SignatureBlock Labels="دستخط کسان (Kisaan Signature),دستخط منشی (Munshi / Cashier)" Margin="0,55,0,16"/>
+
+                <!-- Footer -->
+                <pc:PrintFooter CopyLabel="Office Copy / اصل رسید"/>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+</ResourceDictionary>

@@ -234,6 +234,28 @@ public partial class App : System.Windows.Application
             );
             context.SaveChanges();
         }
+
+        // 7. Seed Default Company for Printing
+        if (!context.Companies.Any())
+        {
+            context.Companies.Add(new Core.Entities.Company
+            {
+                Name = "City Computers Marot",
+                ShortName = "CCM",
+                IsActive = true
+            });
+            context.SaveChanges();
+        }
+
+        // Setup PrintContext
+        var company = context.Companies.FirstOrDefault(c => c.IsActive);
+        if (company != null)
+        {
+            Printing.PrintContext.Company.Name = company.Name;
+            Printing.PrintContext.Company.NameUrdu = "سٹی کمپیوٹرز مروٹ";
+            Printing.PrintContext.Company.Address = "Grain Market, Marot";
+            Printing.PrintContext.Company.Phone = "0344-7436314";
+        }
     }
 
     private void ConfigureServices(IServiceCollection services, IConfiguration configuration, string? yearArg, bool readOnlyArg)
@@ -274,6 +296,10 @@ public partial class App : System.Windows.Application
         services.AddScoped<ISystemService, SystemService>();
         services.AddSingleton<ICatalogService, CatalogService>();
         services.AddSingleton<IYearEndService, YearEndService>();
+
+        // Print Engine Services
+        services.AddSingleton<MyMandiSystem.Core.Printing.IPrintService, MyMandiSystem.Printing.PrintService>();
+        services.AddSingleton<MyMandiSystem.Core.Printing.IPrintModelFactory, MyMandiSystem.Infrastructure.Printing.PrintModelFactory>();
 
         services.AddTransient<MainViewModel>();
         services.AddTransient<CashReceivingVoucherViewModel>();

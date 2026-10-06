@@ -1,0 +1,25 @@
+<UserControl x:Class="MyMandiSystem.Printing.Controls.SignatureBlock"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             x:Name="SigRoot"
+             d:DesignWidth="500">
+    <ItemsControl ItemsSource="{Binding LabelList, ElementName=SigRoot}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <UniformGrid Rows="1" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <StackPanel Margin="12,0" VerticalAlignment="Bottom">
+                    <Border BorderBrush="#334155" BorderThickness="0,0,0,1" Height="32" Margin="4,0,4,6" />
+                    <TextBlock Text="{Binding}" TextAlignment="Center" FontWeight="SemiBold" FontSize="11.5" Foreground="#1E293B" 
+                               FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Segoe UI, Arial"/>
+                </StackPanel>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

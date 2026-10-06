@@ -62,15 +62,49 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
     private readonly IVoucherService _voucherService;
     private readonly IAccountService _accountService;
     private readonly ISystemService _systemService;
+    private readonly MyMandiSystem.Core.Printing.IPrintService _printService;
+    private readonly MyMandiSystem.Core.Printing.IPrintModelFactory _printModelFactory;
     private List<CropSeason> _loadedSeasons = new();
 
-    public CashReceivingVoucherViewModel(IVoucherService voucherService, IAccountService accountService, ISystemService systemService)
+    public CashReceivingVoucherViewModel(
+        IVoucherService voucherService, 
+        IAccountService accountService, 
+        ISystemService systemService,
+        MyMandiSystem.Core.Printing.IPrintService printService,
+        MyMandiSystem.Core.Printing.IPrintModelFactory printModelFactory)
     {
         _voucherService = voucherService;
         _accountService = accountService;
         _systemService = systemService;
+        _printService = printService;
+        _printModelFactory = printModelFactory;
         
         LoadInitialData();
+    }
+
+    [RelayCommand]
+    private void Print()
+    {
+        var voucher = new Voucher
+        {
+            VoucherNo = VoucherNo,
+            VoucherDate = VoucherDate,
+            VoucherType = Core.Enums.VoucherType.CashReceiving,
+            TotalDebit = TotalAmount,
+            TotalCredit = TotalAmount,
+            NarrationUrdu = NarrationUrdu,
+            Details = Details.Select(d => new VoucherDetail
+            {
+                AccountId = d.AccountId,
+                Narration = d.Narration,
+                Credit = d.Credit,
+                Debit = 0,
+                Account = new Account { AccountNo = d.AccountNo, Name = d.AccountName }
+            }).ToList()
+        };
+
+        var slip = _printModelFactory.BuildVoucherSlip(voucher);
+        _printService.Preview(slip);
     }
 
     private async void LoadInitialData()

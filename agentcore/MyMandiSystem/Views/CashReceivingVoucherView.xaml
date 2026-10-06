@@ -228,10 +228,10 @@
                         </StackPanel>
                     </Button>
 
-                    <Button Style="{StaticResource ModernSecondaryButton}" Margin="0,0,8,0">
+                    <Button Command="{Binding PrintCommand}" Style="{StaticResource ModernSecondaryButton}" Margin="0,0,8,0">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="PrinterOutline" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Print" VerticalAlignment="Center"/>
+                            <TextBlock Text="Print Voucher" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 

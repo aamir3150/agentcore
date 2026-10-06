@@ -1,0 +1,47 @@
+<UserControl x:Class="MyMandiSystem.Printing.Controls.PrintFooter"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:cv="clr-namespace:MyMandiSystem.Printing.Converters"
+             mc:Ignorable="d" 
+             x:Name="FooterRoot"
+             d:DesignWidth="500">
+    <UserControl.Resources>
+        <cv:PrintDateConverter x:Key="PrintDateConverter"/>
+    </UserControl.Resources>
+    <Grid Margin="0,10,0,0">
+        <Border BorderBrush="#CBD5E1" BorderThickness="0,1,0,0" Padding="0,6,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Printed by & timestamp -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock FontSize="9.5" Foreground="#64748B">
+                        <Run Text="Printed: "/>
+                        <Run Text="{Binding PrintedAt, ElementName=FooterRoot, Converter={StaticResource PrintDateConverter}}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding PrintedAtTime, ElementName=FooterRoot}"/>
+                        <Run Text=" | User: "/>
+                        <Run Text="{Binding PrintedBy, ElementName=FooterRoot}"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Center: Copy Label Badge -->
+                <Border Grid.Column="1" Background="#E2E8F0" CornerRadius="3" Padding="6,2" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding CopyLabel, ElementName=FooterRoot}" 
+                               FontSize="10" FontWeight="Bold" Foreground="#334155" TextAlignment="Center"/>
+                </Border>
+
+                <!-- Right: Application Brand -->
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="MyMandiSystem • City Computers" FontSize="9.5" Foreground="#94A3B8" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

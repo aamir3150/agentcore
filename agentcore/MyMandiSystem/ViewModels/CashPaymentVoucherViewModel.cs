@@ -44,17 +44,48 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
     public ObservableCollection<VoucherDetailViewModel> Details { get; } = new();
 
     private int? _currentAccountId;
+    private readonly MyMandiSystem.Core.Printing.IPrintService _printService;
+    private readonly MyMandiSystem.Core.Printing.IPrintModelFactory _printModelFactory;
 
     public CashPaymentVoucherViewModel(
         IVoucherService voucherService, 
         IAccountService accountService, 
-        ISystemService systemService)
+        ISystemService systemService,
+        MyMandiSystem.Core.Printing.IPrintService printService,
+        MyMandiSystem.Core.Printing.IPrintModelFactory printModelFactory)
     {
         _voucherService = voucherService;
         _accountService = accountService;
         _systemService = systemService;
+        _printService = printService;
+        _printModelFactory = printModelFactory;
         
         LoadInitialData();
+    }
+
+    [RelayCommand]
+    private void Print()
+    {
+        var voucher = new Voucher
+        {
+            VoucherNo = VoucherNo,
+            VoucherType = VoucherType.CashPayment,
+            VoucherDate = VoucherDate,
+            TotalDebit = TotalAmount,
+            TotalCredit = TotalAmount,
+            NarrationUrdu = NarrationUrdu,
+            Details = Details.Select(d => new VoucherDetail
+            {
+                AccountId = d.AccountId,
+                Debit = d.Debit,
+                Credit = 0,
+                Narration = d.Narration,
+                Account = new Account { AccountNo = d.AccountNo, Name = d.AccountName }
+            }).ToList()
+        };
+
+        var slip = _printModelFactory.BuildVoucherSlip(voucher);
+        _printService.Preview(slip);
     }
 
     private async void LoadInitialData()

@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 d:\Projects\agentcore\agentcore\MyMandiSystem\App.xaml
-38118717850
+45-939192376
 22-1765913928
-65-1969434317
+72-1531669161
 268-1863672151
-MainWindow.xaml;Themes\ModernTheme.xaml;Views\AccountLedgerExtendedWindow.xaml;Views\AccountPayablesWindow.xaml;Views\BalanceSheetWindow.xaml;Views\BankStatementWindow.xaml;Views\BrokerageMultiInvoiceWindow.xaml;Views\BrokeragePurchaseInvoiceWindow.xaml;Views\BrokerageSaleInvoiceWindow.xaml;Views\BrokerageView.xaml;Views\BrokerageWindow.xaml;Views\CashBookWindow.xaml;Views\CashPaymentVoucherView.xaml;Views\CashPaymentVoucherWindow.xaml;Views\CashReceivingVoucherView.xaml;Views\CashReceivingVoucherWindow.xaml;Views\ChartOfAccountsView.xaml;Views\ChartOfAccountsWindow.xaml;Views\DailyVouchersDetailWindow.xaml;Views\GeneralInvoiceView.xaml;Views\GeneralInvoiceWindow.xaml;Views\JournalVoucherView.xaml;Views\JournalVoucherWindow.xaml;Views\MasterDataView.xaml;Views\MasterDataWindow.xaml;Views\OpeningBalancesView.xaml;Views\OpeningBalancesWindow.xaml;Views\PartyView.xaml;Views\PartyWindow.xaml;Views\PestroView.xaml;Views\PestroWindow.xaml;Views\ProductView.xaml;Views\ProductWindow.xaml;Views\ProfitLossStatementWindow.xaml;Views\ReportingHomeView.xaml;Views\ReportWindow.xaml;Views\SplashScreenWindow.xaml;Views\TrialBalanceWindow.xaml;
+MainWindow.xaml;Printing\Controls\PrintFooter.xaml;Printing\Controls\PrintHeader.xaml;Printing\Controls\SignatureBlock.xaml;Printing\PrintTemplates.xaml;Printing\Templates\CashLoanSlip.xaml;Printing\Templates\CreditVoucherSlip.xaml;Printing\Templates\VoucherSlip.xaml;Themes\ModernTheme.xaml;Views\AccountLedgerExtendedWindow.xaml;Views\AccountPayablesWindow.xaml;Views\BalanceSheetWindow.xaml;Views\BankStatementWindow.xaml;Views\BrokerageMultiInvoiceWindow.xaml;Views\BrokeragePurchaseInvoiceWindow.xaml;Views\BrokerageSaleInvoiceWindow.xaml;Views\BrokerageView.xaml;Views\BrokerageWindow.xaml;Views\CashBookWindow.xaml;Views\CashPaymentVoucherView.xaml;Views\CashPaymentVoucherWindow.xaml;Views\CashReceivingVoucherView.xaml;Views\CashReceivingVoucherWindow.xaml;Views\ChartOfAccountsView.xaml;Views\ChartOfAccountsWindow.xaml;Views\DailyVouchersDetailWindow.xaml;Views\GeneralInvoiceView.xaml;Views\GeneralInvoiceWindow.xaml;Views\JournalVoucherView.xaml;Views\JournalVoucherWindow.xaml;Views\MasterDataView.xaml;Views\MasterDataWindow.xaml;Views\OpeningBalancesView.xaml;Views\OpeningBalancesWindow.xaml;Views\PartyView.xaml;Views\PartyWindow.xaml;Views\PestroView.xaml;Views\PestroWindow.xaml;Views\ProductView.xaml;Views\ProductWindow.xaml;Views\ProfitLossStatementWindow.xaml;Views\ReportingHomeView.xaml;Views\ReportWindow.xaml;Views\SplashScreenWindow.xaml;Views\TrialBalanceWindow.xaml;
 
 False
 

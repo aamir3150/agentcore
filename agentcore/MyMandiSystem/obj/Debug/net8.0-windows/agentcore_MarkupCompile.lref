@@ -1,6 +1,10 @@
-﻿d:\Projects\agentcore\agentcore\MyMandiSystem\obj\Debug\net8.0-windows\GeneratedInternalTypeHelper.g.cs
+﻿
 Fd:\Projects\agentcore\agentcore\MyMandiSystem\App.xaml;;
 Fd:\Projects\agentcore\agentcore\MyMandiSystem\MainWindow.xaml;;
+Fd:\Projects\agentcore\agentcore\MyMandiSystem\Printing\Controls\PrintFooter.xaml;;
+Fd:\Projects\agentcore\agentcore\MyMandiSystem\Printing\Templates\CashLoanSlip.xaml;;
+Fd:\Projects\agentcore\agentcore\MyMandiSystem\Printing\Templates\CreditVoucherSlip.xaml;;
+Fd:\Projects\agentcore\agentcore\MyMandiSystem\Printing\Templates\VoucherSlip.xaml;;
 Fd:\Projects\agentcore\agentcore\MyMandiSystem\Views\BrokeragePurchaseInvoiceWindow.xaml;;
 Fd:\Projects\agentcore\agentcore\MyMandiSystem\Views\BrokerageSaleInvoiceWindow.xaml;;
 Fd:\Projects\agentcore\agentcore\MyMandiSystem\Views\BrokerageView.xaml;;
