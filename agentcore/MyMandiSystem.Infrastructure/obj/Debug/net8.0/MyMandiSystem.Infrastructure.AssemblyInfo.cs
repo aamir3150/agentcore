@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MyMandiSystem.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7cc74ebfd87ec23d478f13be9e77e5b308e194ef")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e37bd0ccc42819b78a707aee8942858755a002f5")]
 [assembly: System.Reflection.AssemblyProductAttribute("MyMandiSystem.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MyMandiSystem.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -14,9 +14,21 @@ public partial class PrintFooter : UserControl
         set => SetValue(CopyLabelProperty, value);
     }
 
-    public string PrintedBy => !string.IsNullOrWhiteSpace(PrintContext.CurrentUserName) ? PrintContext.CurrentUserName : "System";
-    public DateTime PrintedAt => PrintContext.PrintedAt;
-    public string PrintedAtTime => PrintedAt.ToString("hh:mm tt");
+    public string PrintedBy
+    {
+        get => !string.IsNullOrWhiteSpace(PrintContext.CurrentUserName) ? PrintContext.CurrentUserName : "System";
+        set { }
+    }
+    public DateTime PrintedAt
+    {
+        get => PrintContext.PrintedAt;
+        set { }
+    }
+    public string PrintedAtTime
+    {
+        get => PrintedAt.ToString("hh:mm tt");
+        set { }
+    }
 
     public PrintFooter()
     {

@@ -29,7 +29,7 @@
                            Visibility="{Binding Company.Address, ElementName=HeaderRoot, Converter={x:Null}}" />
                 <TextBlock FontSize="10" Foreground="#475569" Margin="0,1,0,0">
                     <Run Text="Phone: " FontWeight="SemiBold"/>
-                    <Run Text="{Binding Company.Phone, ElementName=HeaderRoot}"/>
+                    <Run Text="{Binding Company.Phone, ElementName=HeaderRoot, Mode=OneWay}"/>
                 </TextBlock>
             </StackPanel>
 

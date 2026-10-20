@@ -23,11 +23,11 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock FontSize="9.5" Foreground="#64748B">
                         <Run Text="Printed: "/>
-                        <Run Text="{Binding PrintedAt, ElementName=FooterRoot, Converter={StaticResource PrintDateConverter}}"/>
+                        <Run Text="{Binding PrintedAt, ElementName=FooterRoot, Converter={StaticResource PrintDateConverter}, Mode=OneWay}"/>
                         <Run Text=" "/>
-                        <Run Text="{Binding PrintedAtTime, ElementName=FooterRoot}"/>
+                        <Run Text="{Binding PrintedAtTime, ElementName=FooterRoot, Mode=OneWay}"/>
                         <Run Text=" | User: "/>
-                        <Run Text="{Binding PrintedBy, ElementName=FooterRoot}"/>
+                        <Run Text="{Binding PrintedBy, ElementName=FooterRoot, Mode=OneWay}"/>
                     </TextBlock>
                 </StackPanel>
 

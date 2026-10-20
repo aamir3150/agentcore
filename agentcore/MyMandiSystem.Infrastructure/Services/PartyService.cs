@@ -21,6 +21,37 @@ public class PartyService : IPartyService
         return await context.Parties.FirstOrDefaultAsync(p => p.PartyNo == partyNo);
     }
 
+    public async Task<string> GetNextPartyNoAsync(PartyType partyType)
+    {
+        using var context = await _contextFactory.CreateDbContextAsync();
+
+        // Standard 7-digit numeric series:
+        // Customers / Both: 1000001 -> 1999999
+        // Vendors: 2000001 -> 2999999
+        int baseRange = partyType == PartyType.Vendor ? 2000000 : 1000000;
+        int upperRange = baseRange + 999999;
+
+        var existingNos = await context.Parties
+            .Where(p => !p.IsDeleted && p.PartyNo != null && p.PartyNo != "")
+            .Select(p => p.PartyNo)
+            .ToListAsync();
+
+        int maxNum = baseRange;
+        foreach (var no in existingNos)
+        {
+            if (int.TryParse(no, out int parsed))
+            {
+                if (parsed >= baseRange && parsed <= upperRange && parsed > maxNum)
+                {
+                    maxNum = parsed;
+                }
+            }
+        }
+
+        int nextNum = maxNum + 1;
+        return nextNum.ToString("D7");
+    }
+
     public async Task<IEnumerable<Party>> GetAllPartiesAsync()
     {
         using var context = await _contextFactory.CreateDbContextAsync();
@@ -43,6 +74,15 @@ public class PartyService : IPartyService
     {
         using var context = await _contextFactory.CreateDbContextAsync();
         
+        // Ensure standard 7-digit PartyNo
+        if (string.IsNullOrWhiteSpace(party.PartyNo) || 
+            party.PartyNo.StartsWith("P-", StringComparison.OrdinalIgnoreCase) || 
+            party.PartyNo.Length != 7 || 
+            !party.PartyNo.All(char.IsDigit))
+        {
+            party.PartyNo = await GetNextPartyNoAsync(party.PartyType);
+        }
+
         // 1. Sanitize nullable foreign keys
         if (party.TownId.HasValue && party.TownId.Value <= 0)
         {
@@ -91,7 +131,7 @@ public class PartyService : IPartyService
 
             party.Account = new Account
             {
-                AccountNo = !string.IsNullOrWhiteSpace(party.PartyNo) ? party.PartyNo : "P-" + DateTime.Now.Ticks.ToString().Substring(10),
+                AccountNo = party.PartyNo,
                 Name = party.Name,
                 UrduName = party.UrduName,
                 AccountGroupId = targetGroup.Id,

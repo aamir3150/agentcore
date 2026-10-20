@@ -17,48 +17,153 @@ public class ReportService : IReportService
         _contextFactory = contextFactory;
     }
 
-    public async Task<IEnumerable<dynamic>> GetLedgerReportAsync(int accountId, DateTime from, DateTime to)
+    public async Task<IEnumerable<dynamic>> GetLedgerReportAsync(int accountId, DateTime? from = null, DateTime? to = null, bool withoutOpening = false, bool isUrdu = false)
     {
         using var context = await _contextFactory.CreateDbContextAsync();
-        
-        // Fetch opening balance (entries before 'from' date)
-        var openingDebit = await context.GeneralLedger
-            .Where(g => g.AccountId == accountId && g.TransactionDate < from)
-            .SumAsync(g => (decimal?)g.Debit) ?? 0;
-            
-        var openingCredit = await context.GeneralLedger
-            .Where(g => g.AccountId == accountId && g.TransactionDate < from)
-            .SumAsync(g => (decimal?)g.Credit) ?? 0;
 
-        var openingBalance = openingDebit - openingCredit;
+        var account = await context.Accounts.FindAsync(accountId);
+        decimal baseOpening = account?.OpeningBalance ?? 0m;
 
-        // Fetch current transactions
-        var transactions = await context.GeneralLedger
+        bool isFromBounded = from.HasValue && from.Value > new DateTime(1900, 1, 1);
+        bool isToBounded = to.HasValue && to.Value < new DateTime(2900, 1, 1);
+
+        DateTime? startDate = isFromBounded ? from!.Value.Date : null;
+        DateTime? endDate = isToBounded ? to!.Value : null;
+
+        decimal openingBalance = baseOpening;
+
+        if (isFromBounded)
+        {
+            var priorDebit = await context.GeneralLedger
+                .Where(g => g.AccountId == accountId && g.TransactionDate < startDate!.Value)
+                .SumAsync(g => (decimal?)g.Debit) ?? 0m;
+
+            var priorCredit = await context.GeneralLedger
+                .Where(g => g.AccountId == accountId && g.TransactionDate < startDate!.Value)
+                .SumAsync(g => (decimal?)g.Credit) ?? 0m;
+
+            openingBalance += (priorDebit - priorCredit);
+        }
+
+        var query = context.GeneralLedger
             .Include(g => g.Account)
-            .Where(g => g.AccountId == accountId && g.TransactionDate >= from && g.TransactionDate <= to)
+            .Where(g => g.AccountId == accountId);
+
+        if (isFromBounded)
+        {
+            query = query.Where(g => g.TransactionDate >= startDate!.Value);
+        }
+
+        if (isToBounded)
+        {
+            query = query.Where(g => g.TransactionDate <= endDate!.Value);
+        }
+
+        var rawTransactions = await query
             .OrderBy(g => g.TransactionDate)
             .ThenBy(g => g.Id)
             .Select(g => new
             {
                 g.TransactionDate,
-                g.Narration,
+                Narration = g.Narration ?? "",
                 g.Debit,
                 g.Credit,
-                Reference = g.SourceType.ToString() + "-" + g.SourceId
+                g.SourceType,
+                g.SourceId
             })
             .ToListAsync();
 
-        // Integrate opening balance into the list for RDLC
-        var reportData = new List<dynamic>();
-        reportData.Add(new
+        // 1. Resolve Voucher Numbers
+        var voucherIds = rawTransactions
+            .Where(t => t.SourceType == SourceType.Voucher && t.SourceId > 0)
+            .Select(t => t.SourceId)
+            .Distinct()
+            .ToList();
+
+        var vouchers = voucherIds.Count > 0
+            ? await context.Vouchers.Where(v => voucherIds.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.VoucherNo)
+            : new Dictionary<int, string>();
+
+        // 2. Resolve Invoice Numbers (for General / Brokerage / Pestro Invoices)
+        var invoiceIds = rawTransactions
+            .Where(t => t.SourceType != SourceType.Voucher && t.SourceId > 0)
+            .Select(t => t.SourceId)
+            .Distinct()
+            .ToList();
+
+        var invoices = invoiceIds.Count > 0
+            ? await context.Invoices.Where(i => invoiceIds.Contains(i.Id)).ToDictionaryAsync(i => i.Id, i => i.InvoiceNo)
+            : new Dictionary<int, string>();
+
+        static string FormatBalance(decimal bal)
         {
-            TransactionDate = from.AddDays(-1),
-            Narration = "Opening Balance",
-            Debit = openingBalance > 0 ? openingBalance : 0,
-            Credit = openingBalance < 0 ? Math.Abs(openingBalance) : 0,
-            Reference = "OPEN"
-        });
-        reportData.AddRange(transactions);
+            if (bal == 0m) return "0";
+            return bal > 0m ? $"{bal:N0} Dr" : $"{Math.Abs(bal):N0} Cr";
+        }
+
+        var reportData = new List<LedgerReportItem>();
+        decimal runningBalance = 0m;
+
+        // 3. Opening Balance Row
+        if (!withoutOpening)
+        {
+            DateTime opDate;
+            if (isFromBounded)
+            {
+                opDate = startDate!.Value > DateTime.MinValue.AddDays(1) ? startDate!.Value.AddDays(-1) : startDate!.Value;
+            }
+            else
+            {
+                opDate = rawTransactions.Count > 0 ? rawTransactions[0].TransactionDate.Date : DateTime.Today;
+            }
+
+            string narration = isUrdu ? "سابقہ بقایا / اوپننگ بیلنس" : "Opening Balance";
+            string vNo = isUrdu ? "سابقہ" : "OPEN";
+
+            decimal opDebit = openingBalance > 0 ? openingBalance : 0m;
+            decimal opCredit = openingBalance < 0 ? Math.Abs(openingBalance) : 0m;
+            runningBalance = openingBalance;
+
+            reportData.Add(new LedgerReportItem
+            {
+                VoucherNo = vNo,
+                TransactionDate = opDate,
+                Narration = narration,
+                Debit = opDebit,
+                Credit = opCredit,
+                Balance = FormatBalance(runningBalance)
+            });
+        }
+
+        // 4. Transaction Rows with Running Balance
+        foreach (var t in rawTransactions)
+        {
+            string vNo;
+            if (t.SourceType == SourceType.Voucher && vouchers.TryGetValue(t.SourceId, out var vn) && !string.IsNullOrWhiteSpace(vn))
+            {
+                vNo = vn;
+            }
+            else if (invoices.TryGetValue(t.SourceId, out var invNo) && !string.IsNullOrWhiteSpace(invNo))
+            {
+                vNo = invNo;
+            }
+            else
+            {
+                vNo = $"{t.SourceType}-{t.SourceId}";
+            }
+
+            runningBalance += (t.Debit - t.Credit);
+
+            reportData.Add(new LedgerReportItem
+            {
+                VoucherNo = vNo,
+                TransactionDate = t.TransactionDate,
+                Narration = t.Narration,
+                Debit = t.Debit,
+                Credit = t.Credit,
+                Balance = FormatBalance(runningBalance)
+            });
+        }
 
         return reportData;
     }
@@ -66,9 +171,17 @@ public class ReportService : IReportService
     public async Task<IEnumerable<dynamic>> GetDayBookReportAsync(DateTime date)
     {
         using var context = await _contextFactory.CreateDbContextAsync();
-        return await context.GeneralLedger
-            .Include(g => g.Account)
-            .Where(g => g.TransactionDate.Date == date.Date)
+        bool isAllDates = date >= new DateTime(2900, 1, 1);
+        var query = context.GeneralLedger.Include(g => g.Account).AsQueryable();
+
+        if (!isAllDates)
+        {
+            var targetDate = date.Date;
+            var nextDate = targetDate.AddDays(1);
+            query = query.Where(g => g.TransactionDate >= targetDate && g.TransactionDate < nextDate);
+        }
+
+        return await query
             .OrderBy(g => g.Id)
             .Select(g => new
             {
@@ -207,17 +320,20 @@ public class ReportService : IReportService
     {
         using var context = await _contextFactory.CreateDbContextAsync();
         
+        var safeFrom = from < new DateTime(1900, 1, 1) ? new DateTime(1900, 1, 1) : from;
+        var safeTo = to > new DateTime(2900, 1, 1) ? new DateTime(2900, 1, 1) : to;
+
         // This is a simplified calculation of Gross Profit
         var salesTotal = await context.Invoices
-            .Where(i => i.InvoiceDate >= from && i.InvoiceDate <= to && i.InvoiceType == InvoiceType.GenSale)
+            .Where(i => i.InvoiceDate >= safeFrom && i.InvoiceDate <= safeTo && i.InvoiceType == InvoiceType.GenSale)
             .SumAsync(i => (decimal?)i.NetAmount) ?? 0;
             
         var purchasesTotal = await context.Invoices
-            .Where(i => i.InvoiceDate >= from && i.InvoiceDate <= to && i.InvoiceType == InvoiceType.GenPurchase)
+            .Where(i => i.InvoiceDate >= safeFrom && i.InvoiceDate <= safeTo && i.InvoiceType == InvoiceType.GenPurchase)
             .SumAsync(i => (decimal?)i.NetAmount) ?? 0;
             
         var brkCommission = await context.BrokerageInvoices
-            .Where(i => i.InvoiceDate >= from && i.InvoiceDate <= to && i.IsPosted)
+            .Where(i => i.InvoiceDate >= safeFrom && i.InvoiceDate <= safeTo && i.IsPosted)
             .SumAsync(i => (decimal?)(i.CommissionAmount + i.Soodh_Amount)) ?? 0;
 
         // Return as a single row for report summary or grouped by type

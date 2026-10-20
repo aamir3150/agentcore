@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © 2026 City Computers Marot 03447436314")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("agentcore - Commodity Trade & Financial Management System")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("2.5.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7cc74ebfd87ec23d478f13be9e77e5b308e194ef")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e37bd0ccc42819b78a707aee8942858755a002f5")]
 [assembly: System.Reflection.AssemblyProductAttribute("agentcore")]
 [assembly: System.Reflection.AssemblyTitleAttribute("agentcore - Enterprise Management System")]
 [assembly: System.Reflection.AssemblyVersionAttribute("2.5.0.0")]

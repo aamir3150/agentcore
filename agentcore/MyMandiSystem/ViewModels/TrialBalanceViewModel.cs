@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyMandiSystem.Core.Interfaces;
+using MyMandiSystem.Helpers;
 using MyMandiSystem.Views;
 using System;
 using System.Threading.Tasks;
@@ -68,16 +69,23 @@ public partial class TrialBalanceViewModel : ObservableObject
     [RelayCommand]
     private async Task PreviewAsync()
     {
-        DateTime to = IsAllDates ? DateTime.MaxValue : (IsSingleDate ? SingleDate.Date.AddDays(1).AddSeconds(-1) : ToDate.Date.AddDays(1).AddSeconds(-1));
-        var data = await _reportService.GetDayBookReportAsync(to); // Or Trial Balance generation
+        try
+        {
+            DateTime to = IsAllDates ? new DateTime(2099, 12, 31) : (IsSingleDate ? SingleDate.Date.AddDays(1).AddSeconds(-1) : ToDate.Date.AddDays(1).AddSeconds(-1));
+            var data = await _reportService.GetDayBookReportAsync(to);
 
-        var reportWindow = new ReportWindow(
-            reportPath: "Reports/DayBookReport.rdlc",
-            dataSourceName: "DataSet1",
-            data: data
-        );
-        reportWindow.Title = $"Trial Balance - {(IsAllDates ? "All Dates" : (IsSingleDate ? SingleDate.ToShortDateString() : $"{FromDate.ToShortDateString()} To {ToDate.ToShortDateString()}"))}";
-        reportWindow.ShowDialog();
+            var reportWindow = new ReportWindow(
+                reportPath: "Reports/DayBookReport.rdlc",
+                dataSourceName: "DataSet1",
+                data: data
+            );
+            reportWindow.Title = $"Trial Balance - {(IsAllDates ? "All Dates" : (IsSingleDate ? SingleDate.ToShortDateString() : $"{FromDate.ToShortDateString()} To {ToDate.ToShortDateString()}"))}";
+            reportWindow.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            FriendlyErrorHandler.ShowError(ex, "Trial Balance Report");
+        }
     }
 
     [RelayCommand]

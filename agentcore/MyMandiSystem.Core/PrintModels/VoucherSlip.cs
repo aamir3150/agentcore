@@ -25,7 +25,7 @@ public sealed class VoucherSlip : IPrintable
     public IReadOnlyList<VoucherSlipLine> Details { get; init; } = Array.Empty<VoucherSlipLine>();
 
     public PrintOptions DefaultOptions =>
-        new(PaperKind.A5, Title: $"{VoucherType} Voucher - {VoucherTypeUrdu}", Copies: 1);
+        new(PaperKind.A4, Title: $"{VoucherType} Voucher - {VoucherTypeUrdu}", Copies: 1);
 }
 
 /// <summary>Single line in a voucher slip (account, narration, debit, credit).</summary>

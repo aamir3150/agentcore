@@ -23,7 +23,7 @@ namespace MyMandiSystem.ViewModels
         private string _currentView = "AccountsForms";
 
         [ObservableProperty]
-        private bool _isTrialVisible = true;
+        private bool _isTrialVisible = false;
 
         [ObservableProperty] private string _currentYearDisplay = "Financial Year: 2025-26";
         [ObservableProperty] private bool _isArchiveMode;
@@ -47,17 +47,21 @@ namespace MyMandiSystem.ViewModels
         private readonly ISystemConfigService _configService;
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IAccountService _accountService;
 
         public MainViewModel(
             ISystemService systemService, 
             ISystemConfigService configService,
             IDbContextFactory<AppDbContext> contextFactory,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            IAccountService accountService)
         {
+            try { System.IO.File.AppendAllText(@"D:\Projects\agentcore\agentcore\startup.log", $"[{DateTime.Now:HH:mm:ss.fff}] MainViewModel constructor entered.\r\n"); } catch {}
             _systemService = systemService;
             _configService = configService;
             _contextFactory = contextFactory;
             _currentUserService = currentUserService;
+            _accountService = accountService;
 
             CurrentYearDisplay = $"Financial Year: {_configService.GetCurrentFinancialYear()}";
             IsArchiveMode = _configService.IsReadOnly;
@@ -80,6 +84,12 @@ namespace MyMandiSystem.ViewModels
                 Navigate(m.Destination);
             });
 
+            // Register for dashboard refresh messages
+            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Register<RefreshDashboardMessage>(this, async (r, m) =>
+            {
+                await LoadDashboardMetricsAsync();
+            });
+
             // Load Real Metrics from Database
             _ = LoadDashboardMetricsAsync();
         }
@@ -89,17 +99,21 @@ namespace MyMandiSystem.ViewModels
             try
             {
                 using var context = await _contextFactory.CreateDbContextAsync();
-                var today = DateTime.Today;
+                var todayStart = DateTime.Today;
+                var todayEnd = todayStart.AddDays(1);
 
-                // 1. Cash In Hand: from cash accounts or receipts - payments
+                // 1. Cash In Hand: Account Balance of Cash Accounts
                 var cashAccounts = await context.Accounts
-                    .Where(a => !a.IsDeleted && (a.Name.Contains("Cash") || a.AccountNo == "1001" || a.IsSystemAccount))
+                    .Where(a => !a.IsDeleted && (a.AccountNo == "1001" || a.Name.Contains("Cash") || a.Name.Contains("روکڑ") || a.Name == "General Cash Account"))
                     .ToListAsync();
 
                 decimal totalCashInHand = 0m;
                 if (cashAccounts.Any())
                 {
-                    totalCashInHand = cashAccounts.Sum(a => a.CurrentBalance);
+                    foreach (var ca in cashAccounts)
+                    {
+                        totalCashInHand += await _accountService.GetAccountBalanceAsync(ca.Id);
+                    }
                 }
                 else
                 {
@@ -114,15 +128,22 @@ namespace MyMandiSystem.ViewModels
                     totalCashInHand = totalReceipts - totalPayments;
                 }
 
-                // 2. Today's Inflow (Cash Received today)
-                var todayCashReceived = await context.Vouchers
-                    .Where(v => v.VoucherType == Core.Enums.VoucherType.CashReceiving && v.VoucherDate.Date == today && v.Status != Core.Entities.VoucherStatus.Reversed)
-                    .SumAsync(v => (decimal?)v.TotalDebit) ?? 0m;
+                // 2. Today's Inflow (Cash Received today from external parties/customers)
+                var cashAccountIds = cashAccounts.Select(a => a.Id).ToList();
+                var todayCashReceived = await context.VoucherDetails
+                    .Where(vd => vd.Voucher.VoucherType == Core.Enums.VoucherType.CashReceiving 
+                             && vd.Voucher.VoucherDate >= todayStart && vd.Voucher.VoucherDate < todayEnd 
+                             && vd.Voucher.Status != Core.Entities.VoucherStatus.Reversed
+                             && !cashAccountIds.Contains(vd.AccountId))
+                    .SumAsync(vd => (decimal?)vd.Credit) ?? 0m;
 
-                // 3. Today's Outflow (Cash Paid today)
-                var todayCashPaid = await context.Vouchers
-                    .Where(v => v.VoucherType == Core.Enums.VoucherType.CashPayment && v.VoucherDate.Date == today && v.Status != Core.Entities.VoucherStatus.Reversed)
-                    .SumAsync(v => (decimal?)v.TotalDebit) ?? 0m;
+                // 3. Today's Outflow (Cash Paid today to external parties/suppliers)
+                var todayCashPaid = await context.VoucherDetails
+                    .Where(vd => vd.Voucher.VoucherType == Core.Enums.VoucherType.CashPayment 
+                             && vd.Voucher.VoucherDate >= todayStart && vd.Voucher.VoucherDate < todayEnd 
+                             && vd.Voucher.Status != Core.Entities.VoucherStatus.Reversed
+                             && !cashAccountIds.Contains(vd.AccountId))
+                    .SumAsync(vd => (decimal?)vd.Debit) ?? 0m;
 
                 // 4. Cheques Issued (Pending clearance)
                 var chequesIssued = await context.Cheques
@@ -143,8 +164,12 @@ namespace MyMandiSystem.ViewModels
                 var activeSeasons = await _systemService.GetActiveSeasonsAsync();
                 CurrentSeason = activeSeasons.FirstOrDefault()?.Name ?? _configService.GetCurrentFinancialYear();
             }
-            catch
+            catch (Exception ex)
             {
+                try {
+                    System.IO.File.AppendAllText(@"D:\Projects\agentcore\agentcore\startup.log", $"[{DateTime.Now:HH:mm:ss.fff}] [LoadDashboardMetricsAsync ERROR] {ex}\r\n");
+                } catch {}
+
                 CashInHand = "0";
                 CashReceived = "0";
                 CashPaid = "0";
@@ -167,10 +192,26 @@ namespace MyMandiSystem.ViewModels
         }
 
         [RelayCommand]
+        private async Task ShowDailyActivity()
+        {
+            IsTrialVisible = true;
+            await LoadDashboardMetricsAsync();
+        }
+
+        [RelayCommand]
         private void Users() { /* Placeholder */ }
 
         [RelayCommand]
-        private void Configuration() { /* Placeholder */ }
+        private void Configuration()
+        {
+            var vm = App.ServiceProvider?.GetRequiredService<BusinessProfileViewModel>();
+            if (vm != null)
+            {
+                var window = new Views.BusinessProfileWindow(vm);
+                SafeSetOwner(window);
+                window.ShowDialog();
+            }
+        }
 
         [RelayCommand]
         private void BackupDatabase() { /* Placeholder */ }
@@ -260,6 +301,7 @@ namespace MyMandiSystem.ViewModels
         [RelayCommand] private void UnitsDef() => OpenMasterDataWindow(1);
         [RelayCommand] private void TownsDef() => OpenMasterDataWindow(2);
         [RelayCommand] private void SectorsDef() => OpenMasterDataWindow(3);
+        [RelayCommand] private void CropSeasonsDef() => OpenMasterDataWindow(4);
 
         private void OpenMasterDataWindow(int tabIndex)
         {
@@ -285,12 +327,18 @@ namespace MyMandiSystem.ViewModels
         [RelayCommand] private void VendorsDef() => OpenPartyWindow(1);
         [RelayCommand] private void SalesmenDef() => OpenPartyWindow(2);
 
-        [RelayCommand] private void OpeningBalancesDef()
+        [RelayCommand] private void OpeningBalancesDef() => OpenOpeningBalancesWindow(0);
+        [RelayCommand] private void OpeningBalancesAccounts() => OpenOpeningBalancesWindow(0);
+        [RelayCommand] private void OpeningStock() => OpenOpeningBalancesWindow(1);
+
+        private void OpenOpeningBalancesWindow(int tabIndex = 0)
         {
-            var window = new Views.OpeningBalancesWindow();
-            window.DataContext = App.ServiceProvider?.GetRequiredService<OpeningBalancesViewModel>();
+            var vm = App.ServiceProvider?.GetRequiredService<OpeningBalancesViewModel>();
+            if (vm != null) vm.SelectedTabIndex = tabIndex;
+            var window = new Views.OpeningBalancesWindow { DataContext = vm };
             SafeSetOwner(window);
             window.ShowDialog();
+            _ = LoadDashboardMetricsAsync();
         }
 
         private void OpenPartyWindow(int tabIndex)
@@ -299,6 +347,7 @@ namespace MyMandiSystem.ViewModels
             window.DataContext = App.ServiceProvider?.GetRequiredService<PartyViewModel>();
             SafeSetOwner(window);
             window.ShowDialog();
+            _ = LoadDashboardMetricsAsync();
         }
         
         [RelayCommand] 
@@ -308,10 +357,9 @@ namespace MyMandiSystem.ViewModels
             window.DataContext = App.ServiceProvider?.GetRequiredService<ChartOfAccountsViewModel>();
             SafeSetOwner(window);
             window.ShowDialog(); 
+            _ = LoadDashboardMetricsAsync();
         }
         
-        [RelayCommand] private void OpeningBalancesAccounts() { /* Placeholder */ }
-        [RelayCommand] private void OpeningStock() { /* Placeholder */ }
         [RelayCommand] private void InsuranceManagement() { /* Placeholder */ }
         [RelayCommand] private void PromisesManagement() { /* Placeholder */ }
 

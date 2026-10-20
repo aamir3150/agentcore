@@ -23,7 +23,55 @@ public class VoucherService : IVoucherService
     public async Task<Voucher?> GetVoucherByIdAsync(int id)
     {
         using var context = await _contextFactory.CreateDbContextAsync();
-        return await context.Vouchers.Include(v => v.Details).FirstOrDefaultAsync(v => v.Id == id);
+        return await context.Vouchers
+            .Include(v => v.Details)
+                .ThenInclude(d => d.Account)
+            .Include(v => v.CropSeason)
+            .FirstOrDefaultAsync(v => v.Id == id);
+    }
+
+    public async Task<Voucher?> GetVoucherByNoAsync(VoucherType voucherType, string voucherNo, int financialYearId)
+    {
+        using var context = await _contextFactory.CreateDbContextAsync();
+        var cleanNo = voucherNo.Trim();
+        return await context.Vouchers
+            .Include(v => v.Details)
+                .ThenInclude(d => d.Account)
+            .Include(v => v.CropSeason)
+            .FirstOrDefaultAsync(v => v.VoucherType == voucherType 
+                                   && (v.VoucherNo == cleanNo || v.VoucherNo.EndsWith(cleanNo))
+                                   && (financialYearId <= 0 || v.FinancialYearId == financialYearId));
+    }
+
+    public async Task<Voucher?> GetPreviousVoucherAsync(VoucherType voucherType, int currentVoucherId, int financialYearId)
+    {
+        using var context = await _contextFactory.CreateDbContextAsync();
+        var query = context.Vouchers
+            .Include(v => v.Details)
+                .ThenInclude(d => d.Account)
+            .Include(v => v.CropSeason)
+            .Where(v => v.VoucherType == voucherType && (financialYearId <= 0 || v.FinancialYearId == financialYearId));
+
+        if (currentVoucherId > 0)
+        {
+            query = query.Where(v => v.Id < currentVoucherId);
+        }
+
+        return await query.OrderByDescending(v => v.Id).FirstOrDefaultAsync();
+    }
+
+    public async Task<Voucher?> GetNextVoucherAsync(VoucherType voucherType, int currentVoucherId, int financialYearId)
+    {
+        using var context = await _contextFactory.CreateDbContextAsync();
+        return await context.Vouchers
+            .Include(v => v.Details)
+                .ThenInclude(d => d.Account)
+            .Include(v => v.CropSeason)
+            .Where(v => v.VoucherType == voucherType 
+                     && (financialYearId <= 0 || v.FinancialYearId == financialYearId)
+                     && v.Id > currentVoucherId)
+            .OrderBy(v => v.Id)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<string> GetNextVoucherNoAsync(VoucherType voucherType, int financialYearId)
@@ -42,6 +90,46 @@ public class VoucherService : IVoucherService
     public async Task SaveVoucherAsync(Voucher voucher)
     {
         using var context = await _contextFactory.CreateDbContextAsync();
+
+        // Ensure FinancialYearId is valid
+        if (voucher.FinancialYearId <= 0)
+        {
+            var year = await context.FinancialYears.FirstOrDefaultAsync(y => y.IsCurrent)
+                    ?? await context.FinancialYears.OrderByDescending(y => y.Id).FirstOrDefaultAsync();
+            if (year != null)
+            {
+                voucher.FinancialYearId = year.Id;
+            }
+        }
+
+        // Ensure CropSeasonId is valid or null
+        if (voucher.CropSeasonId.HasValue && voucher.CropSeasonId.Value <= 0)
+        {
+            voucher.CropSeasonId = null;
+        }
+        else if (voucher.CropSeasonId.HasValue)
+        {
+            var seasonExists = await context.CropSeasons.AnyAsync(s => s.Id == voucher.CropSeasonId.Value);
+            if (!seasonExists)
+            {
+                voucher.CropSeasonId = null;
+            }
+        }
+
+        // Validate Cash Vouchers do not contain internal cash accounts
+        if (voucher.VoucherType == VoucherType.CashReceiving || voucher.VoucherType == VoucherType.CashPayment)
+        {
+            var cashAccountIds = await context.Accounts
+                .Where(a => !a.IsDeleted && (a.AccountNo == "1001" || a.Name.Contains("Cash") || a.Name.Contains("روکڑ") || a.Name == "General Cash Account"))
+                .Select(a => a.Id)
+                .ToListAsync();
+
+            if (voucher.Details.Any(d => cashAccountIds.Contains(d.AccountId)))
+            {
+                throw new InvalidOperationException("نقد کھاتہ (Cash in Hand) واؤچر کی تفصیلات (Details) میں شامل نہیں کیا جا سکتا۔");
+            }
+        }
+
         if (voucher.Id == 0)
         {
             context.Vouchers.Add(voucher);
@@ -56,7 +144,10 @@ public class VoucherService : IVoucherService
     public async Task PostVoucherAsync(int voucherId)
     {
         using var context = await _contextFactory.CreateDbContextAsync();
-        var voucher = await context.Vouchers.Include(v => v.Details).FirstOrDefaultAsync(v => v.Id == voucherId);
+        var voucher = await context.Vouchers
+            .Include(v => v.Details)
+                .ThenInclude(d => d.Account)
+            .FirstOrDefaultAsync(v => v.Id == voucherId);
         if (voucher == null || voucher.IsPosted) return;
 
         // Create GL Entries
@@ -84,29 +175,62 @@ public class VoucherService : IVoucherService
             }
         }
 
-        // Add offset entry for Cash Vouchers to maintain Double-Entry balance
+        // Add offset entry for Cash Vouchers to maintain Double-Entry balance directly with Cash in Hand
         if (voucher.VoucherType == VoucherType.CashReceiving || voucher.VoucherType == VoucherType.CashPayment)
         {
-            var cashAccount = await context.Accounts.FirstOrDefaultAsync(a => a.Name == "General Cash Account" || a.AccountNo == "101");
+            var cashAccount = await context.Accounts.FirstOrDefaultAsync(a => !a.IsDeleted && (a.AccountNo == "1001" || a.Name.Contains("Cash") || a.Name.Contains("روکڑ") || a.Name == "General Cash Account" || a.AccountNo == "101"));
             if (cashAccount != null)
             {
-                decimal cashDebit = voucher.VoucherType == VoucherType.CashReceiving ? voucher.TotalCredit : 0m;
-                decimal cashCredit = voucher.VoucherType == VoucherType.CashPayment ? voucher.TotalDebit : 0m;
-
-                var cashEntry = new GeneralLedger
+                if (voucher.VoucherType == VoucherType.CashReceiving)
                 {
-                    TransactionDate = voucher.VoucherDate,
-                    AccountId = cashAccount.Id,
-                    Debit = cashDebit,
-                    Credit = cashCredit,
-                    Narration = voucher.NarrationEnglish ?? $"Auto Cash Offset for {voucher.VoucherNo}",
-                    SourceType = SourceType.Voucher,
-                    SourceId = voucher.Id,
-                    FinancialYearId = voucher.FinancialYearId,
-                    CropSeasonId = voucher.CropSeasonId
-                };
-                context.GeneralLedger.Add(cashEntry);
-                cashAccount.CurrentBalance += (cashEntry.Debit - cashEntry.Credit);
+                    foreach (var detail in voucher.Details)
+                    {
+                        var partyName = detail.Account?.Name ?? $"A/C {detail.AccountId}";
+                        var narration = string.IsNullOrWhiteSpace(detail.Narration)
+                            ? $"Cash received from {partyName} (Voucher #{voucher.VoucherNo})"
+                            : $"Cash received from {partyName} - {detail.Narration} (Voucher #{voucher.VoucherNo})";
+
+                        var cashEntry = new GeneralLedger
+                        {
+                            TransactionDate = voucher.VoucherDate,
+                            AccountId = cashAccount.Id,
+                            Debit = detail.Credit,
+                            Credit = 0m,
+                            Narration = narration,
+                            SourceType = SourceType.Voucher,
+                            SourceId = voucher.Id,
+                            FinancialYearId = voucher.FinancialYearId,
+                            CropSeasonId = voucher.CropSeasonId
+                        };
+                        context.GeneralLedger.Add(cashEntry);
+                        cashAccount.CurrentBalance += detail.Credit;
+                    }
+                }
+                else // CashPayment
+                {
+                    foreach (var detail in voucher.Details)
+                    {
+                        var partyName = detail.Account?.Name ?? $"A/C {detail.AccountId}";
+                        var narration = string.IsNullOrWhiteSpace(detail.Narration)
+                            ? $"Cash paid to {partyName} (Voucher #{voucher.VoucherNo})"
+                            : $"Cash paid to {partyName} - {detail.Narration} (Voucher #{voucher.VoucherNo})";
+
+                        var cashEntry = new GeneralLedger
+                        {
+                            TransactionDate = voucher.VoucherDate,
+                            AccountId = cashAccount.Id,
+                            Debit = 0m,
+                            Credit = detail.Debit,
+                            Narration = narration,
+                            SourceType = SourceType.Voucher,
+                            SourceId = voucher.Id,
+                            FinancialYearId = voucher.FinancialYearId,
+                            CropSeasonId = voucher.CropSeasonId
+                        };
+                        context.GeneralLedger.Add(cashEntry);
+                        cashAccount.CurrentBalance -= detail.Debit;
+                    }
+                }
             }
         }
 
@@ -151,5 +275,22 @@ public class VoucherService : IVoucherService
 
         voucher.Status = VoucherStatus.Reversed;
         await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteVoucherAsync(int voucherId)
+    {
+        using var context = await _contextFactory.CreateDbContextAsync();
+        var voucher = await context.Vouchers.Include(v => v.Details).FirstOrDefaultAsync(v => v.Id == voucherId);
+        if (voucher != null)
+        {
+            var glEntries = await context.GeneralLedger
+                .Where(gl => gl.SourceType == SourceType.Voucher && gl.SourceId == voucherId)
+                .ToListAsync();
+            context.GeneralLedger.RemoveRange(glEntries);
+
+            context.VoucherDetails.RemoveRange(voucher.Details);
+            context.Vouchers.Remove(voucher);
+            await context.SaveChangesAsync();
+        }
     }
 }

@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
+using MyMandiSystem.Helpers;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -69,7 +70,18 @@ public partial class ProductViewModel : ObservableObject
     [RelayCommand]
     private void AddProduct()
     {
-        CurrentProduct = new Product { IsActive = true };
+        var defaultCompany = Companies.FirstOrDefault(c => c.IsActive)?.Id 
+                           ?? Companies.FirstOrDefault()?.Id ?? 0;
+        var defaultUnit = Units.FirstOrDefault()?.Id ?? 0;
+        var defaultGroup = ProductGroups.FirstOrDefault()?.Id;
+
+        CurrentProduct = new Product 
+        { 
+            IsActive = true,
+            CompanyId = defaultCompany,
+            UnitId = defaultUnit,
+            GroupId = defaultGroup
+        };
         IsProductFormVisible = true;
     }
 
@@ -103,41 +115,78 @@ public partial class ProductViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(CurrentProduct.Name))
         {
-            System.Windows.MessageBox.Show("Product Name is required.");
+            System.Windows.MessageBox.Show("Product Name is required.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
-        if (CurrentProduct.Id == 0)
+        if (CurrentProduct.CompanyId <= 0)
         {
-             if (string.IsNullOrWhiteSpace(CurrentProduct.ProductCode))
-                 CurrentProduct.ProductCode = "ITM-" + DateTime.Now.Ticks.ToString().Substring(10);
-                 
-             await _productService.AddProductAsync(CurrentProduct);
-        }
-        else
-        {
-            var existing = Products.FirstOrDefault(p => p.Id == CurrentProduct.Id);
-            if (existing != null)
+            var defaultComp = Companies.FirstOrDefault(c => c.IsActive) ?? Companies.FirstOrDefault();
+            if (defaultComp != null)
             {
-                existing.Name = CurrentProduct.Name;
-                existing.UrduName = CurrentProduct.UrduName;
-                existing.CompanyId = CurrentProduct.CompanyId;
-                existing.UnitId = CurrentProduct.UnitId;
-                existing.GroupId = CurrentProduct.GroupId;
-                existing.PurchasePrice = CurrentProduct.PurchasePrice;
-                existing.SalePrice = CurrentProduct.SalePrice;
-                existing.BarcodeNo = CurrentProduct.BarcodeNo;
-                existing.IsPestro = CurrentProduct.IsPestro;
-                existing.ExpiryTracking = CurrentProduct.ExpiryTracking;
-                existing.ReorderLevel = CurrentProduct.ReorderLevel;
-                existing.HSCode = CurrentProduct.HSCode;
-                existing.IsActive = CurrentProduct.IsActive;
-
-                await _productService.UpdateProductAsync(existing);
+                CurrentProduct.CompanyId = defaultComp.Id;
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Please select or add a Company first.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
         }
-        IsProductFormVisible = false;
-        await LoadDataAsync();
+
+        if (CurrentProduct.UnitId <= 0)
+        {
+            var defaultUnit = Units.FirstOrDefault();
+            if (defaultUnit != null)
+            {
+                CurrentProduct.UnitId = defaultUnit.Id;
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Please select or add a Unit first.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+        }
+
+        try
+        {
+            if (CurrentProduct.Id == 0)
+            {
+                if (string.IsNullOrWhiteSpace(CurrentProduct.ProductCode))
+                {
+                    CurrentProduct.ProductCode = "ITM-" + DateTime.Now.Ticks.ToString().Substring(10);
+                }
+
+                await _productService.AddProductAsync(CurrentProduct);
+            }
+            else
+            {
+                var existing = Products.FirstOrDefault(p => p.Id == CurrentProduct.Id);
+                if (existing != null)
+                {
+                    existing.Name = CurrentProduct.Name;
+                    existing.UrduName = CurrentProduct.UrduName;
+                    existing.CompanyId = CurrentProduct.CompanyId;
+                    existing.UnitId = CurrentProduct.UnitId;
+                    existing.GroupId = CurrentProduct.GroupId;
+                    existing.PurchasePrice = CurrentProduct.PurchasePrice;
+                    existing.SalePrice = CurrentProduct.SalePrice;
+                    existing.BarcodeNo = CurrentProduct.BarcodeNo;
+                    existing.IsPestro = CurrentProduct.IsPestro;
+                    existing.ExpiryTracking = CurrentProduct.ExpiryTracking;
+                    existing.ReorderLevel = CurrentProduct.ReorderLevel;
+                    existing.HSCode = CurrentProduct.HSCode;
+                    existing.IsActive = CurrentProduct.IsActive;
+
+                    await _productService.UpdateProductAsync(existing);
+                }
+            }
+            IsProductFormVisible = false;
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            FriendlyErrorHandler.ShowError(ex, "Product Save");
+        }
     }
 
     [RelayCommand]
@@ -149,8 +198,15 @@ public partial class ProductViewModel : ObservableObject
         if (product == null) return;
         if (System.Windows.MessageBox.Show($"Delete product '{product.Name}'?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
         {
-            await _productService.DeleteProductAsync(product.Id);
-            await LoadDataAsync();
+            try
+            {
+                await _productService.DeleteProductAsync(product.Id);
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                FriendlyErrorHandler.ShowError(ex, "Product Delete");
+            }
         }
     }
 
@@ -165,7 +221,7 @@ public partial class ProductViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show($"Error recalculating stock: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            FriendlyErrorHandler.ShowError(ex, "Stock Recalculation");
         }
     }
 

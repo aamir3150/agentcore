@@ -72,6 +72,58 @@ public class SystemService : ISystemService
     public async Task<System.Collections.Generic.List<CropSeason>> GetActiveSeasonsAsync()
     {
         using var context = await _contextFactory.CreateDbContextAsync();
-        return await context.CropSeasons.Where(s => s.IsActive).ToListAsync();
+        return await context.CropSeasons.Where(s => s.IsActive && !s.IsDeleted).OrderBy(s => s.StartDate).ToListAsync();
+    }
+
+    public async Task<System.Collections.Generic.List<CropSeason>> GetAllSeasonsAsync()
+    {
+        using var context = await _contextFactory.CreateDbContextAsync();
+        return await context.CropSeasons.Where(s => !s.IsDeleted).OrderBy(s => s.StartDate).ToListAsync();
+    }
+
+    public async Task AddCropSeasonAsync(CropSeason season)
+    {
+        using var context = await _contextFactory.CreateDbContextAsync();
+        if (season.FinancialYearId <= 0)
+        {
+            var currentYear = await context.FinancialYears.FirstOrDefaultAsync(y => y.IsCurrent && !y.IsDeleted) 
+                              ?? await context.FinancialYears.FirstOrDefaultAsync(y => !y.IsDeleted);
+            if (currentYear != null)
+            {
+                season.FinancialYearId = currentYear.Id;
+            }
+        }
+        season.CreatedAt = DateTime.Now;
+        season.CreatedBy = 1;
+        context.CropSeasons.Add(season);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task UpdateCropSeasonAsync(CropSeason season)
+    {
+        using var context = await _contextFactory.CreateDbContextAsync();
+        var existing = await context.CropSeasons.FindAsync(season.Id);
+        if (existing != null)
+        {
+            existing.Name = season.Name;
+            existing.StartDate = season.StartDate;
+            existing.EndDate = season.EndDate;
+            existing.IsActive = season.IsActive;
+            existing.UpdatedAt = DateTime.Now;
+            existing.UpdatedBy = 1;
+            await context.SaveChangesAsync();
+        }
+    }
+
+    public async Task DeleteCropSeasonAsync(int seasonId)
+    {
+        using var context = await _contextFactory.CreateDbContextAsync();
+        var existing = await context.CropSeasons.FindAsync(seasonId);
+        if (existing != null)
+        {
+            existing.IsDeleted = true;
+            existing.UpdatedAt = DateTime.Now;
+            await context.SaveChangesAsync();
+        }
     }
 }

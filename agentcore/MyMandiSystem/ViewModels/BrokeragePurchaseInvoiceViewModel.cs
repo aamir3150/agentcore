@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
+using MyMandiSystem.Helpers;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -355,7 +356,7 @@ public partial class BrokeragePurchaseInvoiceViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show($"Error saving invoice: {ex.Message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            FriendlyErrorHandler.ShowError(ex, "Brokerage Purchase Invoice Save");
         }
     }
 

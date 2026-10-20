@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
+using MyMandiSystem.Helpers;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -77,7 +78,7 @@ public partial class OpeningBalancesViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show($"Error saving financial balances: {ex.Message}");
+            FriendlyErrorHandler.ShowError(ex, "Financial Opening Balances Save");
         }
     }
 
@@ -93,13 +94,16 @@ public partial class OpeningBalancesViewModel : ObservableObject
                     await _stockService.SetOpeningStockAsync(item.ProductId, item.Qty, item.Rate);
                 }
             }
-            System.Windows.MessageBox.Show("Inventory Opening Balances saved successfully.");
+            System.Windows.MessageBox.Show("Inventory Opening Balances saved successfully.", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show($"Error saving inventory balances: {ex.Message}");
+            FriendlyErrorHandler.ShowError(ex, "Inventory Opening Balances Save");
         }
     }
+
+    [RelayCommand]
+    private Task SaveStock() => SaveInventory();
 }
 
 public class AccountOpeningModel : ObservableObject

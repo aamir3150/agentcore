@@ -13,33 +13,39 @@ namespace MyMandiSystem.ViewModels;
 public partial class MasterDataViewModel : ObservableObject
 {
     private readonly ICatalogService _catalogService;
+    private readonly ISystemService _systemService;
 
     [ObservableProperty] private ObservableCollection<Company> _companies = new();
     [ObservableProperty] private ObservableCollection<Unit> _units = new();
     [ObservableProperty] private ObservableCollection<Town> _towns = new();
     [ObservableProperty] private ObservableCollection<Sector> _sectors = new();
+    [ObservableProperty] private ObservableCollection<CropSeason> _cropSeasons = new();
 
     // View State Flags for Forms
     [ObservableProperty] private bool _isCompanyFormVisible;
     [ObservableProperty] private bool _isUnitFormVisible;
     [ObservableProperty] private bool _isTownFormVisible;
     [ObservableProperty] private bool _isSectorFormVisible;
+    [ObservableProperty] private bool _isCropSeasonFormVisible;
 
     // Selections
     [ObservableProperty] private Company? _selectedCompany;
     [ObservableProperty] private Unit? _selectedUnit;
     [ObservableProperty] private Town? _selectedTown;
     [ObservableProperty] private Sector? _selectedSector;
+    [ObservableProperty] private CropSeason? _selectedCropSeason;
 
     // Form Models
     [ObservableProperty] private Company _currentCompany = new();
     [ObservableProperty] private Unit _currentUnit = new();
     [ObservableProperty] private Town _currentTown = new();
     [ObservableProperty] private Sector _currentSector = new();
+    [ObservableProperty] private CropSeason _currentCropSeason = new();
 
-    public MasterDataViewModel(ICatalogService catalogService)
+    public MasterDataViewModel(ICatalogService catalogService, ISystemService systemService)
     {
         _catalogService = catalogService;
+        _systemService = systemService;
         _ = LoadAllDataAsync();
     }
 
@@ -57,6 +63,9 @@ public partial class MasterDataViewModel : ObservableObject
 
         var sectors = await _catalogService.GetSectorsAsync();
         Sectors = new ObservableCollection<Sector>(sectors);
+
+        var seasons = await _systemService.GetAllSeasonsAsync();
+        CropSeasons = new ObservableCollection<CropSeason>(seasons);
     }
 
     // --- COMPANIES ---
@@ -177,6 +186,73 @@ public partial class MasterDataViewModel : ObservableObject
         if (System.Windows.MessageBox.Show($"Delete sector '{sector.Name}'?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
         {
             await _catalogService.DeleteSectorAsync(sector.Id);
+            await LoadAllDataAsync();
+        }
+    }
+
+    // --- CROP SEASONS ---
+    [RelayCommand] 
+    private void AddCropSeason() 
+    { 
+        CurrentCropSeason = new CropSeason 
+        { 
+            Name = string.Empty,
+            StartDate = DateTime.Today, 
+            EndDate = DateTime.Today.AddMonths(6), 
+            IsActive = true 
+        }; 
+        IsCropSeasonFormVisible = true; 
+    }
+
+    [RelayCommand] 
+    private void EditCropSeason(CropSeason season) 
+    { 
+        if (season != null) 
+        { 
+            CurrentCropSeason = new CropSeason 
+            { 
+                Id = season.Id, 
+                Name = season.Name, 
+                StartDate = season.StartDate, 
+                EndDate = season.EndDate, 
+                FinancialYearId = season.FinancialYearId, 
+                IsActive = season.IsActive 
+            }; 
+            IsCropSeasonFormVisible = true; 
+        } 
+    }
+
+    [RelayCommand] 
+    private void CancelCropSeason() => IsCropSeasonFormVisible = false;
+
+    [RelayCommand]
+    private async Task SaveCropSeason()
+    {
+        if (string.IsNullOrWhiteSpace(CurrentCropSeason.Name)) 
+        { 
+            System.Windows.MessageBox.Show("Crop Season Name is required.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning); 
+            return; 
+        }
+
+        if (CurrentCropSeason.Id == 0) 
+        {
+            await _systemService.AddCropSeasonAsync(CurrentCropSeason);
+        }
+        else 
+        {
+            await _systemService.UpdateCropSeasonAsync(CurrentCropSeason);
+        }
+        IsCropSeasonFormVisible = false;
+        await LoadAllDataAsync();
+    }
+
+    [RelayCommand]
+    private async Task DeleteCropSeason(CropSeason season)
+    {
+        if (season == null) return;
+        if (System.Windows.MessageBox.Show($"Are you sure you want to delete Crop Season '{season.Name}'?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        {
+            await _systemService.DeleteCropSeasonAsync(season.Id);
             await LoadAllDataAsync();
         }
     }

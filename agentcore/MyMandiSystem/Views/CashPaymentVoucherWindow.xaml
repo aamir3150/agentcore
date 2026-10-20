@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:MyMandiSystem.Views"
         Title="agentcore - Debit Voucher (Cash Payment)" 
-        Width="950" Height="700" 
-        WindowStartupLocation="CenterOwner"
+        Width="1050" Height="780" MinWidth="900" MinHeight="650"
+        WindowStartupLocation="CenterScreen"
         ResizeMode="CanResizeWithGrip"
         WindowStyle="SingleBorderWindow"
         Background="{StaticResource BrushSurfaceBg}">

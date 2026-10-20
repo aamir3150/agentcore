@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
+using MyMandiSystem.Helpers;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -155,7 +156,7 @@ public partial class GeneralInvoiceViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show($"Error saving invoice: {ex.Message}");
+            FriendlyErrorHandler.ShowError(ex, "Invoice Save");
         }
     }
 
@@ -181,7 +182,7 @@ public partial class GeneralInvoiceViewModel : ObservableObject
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show($"Error posting invoice: {ex.Message}");
+                    FriendlyErrorHandler.ShowError(ex, "Invoice Post");
                 }
             }
         }

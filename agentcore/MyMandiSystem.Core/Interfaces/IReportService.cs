@@ -6,7 +6,7 @@ namespace MyMandiSystem.Core.Interfaces;
 
 public interface IReportService
 {
-    Task<IEnumerable<dynamic>> GetLedgerReportAsync(int accountId, DateTime from, DateTime to);
+    Task<IEnumerable<dynamic>> GetLedgerReportAsync(int accountId, DateTime? from = null, DateTime? to = null, bool withoutOpening = false, bool isUrdu = false);
     Task<IEnumerable<dynamic>> GetDayBookReportAsync(DateTime date);
     Task<IEnumerable<dynamic>> GetStockReportAsync(int? productId);
     Task<IEnumerable<dynamic>> GetPurchaseRegisterAsync(DateTime from, DateTime to);

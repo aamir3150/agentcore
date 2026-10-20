@@ -7,6 +7,7 @@ namespace MyMandiSystem.Core.Interfaces;
 public interface IPartyService
 {
     Task<Party?> GetPartyByNoAsync(string partyNo);
+    Task<string> GetNextPartyNoAsync(PartyType partyType);
     Task<IEnumerable<Party>> GetAllPartiesAsync();
     Task<IEnumerable<PartyGroup>> GetPartyGroupsAsync();
     Task AddPartyAsync(Party party);

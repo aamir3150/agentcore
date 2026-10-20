@@ -3957,11 +3957,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Infrastructure\\MyMandiSystem.Infrastructure.csproj",
+      "projectUniqueName": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Infrastructure\\MyMandiSystem.Infrastructure.csproj",
       "projectName": "MyMandiSystem.Infrastructure",
-      "projectPath": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Infrastructure\\MyMandiSystem.Infrastructure.csproj",
+      "projectPath": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Infrastructure\\MyMandiSystem.Infrastructure.csproj",
       "packagesPath": "C:\\Users\\City Computers\\.nuget\\packages\\",
-      "outputPath": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Infrastructure\\obj\\",
+      "outputPath": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\City Computers\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -3976,8 +3976,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj": {
-              "projectPath": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj"
+            "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj": {
+              "projectPath": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj"
             }
           }
         }

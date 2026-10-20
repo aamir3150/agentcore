@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
+using MyMandiSystem.Helpers;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -27,6 +28,7 @@ public partial class PartyViewModel : ObservableObject
     // UI State
     [ObservableProperty] private int _selectedTabIndex;
     [ObservableProperty] private bool _isFormVisible;
+    [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private Party _currentParty = new();
     [ObservableProperty] private Party? _selectedParty;
     [ObservableProperty] private Salesman _currentSalesman = new();
@@ -40,6 +42,11 @@ public partial class PartyViewModel : ObservableObject
         _partyService = partyService;
         _catalogService = catalogService;
         _ = LoadDataAsync();
+    }
+
+    partial void OnSearchTextChanged(string value)
+    {
+        FilterParties();
     }
 
     [RelayCommand]
@@ -72,21 +79,43 @@ public partial class PartyViewModel : ObservableObject
 
     private void FilterParties()
     {
+        IEnumerable<Party> query;
         if (SelectedTabIndex == 0) // Customers
-            FilteredParties = new ObservableCollection<Party>(AllParties.Where(p => p.PartyType == PartyType.Customer || p.PartyType == PartyType.Both));
+            query = AllParties.Where(p => p.PartyType == PartyType.Customer || p.PartyType == PartyType.Both);
         else if (SelectedTabIndex == 1) // Vendors
-            FilteredParties = new ObservableCollection<Party>(AllParties.Where(p => p.PartyType == PartyType.Vendor || p.PartyType == PartyType.Both));
+            query = AllParties.Where(p => p.PartyType == PartyType.Vendor || p.PartyType == PartyType.Both);
+        else
+            query = AllParties;
+
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            string s = SearchText.Trim().ToLower();
+            query = query.Where(p => 
+                (p.PartyNo != null && p.PartyNo.ToLower().Contains(s)) ||
+                (p.Name != null && p.Name.ToLower().Contains(s)) ||
+                (p.UrduName != null && p.UrduName.Contains(s)) ||
+                (p.Phone != null && p.Phone.Contains(s)) ||
+                (p.Town != null && p.Town.Name != null && p.Town.Name.ToLower().Contains(s))
+            );
+        }
+
+        FilteredParties = new ObservableCollection<Party>(query);
     }
 
     // --- PARTY CRUD (Customers/Vendors) ---
 
     [RelayCommand]
-    private void AddParty()
+    private async Task AddParty()
     {
-        var defaultGroup = PartyGroups.FirstOrDefault();
+        var type = SelectedTabIndex == 0 ? PartyType.Customer : PartyType.Vendor;
+        var defaultGroup = PartyGroups.FirstOrDefault(g => g.Name.Contains(type == PartyType.Vendor ? "Zamindaraan" : "Customer")) 
+                           ?? PartyGroups.FirstOrDefault();
+        string nextNo = await _partyService.GetNextPartyNoAsync(type);
+
         CurrentParty = new Party 
         { 
-            PartyType = SelectedTabIndex == 0 ? PartyType.Customer : PartyType.Vendor,
+            PartyNo = nextNo,
+            PartyType = type,
             PartyGroupId = defaultGroup?.Id ?? 0,
             IsActive = true 
         };
@@ -133,9 +162,13 @@ public partial class PartyViewModel : ObservableObject
         {
             if (CurrentParty.Id == 0)
             {
-                // Generate a temporary auto PartyNo if blank
-                if (string.IsNullOrWhiteSpace(CurrentParty.PartyNo))
-                    CurrentParty.PartyNo = "P-" + DateTime.Now.Ticks.ToString().Substring(10);
+                if (string.IsNullOrWhiteSpace(CurrentParty.PartyNo) || 
+                    CurrentParty.PartyNo.StartsWith("P-", StringComparison.OrdinalIgnoreCase) || 
+                    CurrentParty.PartyNo.Length != 7 || 
+                    !CurrentParty.PartyNo.All(char.IsDigit))
+                {
+                    CurrentParty.PartyNo = await _partyService.GetNextPartyNoAsync(CurrentParty.PartyType);
+                }
 
                 await _partyService.AddPartyAsync(CurrentParty);
             }
@@ -144,6 +177,7 @@ public partial class PartyViewModel : ObservableObject
                 var existing = AllParties.FirstOrDefault(p => p.Id == CurrentParty.Id);
                 if (existing != null)
                 {
+                    existing.PartyNo = CurrentParty.PartyNo;
                     existing.Name = CurrentParty.Name;
                     existing.UrduName = CurrentParty.UrduName;
                     existing.PartyType = CurrentParty.PartyType;
@@ -167,8 +201,7 @@ public partial class PartyViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            var msg = ex.InnerException != null ? $"{ex.Message}\nDetails: {ex.InnerException.Message}" : ex.Message;
-            System.Windows.MessageBox.Show($"Error saving party: {msg}", "Validation / Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            FriendlyErrorHandler.ShowError(ex, "Party Save");
         }
     }
 
@@ -181,8 +214,15 @@ public partial class PartyViewModel : ObservableObject
         if (party == null) return;
         if (System.Windows.MessageBox.Show($"Delete party '{party.Name}'? This will also disable their ledger account.", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
         {
-            await _partyService.DeletePartyAsync(party.Id);
-            await LoadDataAsync();
+            try
+            {
+                await _partyService.DeletePartyAsync(party.Id);
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                FriendlyErrorHandler.ShowError(ex, "Party Delete");
+            }
         }
     }
 

@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
+using MyMandiSystem.Helpers;
 using MyMandiSystem.Views;
 using System;
 using System.Collections.Generic;
@@ -163,18 +164,52 @@ public partial class AccountLedgerExtendedViewModel : ObservableObject
             AccountName = match.Name;
         }
 
-        DateTime from = IsAllDates ? DateTime.MinValue : (IsSingleDate ? SingleDate.Date : FromDate.Date);
-        DateTime to = IsAllDates ? DateTime.MaxValue : (IsSingleDate ? SingleDate.Date.AddDays(1).AddSeconds(-1) : ToDate.Date.AddDays(1).AddSeconds(-1));
+        DateTime? from = null;
+        DateTime? to = null;
 
-        var data = await _reportService.GetLedgerReportAsync(SelectedAccount.Id, from, to);
+        if (IsSingleDate)
+        {
+            from = SingleDate.Date;
+            to = SingleDate.Date.AddDays(1).AddSeconds(-1);
+        }
+        else if (IsDateRange)
+        {
+            from = FromDate.Date;
+            to = ToDate.Date.AddDays(1).AddSeconds(-1);
+        }
 
-        var reportWindow = new ReportWindow(
-            reportPath: "Reports/LedgerReport.rdlc",
-            dataSourceName: "DS_Ledger",
-            data: data
-        );
-        reportWindow.Title = $"Account Ledger - {SelectedAccount.AccountNo} ({SelectedAccount.Name})";
-        reportWindow.ShowDialog();
+        try
+        {
+            var data = await _reportService.GetLedgerReportAsync(SelectedAccount.Id, from, to, WithoutOpening, UrduPrint);
+
+            string titleName = !string.IsNullOrWhiteSpace(SelectedAccount.UrduName) && UrduPrint
+                ? $"{SelectedAccount.AccountNo} - {SelectedAccount.UrduName}"
+                : $"{SelectedAccount.AccountNo} ({SelectedAccount.Name})";
+
+            string periodText = IsSingleDate ? $"{SingleDate:dd/MM/yyyy}" :
+                                IsDateRange ? $"{FromDate:dd/MM/yyyy} تا {ToDate:dd/MM/yyyy}" :
+                                "All Dates (تمام تاریخیں / سابقہ تا حال)";
+
+            var parameters = new Dictionary<string, string>
+            {
+                { "Account", titleName },
+                { "Period", periodText }
+            };
+
+            var reportWindow = new ReportWindow(
+                reportPath: "Reports/LedgerReport.rdlc",
+                dataSourceName: "DS_Ledger",
+                data: data,
+                parameters: parameters
+            );
+
+            reportWindow.Title = $"Account Ledger - {titleName}";
+            reportWindow.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            FriendlyErrorHandler.ShowError(ex, "Account Ledger Report");
+        }
     }
 
     [RelayCommand]

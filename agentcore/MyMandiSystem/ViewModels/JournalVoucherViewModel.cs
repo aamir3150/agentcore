@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
 using MyMandiSystem.Core.Enums;
+using MyMandiSystem.Helpers;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -35,15 +36,21 @@ public partial class JournalVoucherViewModel : ObservableObject
     [ObservableProperty] private decimal _difference;
 
     private int? _currentAccountId;
+    private readonly MyMandiSystem.Core.Printing.IPrintService _printService;
+    private readonly MyMandiSystem.Core.Printing.IPrintModelFactory _printModelFactory;
 
     public JournalVoucherViewModel(
         IVoucherService voucherService, 
         IAccountService accountService,
-        ISystemService systemService)
+        ISystemService systemService,
+        MyMandiSystem.Core.Printing.IPrintService printService,
+        MyMandiSystem.Core.Printing.IPrintModelFactory printModelFactory)
     {
         _voucherService = voucherService;
         _accountService = accountService;
         _systemService = systemService;
+        _printService = printService;
+        _printModelFactory = printModelFactory;
 
         LoadInitialData();
     }
@@ -60,12 +67,42 @@ public partial class JournalVoucherViewModel : ObservableObject
         }
     }
 
+    partial void OnAccountNoChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            AccountName = string.Empty;
+            _currentAccountId = null;
+            return;
+        }
+
+        LookupAccountByNo(value.Trim());
+    }
+
+    private async void LookupAccountByNo(string no)
+    {
+        var account = await _accountService.GetAccountByNoAsync(no);
+        if (AccountNo?.Trim() == no)
+        {
+            if (account != null)
+            {
+                AccountName = account.Name;
+                _currentAccountId = account.Id;
+            }
+            else
+            {
+                AccountName = string.Empty;
+                _currentAccountId = null;
+            }
+        }
+    }
+
     [RelayCommand]
     private async Task LookupAccount()
     {
         if (string.IsNullOrWhiteSpace(AccountNo)) return;
 
-        var account = await _accountService.GetAccountByNoAsync(AccountNo);
+        var account = await _accountService.GetAccountByNoAsync(AccountNo.Trim());
         if (account != null)
         {
             AccountName = account.Name;
@@ -141,12 +178,14 @@ public partial class JournalVoucherViewModel : ObservableObject
 
         try
         {
+            var year = await _systemService.GetCurrentYearAsync();
             var voucher = new Voucher
             {
                 VoucherNo = VoucherNo,
                 VoucherType = VoucherType.JournalVoucher,
                 VoucherDate = VoucherDate,
-                CropSeasonId = SelectedSeason?.Id ?? 0,
+                FinancialYearId = year?.Id ?? 1,
+                CropSeasonId = (SelectedSeason != null && SelectedSeason.Id > 0) ? SelectedSeason.Id : null,
                 NarrationUrdu = NarrationUrdu,
                 TotalDebit = TotalDebit,
                 TotalCredit = TotalCredit,
@@ -161,13 +200,57 @@ public partial class JournalVoucherViewModel : ObservableObject
 
             await _voucherService.SaveVoucherAsync(voucher);
             await _voucherService.PostVoucherAsync(voucher.Id);
-            System.Windows.MessageBox.Show("Journal Voucher saved successfully!", "Success");
+
+            var printPrompt = System.Windows.MessageBox.Show(
+                "Journal Voucher کامیابی سے محفوظ ہو گیا ہے۔\nکیا آپ دستخط کے لیے واؤچر سلپ پرنٹ کرنا چاہتے ہیں؟", 
+                "واؤچر پرنٹ کریں؟", 
+                MessageBoxButton.YesNo, 
+                MessageBoxImage.Question);
+
+            if (printPrompt == MessageBoxResult.Yes)
+            {
+                var slip = _printModelFactory.BuildVoucherSlip(voucher.Id);
+                _printService.Preview(slip);
+            }
+
             ClearAll();
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show($"Error saving voucher: {ex.Message}", "System Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            FriendlyErrorHandler.ShowError(ex, "Journal Voucher Save");
         }
+    }
+
+    [RelayCommand]
+    private void Print()
+    {
+        if (!Details.Any())
+        {
+            System.Windows.MessageBox.Show("واؤچر پرنٹ کرنے کے لیے کم از کم ایک انٹری شامل ہونی چاہیے!", "اطلاع", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var voucher = new Voucher
+        {
+            VoucherNo = VoucherNo,
+            VoucherType = VoucherType.JournalVoucher,
+            VoucherDate = VoucherDate,
+            TotalDebit = TotalDebit,
+            TotalCredit = TotalCredit,
+            NarrationEnglish = Details.FirstOrDefault()?.Narration,
+            NarrationUrdu = NarrationUrdu,
+            Details = Details.Select(d => new VoucherDetail
+            {
+                AccountId = d.AccountId,
+                Debit = d.Debit,
+                Credit = d.Credit,
+                Narration = d.Narration,
+                Account = new Account { AccountNo = d.AccountNo, Name = d.AccountName }
+            }).ToList()
+        };
+
+        var slip = _printModelFactory.BuildVoucherSlip(voucher);
+        _printService.Preview(slip);
     }
 
     [RelayCommand]

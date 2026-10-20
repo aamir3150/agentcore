@@ -25,9 +25,9 @@
                         <!-- Account Details -->
                         <StackPanel Grid.Column="0">
                             <TextBlock FontSize="14" FontWeight="Bold" Foreground="#0F172A">
-                                <Run Text="{Binding AccountName}"/>
+                                <Run Text="{Binding AccountName, Mode=OneWay}"/>
                                 <Run Text=" "/>
-                                <Run Text="{Binding AccountUrduName}" FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Arial" FontSize="16"/>
+                                <Run Text="{Binding AccountUrduName, Mode=OneWay}" FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Arial" FontSize="16"/>
                             </TextBlock>
                             <TextBlock Text="{Binding AccountNo, StringFormat='A/C No: {0}'}" FontSize="11" Foreground="#475569" Margin="0,2,0,0"/>
                         </StackPanel>
@@ -43,22 +43,41 @@
                     </Grid>
                 </Border>
 
-                <!-- If has multiple details lines -->
+                <!-- Details Table Header -->
+                <Border Background="#1E293B" CornerRadius="4,4,0,0" Padding="8,6" Margin="0,4,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="110"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="A/C No" FontWeight="Bold" Foreground="White" FontSize="11"/>
+                        <TextBlock Grid.Column="1" Text="Account Title / تفصیل کھاتہ" FontWeight="Bold" Foreground="White" FontSize="11"/>
+                        <TextBlock Grid.Column="2" Text="Debit (بنام)" FontWeight="Bold" Foreground="White" FontSize="11" TextAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="Credit (جمع)" FontWeight="Bold" Foreground="White" FontSize="11" TextAlignment="Right"/>
+                    </Grid>
+                </Border>
+
+                <!-- Details lines -->
                 <ItemsControl ItemsSource="{Binding Details}" Margin="0,0,0,8">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="6,4">
+                            <Border BorderBrush="#CBD5E1" BorderThickness="1,0,1,1" Padding="8,5">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="90"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="90"/>
-                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="110"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding AccountNo}" FontSize="11" Foreground="#64748B"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding AccountName}" FontSize="11" FontWeight="SemiBold"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding Debit, StringFormat='{}{0:N0}'}" FontSize="11" TextAlignment="Right"/>
-                                    <TextBlock Grid.Column="3" Text="{Binding Credit, StringFormat='{}{0:N0}'}" FontSize="11" TextAlignment="Right"/>
+                                    <TextBlock Text="{Binding AccountNo}" FontSize="11" Foreground="#475569" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,8,0">
+                                        <TextBlock Text="{Binding AccountName}" FontSize="11.5" FontWeight="SemiBold" Foreground="#0F172A"/>
+                                        <TextBlock Text="{Binding Narration}" FontSize="10" Foreground="#64748B" FontStyle="Italic" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding Debit, StringFormat='{}{0:N0}'}" FontSize="11.5" FontWeight="SemiBold" Foreground="#BE123C" TextAlignment="Right" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding Credit, StringFormat='{}{0:N0}'}" FontSize="11.5" FontWeight="SemiBold" Foreground="#047857" TextAlignment="Right" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -66,7 +85,7 @@
                 </ItemsControl>
 
                 <!-- Amount Box & Narration -->
-                <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="12,10" Margin="0,0,0,10">
+                <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,0,0,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -75,18 +94,21 @@
                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                             <TextBlock Text="{Binding Narration, StringFormat='Narration: {0}'}" 
                                        FontSize="11.5" Foreground="#334155" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding NarrationUrdu, StringFormat='تفصیل: {0}'}" 
+                                       FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Arial"
+                                       FontSize="14" Foreground="#1E293B" Margin="0,2,0,0" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding Amount, Converter={StaticResource AmountInWords}}" 
                                        FontStyle="Italic" FontWeight="SemiBold" FontSize="11.5" Foreground="#0F766E" Margin="0,4,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
-                        <Border Grid.Column="1" Background="#0F172A" CornerRadius="4" Padding="12,6" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Amount, StringFormat='Rs. {0:N0}'}" 
-                                       FontWeight="Bold" FontSize="16" Foreground="White"/>
+                        <Border Grid.Column="1" Background="#0F172A" CornerRadius="4" Padding="14,6" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Amount, StringFormat='Total: Rs. {0:N0}'}" 
+                                       FontWeight="Bold" FontSize="15" Foreground="White"/>
                         </Border>
                     </Grid>
                 </Border>
 
                 <!-- Signatures -->
-                <pc:SignatureBlock Labels="وصول کنندہ (Receiver),منشی / کیشئر (Prepared By)" Margin="0,50,0,14"/>
+                <pc:SignatureBlock Labels="منشی / کیشئر (Prepared By),اکاؤنٹنٹ / پڑتال (Checked By),دستخط / تصدیق (Signature)" Margin="0,50,0,14"/>
 
                 <!-- Footer -->
                 <pc:PrintFooter CopyLabel="Original Voucher / اصل واؤچر"/>

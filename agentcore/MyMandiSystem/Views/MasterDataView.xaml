@@ -194,6 +194,59 @@
                     </Grid>
                 </TabItem>
 
+                <!-- CROP SEASONS TAB -->
+                <TabItem Header="Crop Seasons (سیزن فصل)">
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Grid.Column="0" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                            <DataGrid ItemsSource="{Binding CropSeasons}" SelectedItem="{Binding SelectedCropSeason}" 
+                                      AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" SelectionMode="Single"
+                                      Style="{StaticResource ModernDataGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                                    <DataGridTextColumn Header="CROP SEASON NAME" Binding="{Binding Name}" Width="*"/>
+                                    <DataGridTextColumn Header="START DATE" Binding="{Binding StartDate, StringFormat=dd/MM/yyyy}" Width="110"/>
+                                    <DataGridTextColumn Header="END DATE" Binding="{Binding EndDate, StringFormat=dd/MM/yyyy}" Width="110"/>
+                                    <DataGridCheckBoxColumn Header="ACTIVE" Binding="{Binding IsActive}" Width="70"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+
+                        <StackPanel Grid.Column="2">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+                                <Button Content="+ Add Season" Command="{Binding AddCropSeasonCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34" Margin="0,0,6,0"/>
+                                <Button Content="Edit" Command="{Binding EditCropSeasonCommand}" CommandParameter="{Binding SelectedCropSeason}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,6,0"/>
+                                <Button Content="Delete" Command="{Binding DeleteCropSeasonCommand}" CommandParameter="{Binding SelectedCropSeason}" Style="{StaticResource ModernDangerButton}" Height="34"/>
+                            </StackPanel>
+                            
+                            <Border CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Background="#F8FAFC" Padding="16" Visibility="{Binding IsCropSeasonFormVisible, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="Crop Season Details" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Crop Season Name (e.g. Rabi 2025-26, Kharif 2026)" Text="{Binding CurrentCropSeason.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                    
+                                    <TextBlock Text="Start Date (آغاز کی تاریخ)" FontSize="11" Foreground="{StaticResource BrushTextSecondary}" Margin="0,4,0,2"/>
+                                    <DatePicker SelectedDate="{Binding CurrentCropSeason.StartDate}" Margin="0,0,0,10" Background="White"/>
+
+                                    <TextBlock Text="End Date (اختتام کی تاریخ)" FontSize="11" Foreground="{StaticResource BrushTextSecondary}" Margin="0,4,0,2"/>
+                                    <DatePicker SelectedDate="{Binding CurrentCropSeason.EndDate}" Margin="0,0,0,12" Background="White"/>
+
+                                    <CheckBox Content="Active Status (فعال)" IsChecked="{Binding CurrentCropSeason.IsActive}" Margin="0,0,0,14" FontWeight="SemiBold"/>
+                                    
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="Cancel" Command="{Binding CancelCropSeasonCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,8,0"/>
+                                        <Button Content="Save Season" Command="{Binding SaveCropSeasonCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
             </TabControl>
         </Grid>
     </Border>

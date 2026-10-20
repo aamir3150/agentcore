@@ -17,4 +17,5 @@ public interface IAccountService
     Task AddAccountGroupAsync(AccountGroup group);
     Task UpdateAccountGroupAsync(AccountGroup group);
     Task DeleteAccountGroupAsync(int groupId);
+    Task RecalculateAllAccountBalancesAsync();
 }

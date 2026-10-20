@@ -24,9 +24,9 @@
                         <!-- Party Info -->
                         <StackPanel Grid.Column="0">
                             <TextBlock FontSize="15" FontWeight="Bold" Foreground="#0F172A">
-                                <Run Text="{Binding PartyName}"/>
+                                <Run Text="{Binding PartyName, Mode=OneWay}"/>
                                 <Run Text=" "/>
-                                <Run Text="{Binding PartyUrduName}" FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Arial" FontSize="17"/>
+                                <Run Text="{Binding PartyUrduName, Mode=OneWay}" FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Arial" FontSize="17"/>
                             </TextBlock>
                             <TextBlock Text="{Binding PartyPhone, StringFormat='Phone: {0}'}" FontSize="11" Foreground="#475569" Margin="0,3,0,0"/>
                             <TextBlock Text="{Binding PartyAddress, StringFormat='Address: {0}'}" FontSize="11" Foreground="#475569" Margin="0,2,0,0"/>

@@ -2,6 +2,8 @@ using MyMandiSystem.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using System;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace MyMandiSystem.Infrastructure.Services;
 
@@ -21,7 +23,56 @@ public class SystemConfigService : ISystemConfigService
     public void SetCurrentFinancialYear(string year)
     {
         _currentYear = year;
-        // In a real app, we would write back to appsettings.json or a custom config file
+        PersistYearToAppSettings(year);
+    }
+
+    private void PersistYearToAppSettings(string year)
+    {
+        try
+        {
+            var targets = new List<string>();
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var binConfig = Path.Combine(baseDir, "appsettings.json");
+            targets.Add(binConfig);
+
+            // Also target project directory if in debug development
+            var projectDir = Path.GetFullPath(Path.Combine(baseDir, "..", "..", ".."));
+            var projConfig = Path.Combine(projectDir, "appsettings.json");
+            if (File.Exists(projConfig))
+            {
+                targets.Add(projConfig);
+            }
+
+            foreach (var cfgPath in targets)
+            {
+                if (File.Exists(cfgPath))
+                {
+                    var jsonContent = File.ReadAllText(cfgPath);
+                    var node = JsonNode.Parse(jsonContent);
+                    if (node != null)
+                    {
+                        if (node["AppSettings"] is JsonObject appSettings)
+                        {
+                            appSettings["CurrentFinancialYear"] = year;
+                        }
+                        else
+                        {
+                            node["AppSettings"] = new JsonObject
+                            {
+                                ["CurrentFinancialYear"] = year
+                            };
+                        }
+
+                        var options = new JsonSerializerOptions { WriteIndented = true };
+                        File.WriteAllText(cfgPath, node.ToJsonString(options));
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Suppress IO failure if appsettings is strictly read-only
+        }
     }
 
     public string GetDataDirectory()

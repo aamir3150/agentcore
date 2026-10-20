@@ -10,4 +10,8 @@ public interface ISystemService
     Task<string> GetConfigValueAsync(string key);
     Task SetConfigValueAsync(string key, string value);
     Task<System.Collections.Generic.List<CropSeason>> GetActiveSeasonsAsync();
+    Task<System.Collections.Generic.List<CropSeason>> GetAllSeasonsAsync();
+    Task AddCropSeasonAsync(CropSeason season);
+    Task UpdateCropSeasonAsync(CropSeason season);
+    Task DeleteCropSeasonAsync(int seasonId);
 }

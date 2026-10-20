@@ -41,6 +41,20 @@ public class ProductService : IProductService
     public async Task AddProductAsync(Product product)
     {
         using var context = await _contextFactory.CreateDbContextAsync();
+        
+        if (product.CompanyId <= 0)
+        {
+            var defaultComp = await context.Companies.FirstOrDefaultAsync(c => c.IsActive) 
+                           ?? await context.Companies.FirstOrDefaultAsync();
+            if (defaultComp != null) product.CompanyId = defaultComp.Id;
+        }
+
+        if (product.UnitId <= 0)
+        {
+            var defaultUnit = await context.Units.FirstOrDefaultAsync();
+            if (defaultUnit != null) product.UnitId = defaultUnit.Id;
+        }
+
         context.Products.Add(product);
         await context.SaveChangesAsync();
     }

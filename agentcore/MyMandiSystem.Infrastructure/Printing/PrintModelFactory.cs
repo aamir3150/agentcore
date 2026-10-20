@@ -150,14 +150,22 @@ public sealed class PrintModelFactory : IPrintModelFactory
 
     public VoucherSlip BuildVoucherSlip(Voucher voucher)
     {
-        string typeName = voucher.VoucherType.ToString();
+        string typeName = voucher.VoucherType switch
+        {
+            Core.Enums.VoucherType.CashPayment => "Cash Payment",
+            Core.Enums.VoucherType.CashReceiving => "Cash Receiving",
+            Core.Enums.VoucherType.BankPayment => "Bank Payment",
+            Core.Enums.VoucherType.BankReceipt => "Bank Receipt",
+            Core.Enums.VoucherType.JournalVoucher => "Journal",
+            _ => voucher.VoucherType.ToString()
+        };
         string typeUrdu = voucher.VoucherType switch
         {
-            Core.Enums.VoucherType.CashPayment => "نقد ادائیگی",
-            Core.Enums.VoucherType.CashReceiving => "نقد وصولی",
-            Core.Enums.VoucherType.BankPayment => "بینک ادائیگی",
-            Core.Enums.VoucherType.BankReceipt => "بینک وصولی",
-            Core.Enums.VoucherType.JournalVoucher => "جنرل واؤچر",
+            Core.Enums.VoucherType.CashPayment => "نقد ادائیگی واؤچر",
+            Core.Enums.VoucherType.CashReceiving => "نقد وصولی واؤچر",
+            Core.Enums.VoucherType.BankPayment => "بینک ادائیگی واؤچر",
+            Core.Enums.VoucherType.BankReceipt => "بینک وصولی واؤچر",
+            Core.Enums.VoucherType.JournalVoucher => "جنرل واؤچر (Double Entry)",
             _ => "واؤچر"
         };
 
@@ -172,15 +180,46 @@ public sealed class PrintModelFactory : IPrintModelFactory
             Credit: d.Credit
         )).ToList();
 
+        if (voucher.VoucherType == Core.Enums.VoucherType.CashReceiving)
+        {
+            detailLines.Insert(0, new VoucherSlipLine(
+                AccountNo: "1001",
+                AccountName: "Cash in Hand (روکڑ کھاتہ)",
+                Narration: "نقد وصولی (Direct Cash Debit)",
+                Debit: totalAmount,
+                Credit: 0
+            ));
+        }
+        else if (voucher.VoucherType == Core.Enums.VoucherType.CashPayment)
+        {
+            detailLines.Add(new VoucherSlipLine(
+                AccountNo: "1001",
+                AccountName: "Cash in Hand (روکڑ کھاتہ)",
+                Narration: "نقد ادائیگی (Direct Cash Credit)",
+                Debit: 0,
+                Credit: totalAmount
+            ));
+        }
+
+        string headerAccountName = voucher.VoucherType == Core.Enums.VoucherType.JournalVoucher
+            ? "Inter-Account Transfer / Adjustment"
+            : (firstDetail?.Account?.Name ?? string.Empty);
+        string headerUrduName = voucher.VoucherType == Core.Enums.VoucherType.JournalVoucher
+            ? "کھاتہ جات منتقلی و ایڈجسٹمنٹ"
+            : (firstDetail?.Account?.UrduName ?? string.Empty);
+        string headerAccountNo = voucher.VoucherType == Core.Enums.VoucherType.JournalVoucher
+            ? $"Total Entries: {voucher.Details.Count}"
+            : (firstDetail?.Account?.AccountNo ?? string.Empty);
+
         return new VoucherSlip
         {
             VoucherNo = voucher.VoucherNo,
             VoucherType = typeName,
             VoucherTypeUrdu = typeUrdu,
             Date = voucher.VoucherDate,
-            AccountNo = firstDetail?.Account?.AccountNo ?? string.Empty,
-            AccountName = firstDetail?.Account?.Name ?? string.Empty,
-            AccountUrduName = firstDetail?.Account?.UrduName ?? string.Empty,
+            AccountNo = headerAccountNo,
+            AccountName = headerAccountName,
+            AccountUrduName = headerUrduName,
             Narration = voucher.NarrationEnglish ?? firstDetail?.Narration ?? string.Empty,
             NarrationUrdu = voucher.NarrationUrdu ?? string.Empty,
             TotalDebit = voucher.TotalDebit,
