@@ -8,35 +8,35 @@
     ".NETCoreApp,Version=v8.0": {
       "MyMandiSystem.Core/1.0.0": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "8.0.31"
+          "Microsoft.EntityFrameworkCore": "8.0.34"
         },
         "runtime": {
           "MyMandiSystem.Core.dll": {}
         }
       },
-      "Microsoft.EntityFrameworkCore/8.0.31": {
+      "Microsoft.EntityFrameworkCore/8.0.34": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.31",
-          "Microsoft.EntityFrameworkCore.Analyzers": "8.0.31",
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.34",
+          "Microsoft.EntityFrameworkCore.Analyzers": "8.0.34",
           "Microsoft.Extensions.Caching.Memory": "8.0.1",
           "Microsoft.Extensions.Logging": "8.0.1"
         },
         "runtime": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.dll": {
-            "assemblyVersion": "8.0.31.0",
-            "fileVersion": "8.0.3126.42108"
+            "assemblyVersion": "8.0.34.0",
+            "fileVersion": "8.0.3426.52216"
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Abstractions/8.0.31": {
+      "Microsoft.EntityFrameworkCore.Abstractions/8.0.34": {
         "runtime": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
-            "assemblyVersion": "8.0.31.0",
-            "fileVersion": "8.0.3126.42108"
+            "assemblyVersion": "8.0.34.0",
+            "fileVersion": "8.0.3426.52216"
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Analyzers/8.0.31": {},
+      "Microsoft.EntityFrameworkCore.Analyzers/8.0.34": {},
       "Microsoft.Extensions.Caching.Abstractions/8.0.0": {
         "dependencies": {
           "Microsoft.Extensions.Primitives": "8.0.0"
@@ -134,26 +134,26 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Microsoft.EntityFrameworkCore/8.0.31": {
+    "Microsoft.EntityFrameworkCore/8.0.34": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-RlM+Py8bIwT1f1yKPq9LDPTK08ZVgC157oAQlIIYRhSTXj1bYpSqWHTvWXb8Wghyfqfsi1wo9hIviiEzTZjdpA==",
-      "path": "microsoft.entityframeworkcore/8.0.31",
-      "hashPath": "microsoft.entityframeworkcore.8.0.31.nupkg.sha512"
+      "sha512": "sha512-Ld8sM+885cJi2P5NXwLVRm1iGcw/CrBhBgdxAaegE/MvB9SdXybIijTOtNtN4lIDo2V6slQF7cvZ9Amb/A+0Ew==",
+      "path": "microsoft.entityframeworkcore/8.0.34",
+      "hashPath": "microsoft.entityframeworkcore.8.0.34.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Abstractions/8.0.31": {
+    "Microsoft.EntityFrameworkCore.Abstractions/8.0.34": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-2dnfIgy8TaEY31mWbQ2xCYWz/YgP2/cGFKhBskmLhovmn5PLgrnfcVLLFaGOZ0WhC2W0VzG8ps60NXEzflZ1dw==",
-      "path": "microsoft.entityframeworkcore.abstractions/8.0.31",
-      "hashPath": "microsoft.entityframeworkcore.abstractions.8.0.31.nupkg.sha512"
+      "sha512": "sha512-6koYnn3pRTZhEXKgsyiqwC6QifD/ZjchemuUbK3yz9gxSRpCcVz7NNu8D3yy6GIJv6bgPKR7kGZAdjyFmAuSEQ==",
+      "path": "microsoft.entityframeworkcore.abstractions/8.0.34",
+      "hashPath": "microsoft.entityframeworkcore.abstractions.8.0.34.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Analyzers/8.0.31": {
+    "Microsoft.EntityFrameworkCore.Analyzers/8.0.34": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-ahYdpBYc7x6eyjjXycwdwuJZjbkFFsG0KgTs34c21PpiwY24KI3B1KdzDSzWIX6RWSSfS++2agQeGx5KK9JMVg==",
-      "path": "microsoft.entityframeworkcore.analyzers/8.0.31",
-      "hashPath": "microsoft.entityframeworkcore.analyzers.8.0.31.nupkg.sha512"
+      "sha512": "sha512-hrOJEV6XKuPsd7EI1nxY5Zrl4I1auwvgIqXaiMgfj6XhZUrxlB9Uhcg8NSkYO7+V0OIQ6zdH5AY6YtQzKtfGaQ==",
+      "path": "microsoft.entityframeworkcore.analyzers/8.0.34",
+      "hashPath": "microsoft.entityframeworkcore.analyzers.8.0.34.nupkg.sha512"
     },
     "Microsoft.Extensions.Caching.Abstractions/8.0.0": {
       "type": "package",

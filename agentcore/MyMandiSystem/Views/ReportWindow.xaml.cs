@@ -21,7 +21,7 @@ public partial class ReportWindow : Window
 {
     private readonly IEnumerable _reportData;
 
-    public ReportWindow(string reportPath, string dataSourceName, object data, Dictionary<string, string>? parameters = null)
+    public ReportWindow(string reportPath, string dataSourceName, object data, Dictionary<string, string>? parameters = null, bool autoPrint = false)
     {
         InitializeComponent();
 
@@ -31,12 +31,18 @@ public partial class ReportWindow : Window
         var reportName = Path.GetFileNameWithoutExtension(reportPath ?? "Report");
         var displayTitle = reportName switch
         {
-            "LedgerReport" => "Account Ledger Report (کھاتہ لیجر رپورٹ)",
-            "DayBookReport" => "Daily Transaction Book / Day Book (روزنامچہ)",
-            "TrialBalanceReport" => "Trial Balance Report (میزان کھاتہ جات)",
-            "CashBookReport" => "Cash Book Report (روکڑ بہی رپورٹ)",
-            "ProfitLossReport" => "Profit & Loss Statement (نفع و نقصان رپورٹ)",
-            "BalanceSheetReport" => "Balance Sheet (بیلنس شیٹ)",
+            "LedgerReport" => "Account Ledger Report",
+            "DayBookReport" => "Daily Transaction Book / Day Book",
+            "TrialBalanceReport" => "Trial Balance Report",
+            "CashBookReport" => "Cash Book Report",
+            "ProfitLossReport" => "Profit & Loss Statement",
+            "BalanceSheetReport" => "Balance Sheet",
+            "AccountPayablesReport" => "Account Payables Report",
+            "AccountPayablesFinalsReport" => "Account Payables (With Today Balance)",
+            "AccountPayablesBalanceReport" => "Account Payables (Final Balance)",
+            "AccountReceivablesReport" => "Account Receivables Report",
+            "AccountReceivablesFinalsReport" => "Account Receivables (With Today Balance)",
+            "AccountReceivablesBalanceReport" => "Account Receivables (Final Balance)",
             _ => $"{reportName} Preview"
         };
 
@@ -55,7 +61,9 @@ public partial class ReportWindow : Window
                 parameters.TryGetValue("AccountTitle", out accVal) ||
                 parameters.TryGetValue("AccountName", out accVal))
             {
-                TxtAccountHeader.Text = $"Account: {accVal}";
+                TxtAccountHeader.Text = accVal.StartsWith("Party Type:", StringComparison.OrdinalIgnoreCase)
+                    ? accVal
+                    : $"Account: {accVal}";
             }
 
             if (parameters.TryGetValue("Period", out var periodVal) || 
@@ -70,16 +78,22 @@ public partial class ReportWindow : Window
 
         // Calculate Totals & Row Count
         CalculateTotals();
+
+        if (autoPrint)
+        {
+            Loaded += (_, _) => Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Loaded,
+                new Action(() => PrintButton_Click(this, new RoutedEventArgs())));
+        }
     }
 
     public void LoadBusinessHeader()
     {
         var comp = PrintContext.Company;
-        TxtHeaderBusinessUrdu.Text = string.IsNullOrWhiteSpace(comp.NameUrdu) ? comp.Name : comp.NameUrdu;
-        TxtHeaderBusinessName.Text = comp.Name;
-        TxtHeaderAddress.Text = comp.Address;
-        TxtHeaderPhone.Text = string.IsNullOrWhiteSpace(comp.Phone) ? "" : $"📞 {comp.Phone}";
-        TxtHeaderProprietor.Text = string.IsNullOrWhiteSpace(comp.Proprietor) ? "" : $"| پروپرائیٹر: {comp.Proprietor}";
+        TxtHeaderBusinessName.Text = string.IsNullOrWhiteSpace(comp.Name) ? "City Computers Marot" : comp.Name;
+        TxtHeaderAddress.Text = string.IsNullOrWhiteSpace(comp.Address) ? "Grain Market, Marot" : comp.Address;
+        TxtHeaderPhone.Text = string.IsNullOrWhiteSpace(comp.Phone) ? "Phone: 0344-7436314" : $"Phone: {comp.Phone}";
+        TxtHeaderProprietor.Text = string.IsNullOrWhiteSpace(comp.Proprietor) ? "" : $"| Proprietor: {comp.Proprietor}";
         TxtHeaderRegNo.Text = string.IsNullOrWhiteSpace(comp.RegistrationNo) ? "" : $"Reg #: {comp.RegistrationNo}";
     }
 
@@ -98,11 +112,35 @@ public partial class ReportWindow : Window
             }
         }
 
-        // 1. Voucher #
+        // 1. Date
+        if (colName == "date" || colName == "transactiondate" || e.PropertyType == typeof(DateTime) || e.PropertyType == typeof(DateTime?))
+        {
+            e.Column.Header = "Date";
+            e.Column.Width = new DataGridLength(95);
+            if (e.Column is DataGridTextColumn dateCol)
+            {
+                if (e.PropertyType == typeof(DateTime) || e.PropertyType == typeof(DateTime?))
+                {
+                    dateCol.Binding = new Binding(e.PropertyName) { StringFormat = "dd/MM/yyyy" };
+                }
+                dateCol.ElementStyle = new Style(typeof(TextBlock))
+                {
+                    Setters =
+                    {
+                        new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Center),
+                        new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center),
+                        new Setter(TextBlock.PaddingProperty, new Thickness(4, 0, 4, 0))
+                    }
+                };
+            }
+            return;
+        }
+
+        // 2. Voucher #
         if (colName == "voucherno")
         {
-            e.Column.Header = "Voucher # (واؤچر)";
-            e.Column.Width = new DataGridLength(110);
+            e.Column.Header = "Voucher #";
+            e.Column.Width = new DataGridLength(100);
             if (e.Column is DataGridTextColumn vCol)
             {
                 vCol.ElementStyle = new Style(typeof(TextBlock))
@@ -120,33 +158,44 @@ public partial class ReportWindow : Window
             return;
         }
 
-        // 2. Format Dates
-        if (e.PropertyType == typeof(DateTime) || e.PropertyType == typeof(DateTime?))
+        // 2b. Account Payables / Receivables Columns
+        if (colName == "accountno")
         {
-            e.Column.Header = "Date (تاریخ)";
-            e.Column.Width = new DataGridLength(110);
-            if (e.Column is DataGridTextColumn dateCol)
-            {
-                dateCol.Binding = new Binding(e.PropertyName) { StringFormat = "dd/MM/yyyy" };
-                dateCol.ElementStyle = new Style(typeof(TextBlock))
-                {
-                    Setters =
-                    {
-                        new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Center),
-                        new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center),
-                        new Setter(TextBlock.PaddingProperty, new Thickness(4, 0, 4, 0))
-                    }
-                };
-            }
+            ConfigureStyledTextColumn(e, "A/C #", 90, TextAlignment.Center, FontWeights.SemiBold, Color.FromRgb(30, 41, 59), new Thickness(4, 0, 4, 0));
+            return;
+        }
+        if (colName == "contactno")
+        {
+            ConfigureStyledTextColumn(e, "Contact #", 115, TextAlignment.Center, FontWeights.Normal, Color.FromRgb(71, 85, 105), new Thickness(4, 0, 4, 0));
+            return;
+        }
+        if (colName == "openingbal")
+        {
+            ConfigureStyledNumericColumn(e, "Opening", 108, FontWeights.SemiBold, Color.FromRgb(51, 65, 85));
+            return;
+        }
+        if (colName == "closingbal")
+        {
+            ConfigureStyledNumericColumn(e, "Closing Bal", 115, FontWeights.Bold, Color.FromRgb(15, 23, 42));
+            return;
+        }
+        if (colName == "todaybal")
+        {
+            ConfigureStyledNumericColumn(e, "Today Bal", 115, FontWeights.Bold, Color.FromRgb(15, 118, 110));
+            return;
+        }
+        if (colName == "openingtype" || colName == "closingtype" || colName == "todaytype" || colName == "baltype")
+        {
+            ConfigureStyledTextColumn(e, "Dr/Cr", 54, TextAlignment.Center, FontWeights.Bold, Color.FromRgb(51, 65, 85), new Thickness(2, 0, 2, 0));
             return;
         }
 
-        // 3. Urdu Font for Narration & Details (Expands with Star width)
+        // 3. Party Title / Narration / Description (Expands with Star width)
         if (colName.Contains("narration") || colName.Contains("urdu") || colName.Contains("description") || colName.Contains("title"))
         {
-            e.Column.Header = "Narration / Details (تفصیل)";
+            e.Column.Header = (colName == "partytitle" || colName == "accounttitle") ? "Account Title" : "Narration / Description";
             e.Column.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
-            e.Column.MinWidth = 220;
+            e.Column.MinWidth = 190;
             if (e.Column is DataGridTextColumn textCol)
             {
                 var fontResource = Application.Current.TryFindResource("FontJameelNooriNastaleeq") as FontFamily;
@@ -155,7 +204,7 @@ public partial class ReportWindow : Window
                     Setters =
                     {
                         new Setter(TextBlock.FontFamilyProperty, fontResource ?? new FontFamily("Jameel Noori Nastaleeq, Tahoma")),
-                        new Setter(TextBlock.FontSizeProperty, 14.0),
+                        new Setter(TextBlock.FontSizeProperty, 13.5),
                         new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center),
                         new Setter(TextBlock.PaddingProperty, new Thickness(8, 0, 8, 0))
                     }
@@ -164,44 +213,81 @@ public partial class ReportWindow : Window
             return;
         }
 
-        // 4. Format Currency & Numbers (Debit / Credit)
-        if (e.PropertyType == typeof(decimal) || e.PropertyType == typeof(decimal?) ||
-            e.PropertyType == typeof(double) || e.PropertyType == typeof(double?))
+        // 4. Cheque #
+        if (colName == "chequeno")
         {
-            if (e.Column is DataGridTextColumn numCol)
+            e.Column.Header = "Cheque #";
+            e.Column.Width = new DataGridLength(85);
+            if (e.Column is DataGridTextColumn chqCol)
             {
-                numCol.Binding = new Binding(e.PropertyName) { StringFormat = "{0:N0}" };
-                
-                var colorBrush = colName.Contains("debit") ? new SolidColorBrush(Color.FromRgb(225, 29, 72)) :
-                                 colName.Contains("credit") ? new SolidColorBrush(Color.FromRgb(22, 163, 74)) :
-                                 new SolidColorBrush(Color.FromRgb(15, 23, 42));
+                chqCol.ElementStyle = new Style(typeof(TextBlock))
+                {
+                    Setters =
+                    {
+                        new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Center),
+                        new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center),
+                        new Setter(TextBlock.ForegroundProperty, new SolidColorBrush(Color.FromRgb(100, 116, 139))),
+                        new Setter(TextBlock.PaddingProperty, new Thickness(4, 0, 4, 0))
+                    }
+                };
+            }
+            return;
+        }
 
-                numCol.ElementStyle = new Style(typeof(TextBlock))
+        // 5. Debit
+        if (colName.Contains("debit"))
+        {
+            e.Column.Header = "Debit";
+            e.Column.Width = new DataGridLength(110);
+            if (e.Column is DataGridTextColumn drCol)
+            {
+                drCol.Binding = new Binding(e.PropertyName) { StringFormat = "{0:N0}" };
+                drCol.ElementStyle = new Style(typeof(TextBlock))
                 {
                     Setters =
                     {
                         new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Right),
                         new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center),
                         new Setter(TextBlock.FontWeightProperty, FontWeights.Bold),
-                        new Setter(TextBlock.ForegroundProperty, colorBrush),
+                        new Setter(TextBlock.ForegroundProperty, new SolidColorBrush(Color.FromRgb(225, 29, 72))),
                         new Setter(TextBlock.PaddingProperty, new Thickness(4, 0, 8, 0))
                     }
                 };
             }
-
-            e.Column.Header = colName.Contains("debit") ? "Debit / بنام" :
-                             colName.Contains("credit") ? "Credit / جمع" : e.PropertyName;
-            e.Column.Width = new DataGridLength(115);
             return;
         }
 
-        // 5. Balance Column (Cr / Dr formatted string)
+        // 6. Credit
+        if (colName.Contains("credit"))
+        {
+            e.Column.Header = "Credit";
+            e.Column.Width = new DataGridLength(110);
+            if (e.Column is DataGridTextColumn crCol)
+            {
+                crCol.Binding = new Binding(e.PropertyName) { StringFormat = "{0:N0}" };
+                crCol.ElementStyle = new Style(typeof(TextBlock))
+                {
+                    Setters =
+                    {
+                        new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Right),
+                        new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center),
+                        new Setter(TextBlock.FontWeightProperty, FontWeights.Bold),
+                        new Setter(TextBlock.ForegroundProperty, new SolidColorBrush(Color.FromRgb(22, 163, 74))),
+                        new Setter(TextBlock.PaddingProperty, new Thickness(4, 0, 8, 0))
+                    }
+                };
+            }
+            return;
+        }
+
+        // 7. Balance (Running Balance)
         if (colName == "balance")
         {
-            e.Column.Header = "Balance (بقایا)";
-            e.Column.Width = new DataGridLength(120);
+            e.Column.Header = "Balance";
+            e.Column.Width = new DataGridLength(115);
             if (e.Column is DataGridTextColumn balCol)
             {
+                balCol.Binding = new Binding(e.PropertyName) { StringFormat = "{0:N0}" };
                 balCol.ElementStyle = new Style(typeof(TextBlock))
                 {
                     Setters =
@@ -217,14 +303,100 @@ public partial class ReportWindow : Window
             return;
         }
 
-        // 6. Header Titles Fallback
+        // 8. Dr / Cr Status
+        if (colName == "status")
+        {
+            e.Column.Header = "Dr/Cr";
+            e.Column.Width = new DataGridLength(55);
+            if (e.Column is DataGridTextColumn statCol)
+            {
+                statCol.ElementStyle = new Style(typeof(TextBlock))
+                {
+                    Setters =
+                    {
+                        new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Center),
+                        new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center),
+                        new Setter(TextBlock.FontWeightProperty, FontWeights.Bold),
+                        new Setter(TextBlock.ForegroundProperty, new SolidColorBrush(Color.FromRgb(51, 65, 85))),
+                        new Setter(TextBlock.PaddingProperty, new Thickness(2, 0, 2, 0))
+                    }
+                };
+            }
+            return;
+        }
+
+        // 9. Format any other Numeric Columns
+        if (e.PropertyType == typeof(decimal) || e.PropertyType == typeof(decimal?) ||
+            e.PropertyType == typeof(double) || e.PropertyType == typeof(double?))
+        {
+            if (e.Column is DataGridTextColumn numCol)
+            {
+                numCol.Binding = new Binding(e.PropertyName) { StringFormat = "{0:N0}" };
+                numCol.ElementStyle = new Style(typeof(TextBlock))
+                {
+                    Setters =
+                    {
+                        new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Right),
+                        new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center),
+                        new Setter(TextBlock.FontWeightProperty, FontWeights.Bold),
+                        new Setter(TextBlock.ForegroundProperty, new SolidColorBrush(Color.FromRgb(15, 23, 42))),
+                        new Setter(TextBlock.PaddingProperty, new Thickness(4, 0, 8, 0))
+                    }
+                };
+            }
+            e.Column.Width = new DataGridLength(110);
+            return;
+        }
+
+        // 10. Fallback Headers
         e.Column.Header = e.PropertyName switch
         {
-            "Reference" => "Ref # (حوالہ)",
+            "Reference" => "Ref #",
             "AccountNo" => "A/C #",
-            "AccountName" => "Account Title (کھاتہ)",
+            "AccountName" => "Account Title",
             _ => e.PropertyName
         };
+    }
+
+    private static void ConfigureStyledTextColumn(
+        DataGridAutoGeneratingColumnEventArgs e,
+        string header,
+        double width,
+        TextAlignment align,
+        FontWeight weight,
+        Color fg,
+        Thickness padding)
+    {
+        e.Column.Header = header;
+        e.Column.Width = new DataGridLength(width);
+        if (e.Column is DataGridTextColumn textCol)
+        {
+            textCol.ElementStyle = new Style(typeof(TextBlock))
+            {
+                Setters =
+                {
+                    new Setter(TextBlock.TextAlignmentProperty, align),
+                    new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center),
+                    new Setter(TextBlock.FontWeightProperty, weight),
+                    new Setter(TextBlock.ForegroundProperty, new SolidColorBrush(fg)),
+                    new Setter(TextBlock.PaddingProperty, padding)
+                }
+            };
+        }
+    }
+
+    private static void ConfigureStyledNumericColumn(
+        DataGridAutoGeneratingColumnEventArgs e,
+        string header,
+        double width,
+        FontWeight weight,
+        Color fg)
+    {
+        if (e.Column is DataGridTextColumn numCol)
+        {
+            numCol.Binding = new Binding(e.PropertyName) { StringFormat = "{0:N0}" };
+        }
+        ConfigureStyledTextColumn(e, header, width, TextAlignment.Right, weight, fg, new Thickness(4, 0, 8, 0));
     }
 
     private int _totalCount = 0;
@@ -236,8 +408,10 @@ public partial class ReportWindow : Window
         int count = 0;
         decimal totalDebit = 0m;
         decimal totalCredit = 0m;
+        decimal netClosingSigned = 0m;
         bool hasDebit = false;
         bool hasCredit = false;
+        bool hasClosing = false;
 
         foreach (var item in _reportData)
         {
@@ -259,6 +433,16 @@ public partial class ReportWindow : Window
                 var val = creditProp.GetValue(item);
                 if (val is decimal c) { totalCredit += c; hasCredit = true; }
             }
+
+            var closingProp = itemType.GetProperty("ClosingBal", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (closingProp != null && closingProp.GetValue(item) is decimal cb)
+            {
+                hasClosing = true;
+                var typeProp = itemType.GetProperty("ClosingType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+                            ?? itemType.GetProperty("ClosingBalType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                string balType = typeProp?.GetValue(item)?.ToString()?.Trim() ?? string.Empty;
+                netClosingSigned += balType.Equals("Cr", StringComparison.OrdinalIgnoreCase) ? -cb : cb;
+            }
         }
 
         _totalCount = count;
@@ -279,12 +463,30 @@ public partial class ReportWindow : Window
             TxtTotalCredit.Text = totalCredit.ToString("N0");
         }
 
-        if (hasDebit || hasCredit)
+        if (hasDebit || hasCredit || hasClosing || count > 0)
         {
             BadgeBalance.Visibility = Visibility.Visible;
-            var diff = totalDebit - totalCredit;
-            var label = diff >= 0 ? $"{diff:N0} (Dr)" : $"{Math.Abs(diff):N0} (Cr)";
-            TxtNetBalance.Text = label;
+            decimal finalBalance = hasClosing ? Math.Abs(netClosingSigned) : Math.Abs(totalDebit - totalCredit);
+            string finalStatus = hasClosing
+                ? (netClosingSigned >= 0 ? "Dr" : "Cr")
+                : ((totalDebit >= totalCredit) ? "Dr" : "Cr");
+
+            var lastItem = _reportData?.Cast<object>().LastOrDefault();
+            if (lastItem != null)
+            {
+                var bProp = lastItem.GetType().GetProperty("Balance", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                var sProp = lastItem.GetType().GetProperty("Status", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                if (bProp != null && bProp.GetValue(lastItem) is decimal bVal)
+                {
+                    finalBalance = bVal;
+                    if (sProp != null && sProp.GetValue(lastItem)?.ToString() is string sVal && !string.IsNullOrWhiteSpace(sVal))
+                    {
+                        finalStatus = sVal;
+                    }
+                }
+            }
+
+            TxtNetBalance.Text = $"{finalBalance:N0} ({finalStatus})";
         }
     }
 
@@ -301,7 +503,8 @@ public partial class ReportWindow : Window
             totalDebit: _totalDebit,
             totalCredit: _totalCredit,
             totalRecords: _totalCount,
-            sourceGrid: ReportDataGrid
+            sourceGrid: ReportDataGrid,
+            netBalanceOverride: BadgeBalance.Visibility == Visibility.Visible ? TxtNetBalance.Text : null
         );
     }
 

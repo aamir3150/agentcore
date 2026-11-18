@@ -1,0 +1,227 @@
+0x9700: ATPurchaseForms
+0x9710: AgenSOFT Purchase Forms
+0x9a48: ATPurchaseForms
+0x9a58: ATPurchaseForms
+0x9a69: ATPurchaseForms
+0x4e084: ATPurchaseForms
+0x4e0e8: SchCropsPurchase
+0x4e108: SchPurchase
+0x4e114: SchPurchaseReturn
+0x4e128: SchCropPurchaseContracts
+0x4e144: FrmCropsPurchase
+0x4e158: CrpCropsPurchase
+0x4e16c: CrpCropsPurchaseContract
+0x4e19c: FrmCropPurchaseContracts
+0x4e1b8: CrpCropPurchaseContracts
+0x4e1e8: Purchaseinvoices
+0x4e220: PurchaseReturnInvoice
+0x4e254: frmPurchaseInvoicePest
+0x4e2b4: CrpPurchaseReturn
+0x4e2d8: SchPurchaseBatch
+0x4e2ec: SchPurchasePest
+0x4e31c: FrmCropsPurchase2
+0x4e330: CrpCropsPurchaseA5
+0x4e35c: PurchaseInvoicePestro
+0x4e374: FrmCropPurchaseWeighmentAuto
+0x4e5fc: CropPurchaseContractsForm
+0x4e618: CropsPurchaseForm
+0x4e654: PurchaseInvoiceForm
+0x4e6a4: PurchaseReturnForm
+0x4e6e8: CropPurchaseWeighmentAutoForm
+0x4ed8b: KDtpPurchaseDate
+0x4f0a4: TxtCropPurchaseID
+0x4f5f4: TxtTotalSalestax
+0x4f6a4: TxtTTLSalesTax
+0x4f96c: TxtTotalSalestaxS
+0x4f9d0: TxtTTLSalesTaxS
+0x4fd88: txtPurchaseID
+0x4feac: txtTotSalesTax
+0x4fee4: txtLastPurchaseID
+0x4ff70: txtSalesTax
+0x50028: txtPurchaseDate
+0x50068: TxtTotPurchaseValue
+0x5007c: btnPurchase
+0x6d3e0: TxtPurchaseSTRatio
+0x6d3f4: TxtSaleSTRatio
+0x6d7a4: TxtPurchaseDiscRatio
+0x6d980: TxtPurchaseDiscValue
+0x6e314: TxtPurchasePrice
+0x79ff8: CrpCropsPurchaseContract
+0x7c8c0: CrpPurchaseReturn
+0x7fd80: CrpCropPurchaseContracts
+0x88d0c: CrpCropsPurchaseA5
+0x8d9d0: CrpCropsPurchase
+0xb25d8: SchPurchaseReturn
+0xb25ee: Search Purchase Return
+0xbb57a:  Purchase Return Invoice
+0xbb678: SchPurchaseBatch
+0xc4658: Purchase Batch
+0xcd850: SchCropsPurchase
+0xcd865: Search Crops Purchase
+0xd4cda: txtPurchaseID
+0xd4f2f: PurchaseID
+0xd6a8a: Crops Purchase
+0xd6ad8: Purchase ID
+0xd6b08: From Date
+0xe006f: From Date
+0xe00f0: SchPurchase
+0xe0100: Search Purchase Invoice
+0xe77db: Purchase ID
+0xe9611: Purchase Invoice
+0xe9661: -------------  Purchase Date Range -------------
+0xf2d90: SchCropPurchaseContracts
+0xf2dad: Crop Purchase Contracts
+0xfc4bc: Crop Purchase Contract
+0xfc512: -------------  Purchase Date Range -------------
+0xfc5cb: Search Purchase Pending Invoice
+0x103c76: Purchase ID
+0x106243:  Purchase Pending Invoices
+0x10629d: -----------------  Purchase Date Range -----------------
+0x1104b8: SchPurchasePest
+0x1104cc: Search Purchase Invoice
+0x117b89: Purchase ID
+0x11a54b: Search Purchase Invoice
+0x11a63f: -----------  Purchase Date Range -----------
+0x11a6c1: From Inv. No
+0x11a781: Search Purchase Returns
+0x1247fe: Purchase Returns
+0x12491b: From Inv. No
+0x124a28: FrmCropPurchaseContracts
+0x124a45: Crop Purchase Contracts
+0x147e48: PurchaseReturnInvoice
+0x147e62: Purchase Return
+0x14f41b: TxtTotalSalestax
+0x14f6d3: TxtTTLSalesTax
+0x153a2c: Sales Tax
+0x153a36: TTLSalesTax
+0x153cf2: Purchase Return Invoice
+0x153d4c: Total Sales Tax
+0x1540b5: Sales Tax
+0x15439f: Purchase Return (with invoice)
+0x15b98c: txtPurchaseID
+0x15b9e9: txtPurchaseDate
+0x15ba1a: TxtTotPurchaseValue
+0x15f642: btnPurchase
+0x160aa7: Purchase Return With Invoice
+0x160b9c: Purchase ID
+0x160bca: Purchase Date
+0x160c39: Purchase Value
+0x1683f5: TxtTotalSalestax
+0x16849c: TxtTTLSalesTax
+0x168be2: Sales Tax
+0x168bec: TTLSalesTax
+0x16d56f: Total SalesTax
+0x16d60c: Sales Tax
+0x17511f: TxtPurchasePrice
+0x17514f: TxtPurchaseDiscRatio
+0x17520f: TxtPurchaseDiscValue
+0x175243: TxtPurchaseSTRatio
+0x175275: TxtSaleSTRatio
+0x1752ae: PURCHASE
+0x175417: Sales Tax Ratio:
+0x17a193: Purchase A/c
+0x17a450: Purchase Return (With out Invoice)
+0x181c4b: txtSalesTax
+0x185ecc: Sales Tax 
+0x185ed7: SalesTax
+0x187332: Purchase Return With Out Invoice
+0x18758f: Sales Tax
+0x194e6e: -------------  Purchase Date Range -------------
+0x194f2b: Crops Purchase Weighments
+0x19cd2e: Stock from Weighments
+0x1a2908: Purchaseinvoices
+0x1a291d: Purchase 
+0x1aa8b8: TxtTotalSalestax
+0x1aab98: TxtTTLSalesTax
+0x1aeef1: Sales Tax
+0x1aeefb: TTLSalesTax
+0x1afeaf: Purchase  Invoice
+0x1aff3e: Total Sales Tax
+0x1b030a: Sales Tax
+0x1b05e4: FrmCropsPurchase2
+0x1b05fa: Crops Purchase Invoice
+0x1b90d2: TxtCropPurchaseID
+0x1bdb2c: DtpPurchaseDate
+0x1be2c1: Select for Billing:
+0x1be3c9: Purchase ID
+0x1be3fc: Purchase Date
+0x1c5b9d: Purchase Section
+0x1c5e07: TxtTotalSalestax
+0x1c60ee: Total Sales Tax
+0x1c6480: TxtTotalSalestaxS
+0x1c67dc: Total Sales Tax
+0x1c69b2: TxtTTLSalesTaxS
+0x1c6ca0: TxtTTLSalesTax
+0x1cab8c: PURCHASE DETAILS
+0x1ccab2: Purchase Amount
+0x1ccb78: Net Value Purchase
+0x1cccc1: Sales Tax
+0x1cced5: Purchase ID
+0x1d4866: Purchase Section
+0x1d4a6b: TxtTotalSalestax
+0x1d4ce7: Total Sales Tax
+0x1d5075: TxtTotalSalestaxS
+0x1d53cd: Total Sales Tax
+0x1d55aa: TxtTTLSalesTaxS
+0x1d588a: TxtTTLSalesTax
+0x1d99d9: Purchase
+0x1d9c06: Sales Tax
+0x1d9c10: TTLSalesTax
+0x1d9f55: SSalesTax
+0x1d9f5f: STTLSalesTax
+0x1dbb3d: Sales Tax
+0x1dbe76: Sales Tax
+0x1dc150: frmPurchaseInvoicePest
+0x1dc16b: Purchase Invoice
+0x1e386d: Last Purchase Scheme
+0x1e399a: txtLastPurchaseID
+0x1e3add: Purchase ID
+0x1e3bc4: txtTotSalesTax
+0x1e3d82: txtSalesTax
+0x1e3f83: txtPurchaseID
+0x1e7fc2: SalesTax
+0x1e7fcb: SalesTax
+0x1e86e6: dtpPurchaseDate
+0x1ec015: Purchase Invoice
+0x1ec067: Press F3 for last purchase schem
+0x1ec22c: Purchase Date
+0x1ec355: Sales Tax
+0x1ec493: Sales Tax
+0x1ec6bf: Purchase ID
+0x1f685f: Purchase Section
+0x1f6a6c: TxtTotalSalestax
+0x1f6cf4: Total Sales Tax
+0x1f708a: TxtTotalSalestaxS
+0x1f73ea: Total Sales Tax
+0x1f75c7: TxtTTLSalesTaxS
+0x1f78a9: TxtTTLSalesTax
+0x1fbb25: Purchase
+0x1fbe6b: Sales Tax
+0x1fbe75: TTLSalesTax
+0x1fc20c: SSalesTax
+0x1fc216: STTLSalesTax
+0x1fdd93: Sales Tax
+0x1fdfa4: Purchase ID
+0x1fe0d0: Sales Tax
+0x2edf20: FrmCropPurchaseWeighmentAuto
+0x2edf41: Crop Purchase Weighment
+0x44be2f: From Manual Arrival
+0x4513dc: FrmCropsPurchase
+0x4513f1: Crops Purchase Invoice
+0x5ae7d6: TxtCropPurchaseID
+0x5b3230: DtpPurchaseDate
+0x5b4def: Select for Billing:
+0x5b4ef7: Purchase ID
+0x5b4f2a: Purchase Date
+0x5b84ac: AgenSOFT Purchase Forms
+0x5b86a4: ParaOutPurchaseID
+0x5b87f8: ParaInSales
+0x81a820: ATPurchaseForms.dll
+0x81ccda: ITATPurchaseFormsW
+0x81cde4: CropPurchaseContractsFormWWW
+0x81ce0c: CropsPurchaseFormWWW
+0x81ce67: 7PurchaseInvoiceFormW
+0x81cee4: PurchaseReturnFormWW
+0x81cf23: !PurchaseInvoicePestroWWW
+0x81cf8a: v CropPurchaseWeighmentAutoFormWWW
+0x81cfae: AgenSOFT Purchase FormsWWW

@@ -1,0 +1,300 @@
+<Window x:Class="MyMandiSystem.Views.ExpenseReportSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:viewmodels="clr-namespace:MyMandiSystem.ViewModels"
+        mc:Ignorable="d"
+        Title="Expense Report Settings" 
+        Height="720" Width="1100"
+        MinHeight="550" MinWidth="850"
+        WindowStartupLocation="CenterScreen"
+        Background="#F1F5F9"
+        FontFamily="Segoe UI" FontSize="12"
+        PreviewKeyDown="Window_PreviewKeyDown">
+
+    <Window.Resources>
+        <Style x:Key="ClassicButton" TargetType="Button">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinWidth" Value="85"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="10,2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#E2E8F0"/>
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#64748B"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#CBD5E1"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimarySaveButton" TargetType="Button" BasedOn="{StaticResource ClassicButton}">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#1D4ED8"/>
+            <Setter Property="MinWidth" Value="135"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="14,2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#1D4ED8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#1E40AF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <DockPanel LastChildFill="True">
+
+            <!-- ═══ 0. HEADER CARD ═══ -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#1E3A8A" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="ChartBar" Width="20" Height="20" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Expense Report Settings" FontSize="16" FontWeight="Bold" Foreground="#1E3A8A"/>
+                        <TextBlock Text="Configure expense account inclusion, monthly budget limits, and expense report classification (ChartOfAccounts.ExpFlag &amp; ExpenseLimit)" FontSize="11" Foreground="#64748B" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <!-- Shortcut Legend -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="3,0">
+                            <TextBlock Text="F5: Auto Configure" Foreground="#475569" FontSize="10.5" FontWeight="SemiBold"/>
+                        </Border>
+                        <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="3,0">
+                            <TextBlock Text="F2: Save" Foreground="#475569" FontSize="10.5" FontWeight="SemiBold"/>
+                        </Border>
+                        <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="3,0">
+                            <TextBlock Text="Esc: Close" Foreground="#475569" FontSize="10.5" FontWeight="SemiBold"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ═══ 1. FILTERS & METRICS ROW ═══ -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Search Box -->
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Search Accounts" FontSize="10.5" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,2"/>
+                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Height="26" FontSize="11.5" Padding="4,2"
+                                 Background="#FFFFFF" BorderBrush="#94A3B8" materialDesign:HintAssist.Hint="Search by Code or Name..."/>
+                    </StackPanel>
+
+                    <!-- Account Type Filter -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Expense Group" FontSize="10.5" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,2"/>
+                        <ComboBox ItemsSource="{Binding AccountTypes}" SelectedItem="{Binding SelectedAccountType}"
+                                  Height="26" FontSize="11.5" Background="#FFFFFF" BorderBrush="#94A3B8"/>
+                    </StackPanel>
+
+                    <!-- Only Expense Accounts Checkbox -->
+                    <CheckBox Grid.Column="4" IsChecked="{Binding OnlyExpenseAccounts}" VerticalAlignment="Bottom" Margin="0,0,0,4">
+                        <TextBlock Text="Only Expenses" FontSize="11" FontWeight="SemiBold" Foreground="#334155"/>
+                    </CheckBox>
+
+                    <!-- Batch Budget Limit Setter -->
+                    <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom">
+                        <TextBox Text="{Binding BatchExpenseLimit, StringFormat='N0', UpdateSourceTrigger=PropertyChanged}" 
+                                 Width="80" Height="26" FontSize="11.5" FontWeight="Bold" Padding="4,2" Margin="0,0,4,0"
+                                 Background="#FFFFFF" BorderBrush="#94A3B8" materialDesign:HintAssist.Hint="Limit (Rs.)"/>
+                        <Button Command="{Binding ApplyBatchLimitCommand}" ToolTip="Apply Budget Limit to all filtered accounts"
+                                Style="{StaticResource ClassicButton}" Height="26" MinWidth="75" Margin="0,0,4,0">
+                            <TextBlock Text="Apply Limit" FontSize="10.5" FontWeight="SemiBold"/>
+                        </Button>
+
+                        <Button Command="{Binding AutoConfigureCommand}" ToolTip="Auto Configure Expense Accounts based on Chart of Accounts (F5)"
+                                Style="{StaticResource ClassicButton}" Height="26" MinWidth="75" Margin="0,0,4,0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="AutoFix" Width="12" Height="12" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                <TextBlock Text="Auto (F5)" FontSize="10.5" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding SelectAllExpCommand}" ToolTip="Select All Filtered"
+                                Style="{StaticResource ClassicButton}" Height="26" MinWidth="50" Margin="0,0,4,0">
+                            <TextBlock Text="All" FontSize="10.5" FontWeight="SemiBold"/>
+                        </Button>
+
+                        <Button Command="{Binding UnselectAllExpCommand}" ToolTip="Unselect All Filtered"
+                                Style="{StaticResource ClassicButton}" Height="26" MinWidth="50">
+                            <TextBlock Text="None" FontSize="10.5" FontWeight="SemiBold"/>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Real-time Count Badges -->
+                    <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Bottom">
+                        <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
+                            <TextBlock FontSize="10.5" Foreground="#334155">
+                                <Run Text="Expenses: " FontWeight="Normal"/>
+                                <Run Text="{Binding IncludedExpCount}" FontWeight="Bold"/>
+                            </TextBlock>
+                        </Border>
+                        <Border Background="#FEF3C7" BorderBrush="#FDE68A" BorderThickness="1" CornerRadius="4" Padding="6,2">
+                            <TextBlock FontSize="10.5" Foreground="#92400E">
+                                <Run Text="Total Budget: Rs. " FontWeight="Normal"/>
+                                <Run Text="{Binding TotalBudgetLimit, StringFormat='N0'}" FontWeight="Bold"/>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ═══ 3. FOOTER ACTION BAR & STATUS ═══ -->
+            <Border DockPanel.Dock="Bottom" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,8,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" 
+                               FontSize="11.5" Foreground="#64748B" VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <!-- Reset / Reload (F3) -->
+                        <Button Command="{Binding LoadDataCommand}" Style="{StaticResource ClassicButton}" Margin="0,0,6,0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Refresh" Width="14" Height="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="Reset (F3)" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Auto Configure (F5) -->
+                        <Button Command="{Binding AutoConfigureCommand}" Style="{StaticResource ClassicButton}" Margin="0,0,6,0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="AutoFix" Width="14" Height="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="Auto Map (F5)" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Save (F2) -->
+                        <Button Command="{Binding SaveCommand}" Style="{StaticResource PrimarySaveButton}" Margin="0,0,6,0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="ContentSaveOutline" Width="15" Height="15" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="Save Settings (F2)" VerticalAlignment="Center" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Close (Esc) -->
+                        <Button Command="{Binding CloseCommand}" Style="{StaticResource ClassicButton}">
+                            <TextBlock Text="Close (Esc)" VerticalAlignment="Center"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ═══ 2. MAIN ACCOUNTS DATA GRID ═══ -->
+            <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6">
+                <DataGrid ItemsSource="{Binding FilteredAccounts}" SelectedItem="{Binding SelectedAccount}"
+                          AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                          Background="White" BorderThickness="0"
+                          GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9"
+                          RowHeight="28" FontSize="11.5" HeadersVisibility="Column">
+
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#1E293B"/>
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Height" Value="28"/>
+                            <Setter Property="Padding" Value="8,0"/>
+                            <Setter Property="BorderBrush" Value="#334155"/>
+                            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+
+                    <DataGrid.Columns>
+                        <!-- Account No -->
+                        <DataGridTextColumn Header="Account #" Binding="{Binding AccountNo}" Width="120" FontWeight="Bold" IsReadOnly="True"/>
+
+                        <!-- Account Name -->
+                        <DataGridTextColumn Header="Account Name" Binding="{Binding AccountName}" Width="*" FontWeight="SemiBold" IsReadOnly="True"/>
+
+                        <!-- Account Type -->
+                        <DataGridTextColumn Header="Expense Classification" Binding="{Binding AccountType}" Width="170" IsReadOnly="True"/>
+
+                        <!-- Include in Expense Report Checkbox (ExpFlag) -->
+                        <DataGridTemplateColumn Header="Include in Exp Report (ExpFlag)" Width="190">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding ExpFlag, UpdateSourceTrigger=PropertyChanged}" 
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Monthly Budget Limit (ExpenseLimit) -->
+                        <DataGridTextColumn Header="Monthly Budget Limit (Rs.)" Binding="{Binding ExpenseLimit, StringFormat='N2', UpdateSourceTrigger=PropertyChanged}" Width="180">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextAlignment" Value="Right"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Foreground" Value="#B45309"/>
+                                    <Setter Property="Margin" Value="0,0,8,0"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                            <DataGridTextColumn.EditingElementStyle>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="TextAlignment" Value="Right"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </Style>
+                            </DataGridTextColumn.EditingElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </DockPanel>
+    </Grid>
+</Window>

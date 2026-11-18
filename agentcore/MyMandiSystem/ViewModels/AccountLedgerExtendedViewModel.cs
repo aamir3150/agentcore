@@ -64,9 +64,11 @@ public partial class AccountLedgerExtendedViewModel : ObservableObject
 
     private async Task InitializeDataAsync()
     {
-        // Load Seasons
-        var seasons = new List<string> { "All Crops", "Kharif 2025", "Rabi 2025-26", "Kharif 2026" };
-        CropSeasons = new ObservableCollection<string>(seasons);
+        // Load Seasons from database dynamically
+        var dbSeasons = await _systemService.GetAllSeasonsAsync();
+        var seasonsList = new List<string> { "All Crops" };
+        seasonsList.AddRange(dbSeasons.Select(s => s.Name).Where(n => !string.IsNullOrWhiteSpace(n)));
+        CropSeasons = new ObservableCollection<string>(seasonsList);
         SelectedCropSeason = "All Crops";
 
         // Load Accounts
@@ -187,8 +189,8 @@ public partial class AccountLedgerExtendedViewModel : ObservableObject
                 : $"{SelectedAccount.AccountNo} ({SelectedAccount.Name})";
 
             string periodText = IsSingleDate ? $"{SingleDate:dd/MM/yyyy}" :
-                                IsDateRange ? $"{FromDate:dd/MM/yyyy} تا {ToDate:dd/MM/yyyy}" :
-                                "All Dates (تمام تاریخیں / سابقہ تا حال)";
+                                IsDateRange ? $"{FromDate:dd/MM/yyyy} to {ToDate:dd/MM/yyyy}" :
+                                "All Dates";
 
             var parameters = new Dictionary<string, string>
             {

@@ -1,0 +1,113 @@
+0xa844: ATSalesForms
+0xa854: AgenSOFT Sales Forms
+0xaba4: ATSalesForms
+0xabb1: ATSalesForms
+0xabbf: ATSalesForms
+0x51740: ATSalesForms
+0x51808: SchSales
+0x51874: FrmCropsSalesWeighments
+0x51890: CrpCropsSalesWeighments
+0x519a4: SchSalesmen
+0x51c6c: CropSalesForm
+0x51c7c: CropSalesWeighmentForm
+0x51c94: CropSalesInvoiceWeighmentForm
+0x51cb4: CropSalesInvoiceWeighmentWiseForm
+0x51cd8: SalesForm
+0x52578: TxtTotSalesTax
+0x52748: DtpSalesDate
+0x5327c: BtnSchSalesman
+0x532b0: TxtSalesmanID
+0x532cc: TxtSalesmanName
+0x53684: txtSalesTax
+0x78468: TxtPurchaseSTRatio
+0x7a8f8: TxtPurchaseDiscValue
+0x7f206: {zTxtPurchaseDiscRatio
+0x7f990: TxtSaleSTRatio
+0x81044: TxtPurchasePrice
+0x93318: CrpCropsSalesWeighments
+0xafc70: SchSales
+0xb7284: From Sale Date
+0xb730c: SchSalesmen
+0xb731c: Search Salesmen
+0xbed14: Search Salesmen
+0xe168b: From Date
+0xead3d: From Return Date
+0xfed1d: From Inv. No
+0x108f6b: From Inv. No
+0x1090b9: Search Crops Sales
+0x10e774: PurchaseID
+0x111b7b:   <xapMM:DerivedFrom rdf:parseType='Resource'>
+0x1150b9: From Date
+0x1352ff: TxtPurchasePrice
+0x13532f: TxtPurchaseDiscRatio
+0x1353ef: TxtPurchaseDiscValue
+0x135423: TxtPurchaseSTRatio
+0x135455: TxtSaleSTRatio
+0x13548e: PURCHASE
+0x1355f7: Sales Tax Ratio:
+0x13a373: Purchase A/c
+0x154855: Total Sales Tax
+0x162292: -------------  Purchase Date Range -------------
+0x16989d: TxtSalesmanID
+0x1698c8: TxtSalesmanName
+0x169bf3: txtSalesTax
+0x16dec5: Sales Tax 
+0x16ded0: SalesTax
+0x16f31f: BtnSchSalesman
+0x16f514: Salesman Name
+0x16f546: Salesman ID
+0x16f7d2: Sales Tax
+0x16fbd0: FrmCropsSalesWeighments
+0x16fbec: Crops Sales Weighments
+0x17819a: Stock from Weighments
+0x17d07a: Crops Sales Weighments
+0x18582d: TxtTotSalesTax
+0x18a5d1: DtpSalesDate
+0x18adee: Sales Tax
+0x18b0a9: Sales Return (With Invoice)
+0x1925f6: TxtSalesmanID
+0x192625: TxtSalesmanName
+0x193319: Total Sales Tax
+0x193329: TotalSalesTax
+0x19849c: Sales Return (With Invoice)
+0x19851e: Salesmna Name
+0x198556: Salesman ID
+0x1a0b3e: Stock from Weighments
+0x1a1806: From Manual Arrival
+0x1b4cee: Total Sales Tax
+0x1bdff2: TxtTotSalesTax
+0x1c2d63: DtpSalesDate
+0x1c35e9: Sales Tax
+0x1cc313: TxtTotSalesTax
+0x1d10b9: DtpSalesDate
+0x1d293b: Select for Billing
+0x1d2b32: Sales Tax
+0x1d2df3: Sales Invoice (Manual Batch Allocation)
+0x1dada6: SalesTax
+0x1db683: TxtSalesmanName
+0x1db6b4: TxtSalesmanID
+0x1db830: BtnSchSalesman
+0x1e3900: Sales Invoice (Manual Batch Allocation)
+0x1e3e84: Salesman
+0x1e404d: Sales Invoice (Automatic Batch Allocation)
+0x1ebd32: SalesTax
+0x1ec59f: TxtSalesmanName
+0x1ec5d0: TxtSalesmanID
+0x1ec758: BtnSchSalesman
+0x1f3324: IsLocalPurchase
+0x1f4ccf: Sales Invoice (Automatic Batch Allocation)
+0x1f5328: Salesman
+0x203865:   <xapMM:DerivedFrom rdf:parseType='Resource'>
+0x2070cc: Total Sales Tax
+0x32cd28: AgenSOFT Sales Forms
+0x32d194: ParaInSales
+0x32d240: ParaOutSalesmanID
+0x32d254: ParaOutSalesmanName
+0x5b7ee0: ATSalesForms.dll
+0x5b9bb0: ATSalesForms
+0x5b9ca8: CropSalesFormWWW
+0x5b9cc4: CropSalesWeighmentFormWW
+0x5b9ce8: CropSalesInvoiceWeighmentFormWWW
+0x5b9d14: CropSalesInvoiceWeighmentWiseFormWWW
+0x5b9d44: SalesFormWWW
+0x5b9e1a: AgenSOFT Sales FormsWW

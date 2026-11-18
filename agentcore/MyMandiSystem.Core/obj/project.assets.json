@@ -2,11 +2,11 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "Microsoft.EntityFrameworkCore/8.0.31": {
+      "Microsoft.EntityFrameworkCore/8.0.34": {
         "type": "package",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.31",
-          "Microsoft.EntityFrameworkCore.Analyzers": "8.0.31",
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.34",
+          "Microsoft.EntityFrameworkCore.Analyzers": "8.0.34",
           "Microsoft.Extensions.Caching.Memory": "8.0.1",
           "Microsoft.Extensions.Logging": "8.0.1"
         },
@@ -24,7 +24,7 @@
           "buildTransitive/net8.0/Microsoft.EntityFrameworkCore.props": {}
         }
       },
-      "Microsoft.EntityFrameworkCore.Abstractions/8.0.31": {
+      "Microsoft.EntityFrameworkCore.Abstractions/8.0.34": {
         "type": "package",
         "compile": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
@@ -37,7 +37,7 @@
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Analyzers/8.0.31": {
+      "Microsoft.EntityFrameworkCore.Analyzers/8.0.34": {
         "type": "package",
         "compile": {
           "lib/netstandard2.0/_._": {}
@@ -202,10 +202,10 @@
     }
   },
   "libraries": {
-    "Microsoft.EntityFrameworkCore/8.0.31": {
-      "sha512": "RlM+Py8bIwT1f1yKPq9LDPTK08ZVgC157oAQlIIYRhSTXj1bYpSqWHTvWXb8Wghyfqfsi1wo9hIviiEzTZjdpA==",
+    "Microsoft.EntityFrameworkCore/8.0.34": {
+      "sha512": "Ld8sM+885cJi2P5NXwLVRm1iGcw/CrBhBgdxAaegE/MvB9SdXybIijTOtNtN4lIDo2V6slQF7cvZ9Amb/A+0Ew==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore/8.0.31",
+      "path": "microsoft.entityframeworkcore/8.0.34",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -214,14 +214,14 @@
         "buildTransitive/net8.0/Microsoft.EntityFrameworkCore.props",
         "lib/net8.0/Microsoft.EntityFrameworkCore.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.xml",
-        "microsoft.entityframeworkcore.8.0.31.nupkg.sha512",
+        "microsoft.entityframeworkcore.8.0.34.nupkg.sha512",
         "microsoft.entityframeworkcore.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Abstractions/8.0.31": {
-      "sha512": "2dnfIgy8TaEY31mWbQ2xCYWz/YgP2/cGFKhBskmLhovmn5PLgrnfcVLLFaGOZ0WhC2W0VzG8ps60NXEzflZ1dw==",
+    "Microsoft.EntityFrameworkCore.Abstractions/8.0.34": {
+      "sha512": "6koYnn3pRTZhEXKgsyiqwC6QifD/ZjchemuUbK3yz9gxSRpCcVz7NNu8D3yy6GIJv6bgPKR7kGZAdjyFmAuSEQ==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.abstractions/8.0.31",
+      "path": "microsoft.entityframeworkcore.abstractions/8.0.34",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -229,14 +229,14 @@
         "PACKAGE.md",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.xml",
-        "microsoft.entityframeworkcore.abstractions.8.0.31.nupkg.sha512",
+        "microsoft.entityframeworkcore.abstractions.8.0.34.nupkg.sha512",
         "microsoft.entityframeworkcore.abstractions.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Analyzers/8.0.31": {
-      "sha512": "ahYdpBYc7x6eyjjXycwdwuJZjbkFFsG0KgTs34c21PpiwY24KI3B1KdzDSzWIX6RWSSfS++2agQeGx5KK9JMVg==",
+    "Microsoft.EntityFrameworkCore.Analyzers/8.0.34": {
+      "sha512": "hrOJEV6XKuPsd7EI1nxY5Zrl4I1auwvgIqXaiMgfj6XhZUrxlB9Uhcg8NSkYO7+V0OIQ6zdH5AY6YtQzKtfGaQ==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.analyzers/8.0.31",
+      "path": "microsoft.entityframeworkcore.analyzers/8.0.34",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -244,7 +244,7 @@
         "analyzers/dotnet/cs/Microsoft.EntityFrameworkCore.Analyzers.dll",
         "docs/PACKAGE.md",
         "lib/netstandard2.0/_._",
-        "microsoft.entityframeworkcore.analyzers.8.0.31.nupkg.sha512",
+        "microsoft.entityframeworkcore.analyzers.8.0.34.nupkg.sha512",
         "microsoft.entityframeworkcore.analyzers.nuspec"
       ]
     },
@@ -566,11 +566,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj",
+      "projectUniqueName": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj",
       "projectName": "MyMandiSystem.Core",
-      "projectPath": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj",
+      "projectPath": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\MyMandiSystem.Core.csproj",
       "packagesPath": "C:\\Users\\City Computers\\.nuget\\packages\\",
-      "outputPath": "D:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\obj\\",
+      "outputPath": "d:\\Projects\\agentcore\\agentcore\\MyMandiSystem.Core\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\City Computers\\AppData\\Roaming\\NuGet\\NuGet.Config"

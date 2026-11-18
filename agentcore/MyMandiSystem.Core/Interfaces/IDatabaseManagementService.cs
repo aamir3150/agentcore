@@ -103,4 +103,9 @@ public interface IDatabaseManagementService
     Task<DataTable> GetTableDataAsync(string tableName, string? dbName = null, int topRows = 1000, string? searchFilter = null);
     Task<DataTable> ExecuteQueryAsync(string sqlQuery, string? dbName = null);
     Task<bool> ExportTableToCsvAsync(DataTable table, string filePath);
+    Task<bool> AttachDatabaseAsync(string databaseName, string mdfPath, string? ldfPath = null);
+    Task<bool> DetachDatabaseAsync(string databaseName);
+    Task<bool> BackupDatabaseAsync(string databaseName, string destinationFilePath);
+    Task<bool> RestoreDatabaseAsync(string databaseName, string sourceBakFilePath);
+    Task<bool> ShrinkDatabaseAsync(string databaseName);
 }

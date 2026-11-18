@@ -178,27 +178,163 @@ public partial class BrokerageSaleInvoiceViewModel : ObservableObject
         RecalculateTotals();
     }
 
+    public void RecalculateCurrentLine()
+    {
+        // 1. Calculate Total Weight (Kgs)
+        decimal totalKgs = (CurrentTQty * CurrentBhartiKgs) + CurrentLooseWeight;
+        
+        // Shortage deduction
+        if (CurrentShortage > 0)
+        {
+            if (SelectedShortType == "%")
+            {
+                totalKgs -= Math.Round((totalKgs * CurrentShortage) / 100m, 2);
+            }
+            else if (SelectedShortType == "Mnd-")
+            {
+                decimal std = SelectedMoundStandard > 0 ? SelectedMoundStandard : 40m;
+                totalKgs -= (CurrentShortage * std);
+            }
+            else // "Mnd+"
+            {
+                decimal std = SelectedMoundStandard > 0 ? SelectedMoundStandard : 40m;
+                totalKgs += (CurrentShortage * std);
+            }
+        }
+
+        if (CurrentDeduction > 0)
+        {
+            totalKgs -= CurrentDeduction;
+        }
+        
+        if (totalKgs < 0) totalKgs = 0;
+        CurrentTotalWeight = Math.Round(totalKgs, 2);
+
+        // 2. Calculate Total Value
+        decimal stdMound = SelectedMoundStandard > 0 ? SelectedMoundStandard : 40m;
+        decimal baseValue = 0;
+
+        if (SelectedRateType == "Rate/Mound")
+        {
+            decimal mds = CurrentTotalWeight / stdMound;
+            baseValue = mds * CurrentRate;
+        }
+        else if (SelectedRateType == "Rate/Kg")
+        {
+            baseValue = CurrentTotalWeight * CurrentRate;
+        }
+        else if (SelectedRateType == "Rate/Bag")
+        {
+            baseValue = CurrentTQty * CurrentRate;
+        }
+        else // "Fixed"
+        {
+            baseValue = CurrentRate;
+        }
+
+        // Rate Bardana (Bardana charged per bag if CurrentRateBardana > 0)
+        decimal bardanaValue = CurrentTQty * CurrentRateBardana;
+
+        CurrentTotalValue = Math.Round(baseValue + bardanaValue, 2);
+    }
+
     public void RecalculateTotals()
     {
-        GrossTotal = Items.Sum(i => i.TotalValue);
+        GrossTotal = Math.Round(Items.Sum(i => i.TotalValue), 2);
         TotalWeightKgs = Items.Sum(i => i.TotalKgs);
-        decimal mds = Math.Floor(TotalWeightKgs / 40);
-        decimal kgs = TotalWeightKgs % 40;
+        int totalBags = Items.Sum(i => i.TQty);
+
+        decimal mds = Math.Floor(TotalWeightKgs / 40m);
+        decimal kgs = Math.Round(TotalWeightKgs % 40m, 2);
         Mounds = $"{mds}- {kgs:00}";
 
+        // 1. Dami / Commission (Arhat) Calculation
         if (DamiPercentage > 0)
         {
-            DamiValue = Math.Round((GrossTotal * DamiPercentage) / 100m, 2);
+            if (SelectedDamiType == "TotalValueWise")
+            {
+                DamiValue = Math.Round((GrossTotal * DamiPercentage) / 100m, 2);
+            }
+            else if (SelectedDamiType == "PerBag")
+            {
+                DamiValue = Math.Round(totalBags * DamiPercentage, 2);
+            }
+            else if (SelectedDamiType == "PerMound")
+            {
+                DamiValue = Math.Round((TotalWeightKgs / 40m) * DamiPercentage, 2);
+            }
+        }
+        else
+        {
+            DamiValue = 0;
         }
 
+        // 2. Ref Commission
+        if (RefCommissionPercentage > 0)
+        {
+            if (SelectedRefCommissionType == "TotalValueWise")
+            {
+                RefCommissionValue = Math.Round((GrossTotal * RefCommissionPercentage) / 100m, 2);
+            }
+            else if (SelectedRefCommissionType == "PerBag")
+            {
+                RefCommissionValue = Math.Round(totalBags * RefCommissionPercentage, 2);
+            }
+            else if (SelectedRefCommissionType == "PerMound")
+            {
+                RefCommissionValue = Math.Round((TotalWeightKgs / 40m) * RefCommissionPercentage, 2);
+            }
+        }
+        else
+        {
+            RefCommissionValue = 0;
+        }
+
+        // 3. Withholding Tax (WHT)
         if (WhtPercentage > 0)
         {
-            WhtValue = Math.Round((GrossTotal * WhtPercentage) / 100m, 2);
+            if (CommissionMinusFromBalance)
+            {
+                // In AgenSOFT: WHT on commission
+                WhtValue = Math.Round((DamiValue * WhtPercentage) / 100m, 2);
+            }
+            else
+            {
+                // WHT on gross total
+                WhtValue = Math.Round((GrossTotal * WhtPercentage) / 100m, 2);
+            }
+        }
+        else
+        {
+            WhtValue = 0;
         }
 
-        InvoiceValue = GrossTotal - Discount + Bardana;
-        NetValue = InvoiceValue - Advance - OtherExpMinus + OtherExpPlus;
-        FinalBalance = PreviousBalance + NetValue - Received;
+        // 4. Vehicle Charges (Freight / Kiraya)
+        if (VehicleCharges1 > 0)
+        {
+            if (IsVehiclePerBag)
+            {
+                VehicleCharges2 = Math.Round(totalBags * VehicleCharges1, 2);
+            }
+            else if (IsVehiclePerMound)
+            {
+                VehicleCharges2 = Math.Round((TotalWeightKgs / 40m) * VehicleCharges1, 2);
+            }
+            else
+            {
+                VehicleCharges2 = VehicleCharges1;
+            }
+        }
+
+        // 5. Invoice Value & Net Value
+        // InvoiceValue = GrossTotal - Discount + Bardana
+        InvoiceValue = Math.Round(GrossTotal - Discount + Bardana, 2);
+
+        decimal commissionDeduction = CommissionMinusFromBalance ? DamiValue : 0;
+        decimal vehicleAdjustment = IsVehiclePlus ? VehicleCharges2 : (IsVehicleMinus ? -VehicleCharges2 : 0);
+
+        NetValue = Math.Round(InvoiceValue - Advance - OtherExpMinus + OtherExpPlus - commissionDeduction + vehicleAdjustment, 2);
+        FinalBalance = Math.Round(PreviousBalance + NetValue - Received, 2);
     }
 
     [RelayCommand]
@@ -206,9 +342,7 @@ public partial class BrokerageSaleInvoiceViewModel : ObservableObject
     {
         if (CurrentTotalValue <= 0 && CurrentRate <= 0) return;
 
-        decimal totalKgs = (CurrentTQty * CurrentBhartiKgs) + CurrentLooseWeight - CurrentShortage - CurrentDeduction;
-        decimal mds = SelectedMoundStandard > 0 ? totalKgs / SelectedMoundStandard : totalKgs / 40;
-        decimal value = SelectedRateType == "Rate/Mound" ? mds * CurrentRate : (SelectedRateType == "Rate/Kg" ? totalKgs * CurrentRate : CurrentTQty * CurrentRate);
+        RecalculateCurrentLine();
 
         Items.Add(new BrokerageSaleItemDto
         {
@@ -221,16 +355,63 @@ public partial class BrokerageSaleInvoiceViewModel : ObservableObject
             ExtWt = CurrentLooseWeight,
             Shortage = CurrentShortage,
             Deduction = CurrentDeduction,
-            TotalKgs = totalKgs,
+            TotalKgs = CurrentTotalWeight,
             MoundStandard = SelectedMoundStandard,
             RateType = SelectedRateType,
             Rate = CurrentRate,
             RateBardana = CurrentRateBardana,
-            TotalValue = value
+            TotalValue = CurrentTotalValue
         });
+
+        // Clear line inputs for next entry
+        CurrentProductId = string.Empty;
+        CurrentProductName = string.Empty;
+        CurrentTQty = 0;
+        CurrentBQty = 0;
+        CurrentPQty = 0;
+        CurrentLooseWeight = 0;
+        CurrentShortage = 0;
+        CurrentDeduction = 0;
+        CurrentTotalWeight = 0;
+        CurrentRate = 0;
+        CurrentRateBardana = 0;
+        CurrentTotalValue = 0;
 
         RecalculateTotals();
     }
+
+    // Line Input Change Listeners for Instant Calculation
+    partial void OnCurrentTQtyChanged(int value) => RecalculateCurrentLine();
+    partial void OnCurrentBhartiKgsChanged(decimal value) => RecalculateCurrentLine();
+    partial void OnCurrentLooseWeightChanged(decimal value) => RecalculateCurrentLine();
+    partial void OnSelectedShortTypeChanged(string value) => RecalculateCurrentLine();
+    partial void OnCurrentShortageChanged(decimal value) => RecalculateCurrentLine();
+    partial void OnCurrentDeductionChanged(decimal value) => RecalculateCurrentLine();
+    partial void OnSelectedMoundStandardChanged(decimal value) => RecalculateCurrentLine();
+    partial void OnSelectedRateTypeChanged(string value) => RecalculateCurrentLine();
+    partial void OnCurrentRateChanged(decimal value) => RecalculateCurrentLine();
+    partial void OnCurrentRateBardanaChanged(decimal value) => RecalculateCurrentLine();
+
+    // Expenses and Totals Change Listeners
+    partial void OnSelectedDamiTypeChanged(string value) => RecalculateTotals();
+    partial void OnDamiPercentageChanged(decimal value) => RecalculateTotals();
+    partial void OnCommissionMinusFromBalanceChanged(bool value) => RecalculateTotals();
+    partial void OnWhtPercentageChanged(decimal value) => RecalculateTotals();
+    partial void OnDiscountChanged(decimal value) => RecalculateTotals();
+    partial void OnBardanaChanged(decimal value) => RecalculateTotals();
+    partial void OnAdvanceChanged(decimal value) => RecalculateTotals();
+    partial void OnSelectedRefCommissionTypeChanged(string value) => RecalculateTotals();
+    partial void OnRefCommissionPercentageChanged(decimal value) => RecalculateTotals();
+    partial void OnOtherExpMinusChanged(decimal value) => RecalculateTotals();
+    partial void OnOtherExpPlusChanged(decimal value) => RecalculateTotals();
+    partial void OnVehicleCharges1Changed(decimal value) => RecalculateTotals();
+    partial void OnIsVehiclePerBagChanged(bool value) => RecalculateTotals();
+    partial void OnIsVehiclePerMoundChanged(bool value) => RecalculateTotals();
+    partial void OnIsVehiclePlusChanged(bool value) => RecalculateTotals();
+    partial void OnIsVehicleMinusChanged(bool value) => RecalculateTotals();
+    partial void OnSeparateVehicleChargesChanged(bool value) => RecalculateTotals();
+    partial void OnReceivedChanged(decimal value) => RecalculateTotals();
+    partial void OnPreviousBalanceChanged(decimal value) => RecalculateTotals();
 
     [RelayCommand]
     private void LoadFromPurchase()
@@ -320,22 +501,30 @@ public partial class BrokerageSaleInvoiceViewModel : ObservableObject
 
         try
         {
-            var invoice = new BrokerageInvoice
+            BrokerageInvoice invoice;
+            if (LoadedInvoiceId > 0)
             {
-                InvoiceNo = SaleId1,
-                InvoiceType = InvoiceType.BrkSale,
-                InvoiceDate = InvoiceDate,
-                FinancialYearId = year.Id,
-                CropSeasonId = activeSeason?.Id ?? 1,
-                PartyId = party.Id,
-                GrossAmount = GrossTotal,
-                CommissionAmount = DamiValue,
-                WHT_Amount = WhtValue,
-                LaborCharges = Bardana,
-                NetAmount = NetValue,
-                VehicleNo = VehicleNo,
-                Status = InvoiceStatus.Draft
-            };
+                invoice = await _brokerageService.GetBrokerageInvoiceByIdAsync(LoadedInvoiceId) ?? new BrokerageInvoice();
+                invoice.Details.Clear();
+            }
+            else
+            {
+                invoice = new BrokerageInvoice();
+            }
+
+            invoice.InvoiceNo = SaleId1;
+            invoice.InvoiceType = InvoiceType.BrkSale;
+            invoice.InvoiceDate = InvoiceDate;
+            invoice.FinancialYearId = year.Id;
+            invoice.CropSeasonId = activeSeason?.Id ?? 1;
+            invoice.PartyId = party.Id;
+            invoice.GrossAmount = GrossTotal;
+            invoice.CommissionAmount = DamiValue;
+            invoice.WHT_Amount = WhtValue;
+            invoice.LaborCharges = Bardana;
+            invoice.NetAmount = NetValue;
+            invoice.VehicleNo = VehicleNo;
+            invoice.Status = InvoiceStatus.Draft;
 
             int lineNo = 1;
             foreach (var item in Items)
@@ -370,9 +559,12 @@ public partial class BrokerageSaleInvoiceViewModel : ObservableObject
         }
     }
 
+    [ObservableProperty] private int _loadedInvoiceId = 0;
+
     [RelayCommand]
     private void Clear()
     {
+        LoadedInvoiceId = 0;
         Items.Clear();
         TotalWeightKgs = 0;
         GrossTotal = 0;
@@ -389,18 +581,99 @@ public partial class BrokerageSaleInvoiceViewModel : ObservableObject
     [RelayCommand]
     private void Print()
     {
-        System.Windows.MessageBox.Show("Printing Brokerage Sale Invoice...", "Print", MessageBoxButton.OK, MessageBoxImage.Information);
+        System.Windows.MessageBox.Show($"Printing Brokerage Sale Invoice #{SaleId1}...", "Print Preview", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     [RelayCommand]
-    private void Open()
+    private async Task Open()
     {
-        System.Windows.MessageBox.Show("Open Sale Invoice Lookup dialog.", "Open", MessageBoxButton.OK, MessageBoxImage.Information);
+        var lookupVm = new BrokerageInvoiceLookupViewModel(_brokerageService);
+        lookupVm.SetTypeFilter(InvoiceType.BrkSale);
+
+        var lookupWin = new Views.BrokerageInvoiceLookupWindow
+        {
+            DataContext = lookupVm,
+            Owner = Application.Current.MainWindow
+        };
+
+        lookupWin.ShowDialog();
+
+        if (lookupVm.IsConfirmed && lookupVm.SelectedInvoice != null)
+        {
+            var invoice = await _brokerageService.GetBrokerageInvoiceByIdAsync(lookupVm.SelectedInvoice.Id);
+            if (invoice != null)
+            {
+                LoadedInvoiceId = invoice.Id;
+                SaleId1 = invoice.InvoiceNo;
+                InvoiceDate = invoice.InvoiceDate;
+                PartyId = invoice.Party?.PartyNo ?? "";
+                PartyName = invoice.Party?.Name ?? "";
+                VehicleNo = invoice.VehicleNo ?? "";
+                GrossTotal = invoice.GrossAmount;
+                DamiValue = invoice.CommissionAmount;
+                WhtValue = invoice.WHT_Amount;
+                Bardana = invoice.LaborCharges;
+                NetValue = invoice.NetAmount;
+
+                Items.Clear();
+                foreach (var detail in invoice.Details)
+                {
+                    decimal wtPerBag = detail.Bags > 0 ? (detail.GrossWeight / detail.Bags) : 50;
+                    Items.Add(new BrokerageSaleItemDto
+                    {
+                        ProductId = detail.Product?.ProductCode ?? detail.ProductId.ToString(),
+                        ProductName = detail.Product?.Name ?? "",
+                        TQty = detail.Bags,
+                        BQty = detail.Bags,
+                        PQty = 0,
+                        WtPerBag = wtPerBag,
+                        TotalKgs = detail.NetWeight,
+                        Rate = detail.Rate,
+                        TotalValue = detail.Amount,
+                        Shortage = detail.TareWeight,
+                        RateType = "Rate/Mound"
+                    });
+                }
+                RecalculateTotals();
+            }
+        }
     }
 
     [RelayCommand]
-    private void Remove()
+    private async Task Remove()
     {
+        if (LoadedInvoiceId > 0)
+        {
+            var result = MessageBox.Show(
+                $"Are you sure you want to delete this sale invoice (#{SaleId1}) from database?\n\n(Yes = Delete invoice and all accounting entries\nNo = Remove only selected item from list)",
+                "Confirm Delete Sale Invoice",
+                MessageBoxButton.YesNoCancel,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                await _brokerageService.DeleteBrokerageInvoiceAsync(LoadedInvoiceId);
+                MessageBox.Show($"Sale Invoice #{SaleId1} deleted successfully.", "Delete Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                Clear();
+                var year = await _systemService.GetCurrentYearAsync();
+                if (year != null)
+                {
+                    SaleId1 = await _systemService.GetNextDocumentNoAsync(DocumentType.BrokerageInvoice, year.Id);
+                }
+                return;
+            }
+            else if (result == MessageBoxResult.No)
+            {
+                if (SelectedItem != null)
+                {
+                    Items.Remove(SelectedItem);
+                    RecalculateTotals();
+                }
+                return;
+            }
+            return;
+        }
+
         if (SelectedItem != null)
         {
             Items.Remove(SelectedItem);

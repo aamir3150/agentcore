@@ -68,7 +68,7 @@
                             </Border>
                             <TextBlock Text="Cash Book" FontSize="21" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="روکڑ بہی (کیش بک روزانہ کھاتہ رپورٹ)" FontSize="14" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
+                        <TextBlock Text="Daily Cash Receipts &amp; Payments Financial Journal" FontSize="12" Foreground="#94A3B8" Margin="44,2,0,0"/>
                     </StackPanel>
 
                     <!-- Right Graphic Emblem -->

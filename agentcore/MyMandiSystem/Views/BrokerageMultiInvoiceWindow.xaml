@@ -6,36 +6,40 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="Brokerage Multi Invoice" 
-        Height="680" Width="1080"
-        MinHeight="500" MinWidth="900"
+        Height="760" Width="1160"
+        MinHeight="560" MinWidth="950"
         WindowStartupLocation="CenterScreen"
-        Background="#EAEAEA"
-        FontFamily="Segoe UI" FontSize="11">
+        Background="#F1F5F9"
+        FontFamily="Segoe UI" FontSize="11.5">
 
     <Window.Resources>
-        <!-- Classic Button Style -->
         <Style x:Key="ClassicButton" TargetType="Button">
             <Setter Property="Height" Value="26"/>
-            <Setter Property="MinWidth" Value="75"/>
+            <Setter Property="MinWidth" Value="80"/>
             <Setter Property="Margin" Value="3,0"/>
-            <Setter Property="Background" Value="#F2F2F2"/>
-            <Setter Property="BorderBrush" Value="#707070"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="btnBorder" CornerRadius="3" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="5,2">
+                        <Border x:Name="btnBorder" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="8,2">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#E0EEF8"/>
-                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#0078D7"/>
+                                <Setter TargetName="btnBorder" Property="Background" Value="#E2E8F0"/>
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#64748B"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#CCE4F7"/>
+                                <Setter TargetName="btnBorder" Property="Background" Value="#CBD5E1"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.55"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -43,40 +47,113 @@
             </Setter>
         </Style>
 
-        <!-- Standard Input Style -->
+        <Style x:Key="PrimarySaveButton" TargetType="Button" BasedOn="{StaticResource ClassicButton}">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#1D4ED8"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="12,2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#1D4ED8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#1E40AF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DangerDeleteButton" TargetType="Button" BasedOn="{StaticResource ClassicButton}">
+            <Setter Property="Background" Value="#DC2626"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#B91C1C"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="10,2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#B91C1C"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#991B1B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="TextBox">
-            <Setter Property="Height" Value="21"/>
+            <Setter Property="Height" Value="24"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="2,0"/>
-            <Setter Property="BorderBrush" Value="#7A7A7A"/>
+            <Setter Property="Padding" Value="3,1"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="#FFFFFF"/>
             <Setter Property="FontSize" Value="11"/>
         </Style>
 
-        <!-- Standard ComboBox Style -->
         <Style TargetType="ComboBox">
-            <Setter Property="Height" Value="21"/>
+            <Setter Property="Height" Value="24"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="3,0"/>
-            <Setter Property="BorderBrush" Value="#7A7A7A"/>
+            <Setter Property="Padding" Value="3,1"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="11"/>
         </Style>
 
-        <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#111111"/>
-            <Setter Property="FontSize" Value="10.5"/>
+        <Style TargetType="DatePicker">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="3,1"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="11"/>
         </Style>
     </Window.Resources>
 
-    <Grid Margin="8,4">
+    <Grid Margin="12">
         <DockPanel LastChildFill="True">
 
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!--                     BOTTOM BUTTONS BAR                     -->
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <Border DockPanel.Dock="Bottom" Background="#DCDCDC" BorderBrush="#B8B8B8" BorderThickness="0,1,0,0" Padding="6,6" Margin="0,4,0,0">
+            <!-- ═══ 0. TOP HEADER CARD ═══ -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#1E3A8A" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="FileMultiple" Width="20" Height="20" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}" FontSize="16" FontWeight="Bold" Foreground="#1E3A8A"/>
+                        <TextBlock Text="Simultaneous commodity purchase and sale multi-invoicing with integrated trade accounting" FontSize="11" Foreground="#64748B" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Crop Season:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold" Foreground="#475569"/>
+                        <ComboBox ItemsSource="{Binding CropSeasons}" SelectedItem="{Binding SelectedCropSeason}" Width="150" Height="26"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ═══ 4. BOTTOM ACTION FOOTER CARD ═══ -->
+            <Border DockPanel.Dock="Bottom" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,8,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -85,367 +162,394 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Send SMS -->
-                    <CheckBox Grid.Column="0" Content="Send SMS" IsChecked="{Binding SendSMS}" VerticalAlignment="Center" Margin="4,0,12,0" FontWeight="SemiBold"/>
+                    <CheckBox Grid.Column="0" Content="Send SMS" IsChecked="{Binding SendSMS}" VerticalAlignment="Center" Margin="4,0,12,0" FontWeight="SemiBold" Foreground="#334155"/>
 
                     <!-- Action Buttons -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Style="{StaticResource ClassicButton}" Command="{Binding SaveCommand}">
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Style="{StaticResource PrimarySaveButton}" Command="{Binding SaveCommand}" Margin="0,0,6,0">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="ContentSaveOutline" Width="14" Height="14" Foreground="#005A9E" Margin="0,0,3,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Save" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="ContentSaveOutline" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Save (F2)" VerticalAlignment="Center" FontWeight="Bold"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource ClassicButton}" Command="{Binding ClearCommand}">
+                        <Button Style="{StaticResource ClassicButton}" Command="{Binding ClearCommand}" Margin="0,0,6,0">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Refresh" Width="14" Height="14" Foreground="#005A9E" Margin="0,0,3,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Clear" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="Refresh" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Clear (F3)" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource ClassicButton}" Command="{Binding PrintCommand}">
+                        <Button Style="{StaticResource ClassicButton}" Command="{Binding PrintCommand}" Margin="0,0,6,0">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Printer" Width="14" Height="14" Foreground="#333333" Margin="0,0,3,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Print" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="PrinterOutline" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Print (Ctrl+P)" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource ClassicButton}" Command="{Binding OpenCommand}">
+                        <Button Style="{StaticResource ClassicButton}" Command="{Binding OpenCommand}" Margin="0,0,6,0">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="FolderOpenOutline" Width="14" Height="14" Foreground="#005A9E" Margin="0,0,3,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Open" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="FolderOpenOutline" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Open (Ctrl+O)" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource ClassicButton}" Command="{Binding RemoveCommand}">
+                        <Button Style="{StaticResource DangerDeleteButton}" Command="{Binding RemoveCommand}" Margin="0,0,6,0">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="TrashCanOutline" Width="14" Height="14" Foreground="#107C41" Margin="0,0,3,0" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="DeleteOutline" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
                                 <TextBlock Text="Remove" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
                         <Button Style="{StaticResource ClassicButton}" Command="{Binding CloseCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="CloseCircle" Width="14" Height="14" Foreground="#D13438" Margin="0,0,3,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Close" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <TextBlock Text="Close (Esc)" VerticalAlignment="Center"/>
                         </Button>
                     </StackPanel>
 
                     <!-- Right Profit/Loss & Account No -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Profit / Loss" VerticalAlignment="Center" Margin="0,0,4,0" FontWeight="Bold"/>
-                        <TextBox Text="{Binding ProfitLoss, StringFormat=N2}" Width="75" Height="21" FontWeight="Bold" Foreground="#005A9E" Margin="0,0,10,0"/>
-                        <TextBlock Text="Account No" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                        <TextBox Text="{Binding AccountNo}" Width="70" Height="21"/>
+                        <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Profit / Loss: " FontSize="10.5" Foreground="#475569" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding ProfitLoss, StringFormat=N2}" FontWeight="Bold" Foreground="#1E3A8A" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock Text="Account No:" FontSize="10.5" Foreground="#475569" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                        <TextBox Text="{Binding AccountNo}" Width="80" Height="24"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!--                   MAIN INVOICE CONTAINER                   -->
-            <!-- ══════════════════════════════════════════════════════════ -->
+            <!-- ═══ MAIN INVOICE CONTAINER ═══ -->
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
 
                     <!-- 1. TOP HEADER PARTICULARS (Row 1 & Row 2) -->
-                    <Border BorderBrush="#A0A0A0" BorderThickness="1" Background="#ECECEC" Padding="6,4" Margin="0,0,0,4">
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,0,8">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="6"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <!-- Row 1: Multi ID, Purchase IDs, Contract ID, Date, Bill No, Gate Pass, Party ID, Party Name, Address, Phone -->
-                            <Grid Grid.Row="0" Margin="0,0,0,3">
+                            <Grid Grid.Row="0">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50"/>  <!-- Multi ID -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="65"/>  <!-- Purchase ID 1 -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="65"/>  <!-- Purchase ID 2 -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="65"/>  <!-- Contract ID -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="90"/>  <!-- Date -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="65"/>  <!-- Bill No -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="65"/>  <!-- Gate Pass -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="55"/>  <!-- Party ID -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="150"/> <!-- Party Name -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="150"/> <!-- Address -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="*"/>   <!-- Phone -->
+                                    <ColumnDefinition Width="65"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="105"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="75"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="75"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="65"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0"><TextBlock Text="Multi ID"/><TextBox Text="{Binding MultiId}" FontWeight="Bold"/></StackPanel>
-                                <StackPanel Grid.Column="2"><TextBlock Text="Purchase ID"/><TextBox Text="{Binding PurchaseId1}" FontWeight="Bold"/></StackPanel>
-                                <StackPanel Grid.Column="4"><TextBlock Text="Purchase ID"/><TextBox Text="{Binding PurchaseId2}"/></StackPanel>
-                                <StackPanel Grid.Column="6"><TextBlock Text="Contract ID"/><TextBox Text="{Binding ContractId}"/></StackPanel>
-                                <StackPanel Grid.Column="8"><TextBlock Text="Date"/><DatePicker SelectedDate="{Binding InvoiceDate}" Height="21"/></StackPanel>
-                                <StackPanel Grid.Column="10"><TextBlock Text="Bill No."/><TextBox Text="{Binding BillNo}"/></StackPanel>
-                                <StackPanel Grid.Column="12"><TextBlock Text="Gate Pass No."/><TextBox Text="{Binding GatePassNo}"/></StackPanel>
-                                <StackPanel Grid.Column="14"><TextBlock Text="Party ID"/><TextBox Text="{Binding PartyId}"/></StackPanel>
-                                <StackPanel Grid.Column="16"><TextBlock Text="Party Name"/><TextBox Text="{Binding PartyName}"/></StackPanel>
-                                <StackPanel Grid.Column="18"><TextBlock Text="Address"/><TextBox Text="{Binding PartyAddress}"/></StackPanel>
-                                <StackPanel Grid.Column="20"><TextBlock Text="Phone"/><TextBox Text="{Binding PartyPhone}"/></StackPanel>
+                                <StackPanel Grid.Column="0"><TextBlock Text="Multi ID" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding MultiId}" FontWeight="Bold" Background="#F8FAFC" BorderBrush="#CBD5E1"/></StackPanel>
+                                <StackPanel Grid.Column="2"><TextBlock Text="Purchase ID" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseId1}" FontWeight="Bold"/></StackPanel>
+                                <StackPanel Grid.Column="4"><TextBlock Text="Purchase ID 2" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseId2}"/></StackPanel>
+                                <StackPanel Grid.Column="6"><TextBlock Text="Contract ID" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding ContractId}"/></StackPanel>
+                                <StackPanel Grid.Column="8"><TextBlock Text="Date" FontSize="10" Foreground="#475569"/><DatePicker SelectedDate="{Binding InvoiceDate}"/></StackPanel>
+                                <StackPanel Grid.Column="10"><TextBlock Text="Bill No." FontSize="10" Foreground="#475569"/><TextBox Text="{Binding BillNo}"/></StackPanel>
+                                <StackPanel Grid.Column="12"><TextBlock Text="Gate Pass" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding GatePassNo}"/></StackPanel>
+                                <StackPanel Grid.Column="14"><TextBlock Text="Party ID" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PartyId}"/></StackPanel>
+                                <StackPanel Grid.Column="16"><TextBlock Text="Party Name" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PartyName}" FontWeight="Bold"/></StackPanel>
+                                <StackPanel Grid.Column="18"><TextBlock Text="Address" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PartyAddress}"/></StackPanel>
+                                <StackPanel Grid.Column="20"><TextBlock Text="Phone" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PartyPhone}"/></StackPanel>
                             </Grid>
 
-                            <!-- Row 2: Sale IDs, Vehicle No, Customer ID, Customer Name, Address, Phone, Crop Season -->
-                            <Grid Grid.Row="1">
+                            <!-- Row 2: Sale IDs, Vehicle No, Customer ID, Customer Name, Address, Phone -->
+                            <Grid Grid.Row="2">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50"/>  <!-- Sale ID 1 -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="65"/>  <!-- Sale ID 2 -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="90"/>  <!-- Vehicle No -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="70"/>  <!-- Customer ID -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="170"/> <!-- Customer Name -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="200"/> <!-- Address -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="130"/> <!-- Phone -->
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="*"/>   <!-- Crop Season -->
+                                    <ColumnDefinition Width="65"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="180"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0"><TextBlock Text="Sale ID"/><TextBox Text="{Binding SaleId1}" FontWeight="Bold"/></StackPanel>
-                                <StackPanel Grid.Column="2"><TextBlock Text="Sale ID"/><TextBox Text="{Binding SaleId2}"/></StackPanel>
-                                <StackPanel Grid.Column="4"><TextBlock Text="Vehicle No"/><TextBox Text="{Binding VehicleNo}"/></StackPanel>
-                                <StackPanel Grid.Column="6"><TextBlock Text="Customer ID"/><TextBox Text="{Binding CustomerId}"/></StackPanel>
-                                <StackPanel Grid.Column="8"><TextBlock Text="Customer Name"/><TextBox Text="{Binding CustomerName}"/></StackPanel>
-                                <StackPanel Grid.Column="10"><TextBlock Text="Address"/><TextBox Text="{Binding CustomerAddress}"/></StackPanel>
-                                <StackPanel Grid.Column="12"><TextBlock Text="Phone"/><TextBox Text="{Binding CustomerPhone}"/></StackPanel>
-                                <StackPanel Grid.Column="14"><TextBlock Text="Crop Season"/><ComboBox ItemsSource="{Binding CropSeasons}" SelectedItem="{Binding SelectedCropSeason}" Height="21"/></StackPanel>
+                                <StackPanel Grid.Column="0"><TextBlock Text="Sale ID" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleId1}" FontWeight="Bold"/></StackPanel>
+                                <StackPanel Grid.Column="2"><TextBlock Text="Sale ID 2" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleId2}"/></StackPanel>
+                                <StackPanel Grid.Column="4"><TextBlock Text="Vehicle No" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding VehicleNo}"/></StackPanel>
+                                <StackPanel Grid.Column="6"><TextBlock Text="Customer ID" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CustomerId}"/></StackPanel>
+                                <StackPanel Grid.Column="8"><TextBlock Text="Customer Name" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CustomerName}" FontWeight="Bold"/></StackPanel>
+                                <StackPanel Grid.Column="10"><TextBlock Text="Address" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CustomerAddress}"/></StackPanel>
+                                <StackPanel Grid.Column="12"><TextBlock Text="Phone" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CustomerPhone}"/></StackPanel>
                             </Grid>
                         </Grid>
                     </Border>
 
                     <!-- 2. PURCHASE GRID SECTION (TOP HALF) -->
-                    <Border BorderBrush="#A0A0A0" BorderThickness="1" Background="#ECECEC" Padding="6,3" Margin="0,0,0,4">
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,0,8">
                         <StackPanel>
                             <!-- Top sub-row: Vehicle No, Delivery Check, Mounds -->
-                            <Grid Margin="0,0,0,2">
+                            <Grid Margin="0,0,0,4">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="120"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="75"/>
+                                    <ColumnDefinition Width="90"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Vehicle No." VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Grid.Column="0" Text="Purchase Vehicle No:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,6,0"/>
                                 <TextBox Grid.Column="1" Text="{Binding PurchaseVehicleNo}"/>
-                                <CheckBox Grid.Column="3" Content="Contract With Delivery" IsChecked="{Binding ContractWithDelivery}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                                <TextBlock Grid.Column="4" Text="Mounds" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBox Grid.Column="5" Text="{Binding PurchaseMounds}" FontWeight="Bold" HorizontalContentAlignment="Center"/>
+                                <CheckBox Grid.Column="3" Content="Contract With Delivery" IsChecked="{Binding ContractWithDelivery}" VerticalAlignment="Center" Margin="0,0,16,0" FontWeight="SemiBold" Foreground="#334155"/>
+                                <TextBlock Grid.Column="4" Text="Mounds:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,6,0"/>
+                                <TextBox Grid.Column="5" Text="{Binding PurchaseMounds}" FontWeight="Bold" HorizontalContentAlignment="Center" Background="#FEF3C7" BorderBrush="#FDE68A" Foreground="#92400E"/>
                             </Grid>
 
                             <!-- Purchase Input Row -->
-                            <Grid Margin="0,0,0,2">
+                            <Grid Margin="0,0,0,4">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="55"/>  <!-- Product ID -->
-                                    <ColumnDefinition Width="105"/> <!-- Product Name -->
-                                    <ColumnDefinition Width="36"/>  <!-- T.Qty -->
-                                    <ColumnDefinition Width="36"/>  <!-- B.Qty -->
-                                    <ColumnDefinition Width="36"/>  <!-- P.Qty -->
-                                    <ColumnDefinition Width="42"/>  <!-- Bharti Kgs -->
-                                    <ColumnDefinition Width="42"/>  <!-- Loose Weight -->
-                                    <ColumnDefinition Width="40"/>  <!-- Short -->
-                                    <ColumnDefinition Width="46"/>  <!-- Type -->
-                                    <ColumnDefinition Width="36"/>  <!-- Per -->
-                                    <ColumnDefinition Width="36"/>  <!-- Ded -->
-                                    <ColumnDefinition Width="48"/>  <!-- Total Weight -->
-                                    <ColumnDefinition Width="48"/>  <!-- Mound Standard -->
-                                    <ColumnDefinition Width="75"/>  <!-- Rate Type -->
-                                    <ColumnDefinition Width="48"/>  <!-- Rate -->
-                                    <ColumnDefinition Width="48"/>  <!-- Rate Bardana -->
+                                    <ColumnDefinition Width="65"/>  <!-- Product ID -->
+                                    <ColumnDefinition Width="120"/> <!-- Product Name -->
+                                    <ColumnDefinition Width="42"/>  <!-- T.Qty -->
+                                    <ColumnDefinition Width="42"/>  <!-- B.Qty -->
+                                    <ColumnDefinition Width="42"/>  <!-- P.Qty -->
+                                    <ColumnDefinition Width="48"/>  <!-- Bharti Kgs -->
+                                    <ColumnDefinition Width="48"/>  <!-- Loose Weight -->
+                                    <ColumnDefinition Width="45"/>  <!-- Short -->
+                                    <ColumnDefinition Width="55"/>  <!-- Type -->
+                                    <ColumnDefinition Width="42"/>  <!-- Per -->
+                                    <ColumnDefinition Width="42"/>  <!-- Ded -->
+                                    <ColumnDefinition Width="55"/>  <!-- Total Weight -->
+                                    <ColumnDefinition Width="55"/>  <!-- Mound Standard -->
+                                    <ColumnDefinition Width="80"/>  <!-- Rate Type -->
+                                    <ColumnDefinition Width="55"/>  <!-- Rate -->
+                                    <ColumnDefinition Width="55"/>  <!-- Rate Bardana -->
                                     <ColumnDefinition Width="*"/>   <!-- Total Value -->
                                     <ColumnDefinition Width="Auto"/> <!-- Add btn -->
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0"><TextBlock Text="Product ID"/><TextBox Text="{Binding PurchaseProductId}"/></StackPanel>
-                                <StackPanel Grid.Column="1"><TextBlock Text="Product Name"/><TextBox Text="{Binding PurchaseProductName}"/></StackPanel>
-                                <StackPanel Grid.Column="2"><TextBlock Text="T.Qty"/><TextBox Text="{Binding PurchaseTQty}"/></StackPanel>
-                                <StackPanel Grid.Column="3"><TextBlock Text="B.Qty"/><TextBox Text="{Binding PurchaseBQty}"/></StackPanel>
-                                <StackPanel Grid.Column="4"><TextBlock Text="P.Qty"/><TextBox Text="{Binding PurchasePQty}"/></StackPanel>
-                                <StackPanel Grid.Column="5"><TextBlock Text="Bharti"/><TextBox Text="{Binding PurchaseBhartiKgs}"/></StackPanel>
-                                <StackPanel Grid.Column="6"><TextBlock Text="Loose Wt"/><TextBox Text="{Binding PurchaseLooseWeight}"/></StackPanel>
-                                <StackPanel Grid.Column="7"><TextBlock Text="Short"/><TextBox Text="{Binding PurchaseShort}"/></StackPanel>
-                                <StackPanel Grid.Column="8"><TextBlock Text="Type"/><ComboBox ItemsSource="{Binding ShortTypes}" SelectedItem="{Binding PurchaseSelectedShortType}"/></StackPanel>
-                                <StackPanel Grid.Column="9"><TextBlock Text="Per"/><TextBox Text="{Binding PurchasePer}"/></StackPanel>
-                                <StackPanel Grid.Column="10"><TextBlock Text="Ded"/><TextBox Text="{Binding PurchaseDed}"/></StackPanel>
-                                <StackPanel Grid.Column="11"><TextBlock Text="Total Wt"/><TextBox Text="{Binding PurchaseTotalWeight}"/></StackPanel>
-                                <StackPanel Grid.Column="12"><TextBlock Text="Mnd Std"/><ComboBox ItemsSource="{Binding MoundStandards}" SelectedItem="{Binding PurchaseSelectedMoundStandard}"/></StackPanel>
-                                <StackPanel Grid.Column="13"><TextBlock Text="Rate Type"/><ComboBox ItemsSource="{Binding RateTypes}" SelectedItem="{Binding PurchaseSelectedRateType}"/></StackPanel>
-                                <StackPanel Grid.Column="14"><TextBlock Text="Rate"/><TextBox Text="{Binding PurchaseRate}"/></StackPanel>
-                                <StackPanel Grid.Column="15"><TextBlock Text="Br.Dana"/><TextBox Text="{Binding PurchaseRateBardana}"/></StackPanel>
-                                <StackPanel Grid.Column="16"><TextBlock Text="Total Value"/><TextBox Text="{Binding PurchaseTotalValue}" FontWeight="Bold"/></StackPanel>
-                                <Button Grid.Column="17" Content="+" Command="{Binding AddPurchaseItemCommand}" Width="20" Height="21" Margin="2,12,0,0" ToolTip="Add Purchase Item"/>
+                                <StackPanel Grid.Column="0" Margin="0,0,2,0"><TextBlock Text="Product ID" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseProductId}"/></StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,2,0"><TextBlock Text="Product Name" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseProductName}" FontWeight="SemiBold"/></StackPanel>
+                                <StackPanel Grid.Column="2" Margin="0,0,2,0"><TextBlock Text="T.Qty" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseTQty}"/></StackPanel>
+                                <StackPanel Grid.Column="3" Margin="0,0,2,0"><TextBlock Text="B.Qty" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseBQty}"/></StackPanel>
+                                <StackPanel Grid.Column="4" Margin="0,0,2,0"><TextBlock Text="P.Qty" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchasePQty}"/></StackPanel>
+                                <StackPanel Grid.Column="5" Margin="0,0,2,0"><TextBlock Text="Bharti" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseBhartiKgs}"/></StackPanel>
+                                <StackPanel Grid.Column="6" Margin="0,0,2,0"><TextBlock Text="Loose" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseLooseWeight}"/></StackPanel>
+                                <StackPanel Grid.Column="7" Margin="0,0,2,0"><TextBlock Text="Short" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseShort}"/></StackPanel>
+                                <StackPanel Grid.Column="8" Margin="0,0,2,0"><TextBlock Text="Type" FontSize="10" Foreground="#475569"/><ComboBox ItemsSource="{Binding ShortTypes}" SelectedItem="{Binding PurchaseSelectedShortType}"/></StackPanel>
+                                <StackPanel Grid.Column="9" Margin="0,0,2,0"><TextBlock Text="Per" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchasePer}"/></StackPanel>
+                                <StackPanel Grid.Column="10" Margin="0,0,2,0"><TextBlock Text="Ded" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseDed}"/></StackPanel>
+                                <StackPanel Grid.Column="11" Margin="0,0,2,0"><TextBlock Text="Total Wt" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseTotalWeight}"/></StackPanel>
+                                <StackPanel Grid.Column="12" Margin="0,0,2,0"><TextBlock Text="Mnd Std" FontSize="10" Foreground="#475569"/><ComboBox ItemsSource="{Binding MoundStandards}" SelectedItem="{Binding PurchaseSelectedMoundStandard}"/></StackPanel>
+                                <StackPanel Grid.Column="13" Margin="0,0,2,0"><TextBlock Text="Rate Type" FontSize="10" Foreground="#475569"/><ComboBox ItemsSource="{Binding RateTypes}" SelectedItem="{Binding PurchaseSelectedRateType}"/></StackPanel>
+                                <StackPanel Grid.Column="14" Margin="0,0,2,0"><TextBlock Text="Rate" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseRate}"/></StackPanel>
+                                <StackPanel Grid.Column="15" Margin="0,0,2,0"><TextBlock Text="Br.Dana" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseRateBardana}"/></StackPanel>
+                                <StackPanel Grid.Column="16" Margin="0,0,3,0"><TextBlock Text="Total Value" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseTotalValue}" FontWeight="Bold" Background="#F0FDF4" BorderBrush="#A7F3D0" Foreground="#047857"/></StackPanel>
+                                <Button Grid.Column="17" Style="{StaticResource PrimarySaveButton}" Command="{Binding AddPurchaseItemCommand}" MinWidth="26" Width="26" Height="24" VerticalAlignment="Bottom" ToolTip="Add Purchase Item">
+                                    <materialDesign:PackIcon Kind="Plus" Width="13" Height="13"/>
+                                </Button>
                             </Grid>
 
                             <!-- Purchase DataGrid -->
-                            <DataGrid ItemsSource="{Binding PurchaseItems}" SelectedItem="{Binding SelectedPurchaseItem}" AutoGenerateColumns="False"
-                                      Height="90" Background="White" HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="20" FontSize="10.5">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="P. ID" Binding="{Binding ProductId}" Width="50"/>
-                                    <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="120"/>
-                                    <DataGridTextColumn Header="T.Qty" Binding="{Binding TQty}" Width="45"/>
-                                    <DataGridTextColumn Header="B.Qty" Binding="{Binding BQty}" Width="45"/>
-                                    <DataGridTextColumn Header="P.Qty" Binding="{Binding PQty}" Width="45"/>
-                                    <DataGridTextColumn Header="WT/Bag" Binding="{Binding WtPerBag}" Width="50"/>
-                                    <DataGridTextColumn Header="Ext.WT" Binding="{Binding ExtWt}" Width="50"/>
-                                    <DataGridTextColumn Header="Shortage" Binding="{Binding Shortage}" Width="55"/>
-                                    <DataGridTextColumn Header="Ded" Binding="{Binding Deduction}" Width="45"/>
-                                    <DataGridTextColumn Header="TTL Kgs" Binding="{Binding TotalKgs}" Width="60"/>
-                                    <DataGridTextColumn Header="Mnd-Std" Binding="{Binding MoundStandard}" Width="55"/>
-                                    <DataGridTextColumn Header="Rate Type" Binding="{Binding RateType}" Width="75"/>
-                                    <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=N2}" Width="65"/>
-                                    <DataGridTextColumn Header="Br.Dana" Binding="{Binding RateBardana, StringFormat=N2}" Width="55"/>
-                                    <DataGridTextColumn Header="TotalValue" Binding="{Binding TotalValue, StringFormat=N2}" Width="90"/>
-                                    <DataGridTextColumn Header="ShortPer" Binding="{Binding ShortPer}" Width="50"/>
-                                    <DataGridTextColumn Header="ShortType" Binding="{Binding ShortType}" Width="*"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4">
+                                <DataGrid ItemsSource="{Binding PurchaseItems}" SelectedItem="{Binding SelectedPurchaseItem}" AutoGenerateColumns="False"
+                                          Height="95" Background="White" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9" RowHeight="22" FontSize="10.5">
+                                    <DataGrid.ColumnHeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#1E293B"/>
+                                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Height" Value="24"/>
+                                            <Setter Property="Padding" Value="6,0"/>
+                                            <Setter Property="BorderBrush" Value="#334155"/>
+                                            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                                        </Style>
+                                    </DataGrid.ColumnHeaderStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="P. ID" Binding="{Binding ProductId}" Width="50"/>
+                                        <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="120"/>
+                                        <DataGridTextColumn Header="T.Qty" Binding="{Binding TQty}" Width="45"/>
+                                        <DataGridTextColumn Header="B.Qty" Binding="{Binding BQty}" Width="45"/>
+                                        <DataGridTextColumn Header="P.Qty" Binding="{Binding PQty}" Width="45"/>
+                                        <DataGridTextColumn Header="WT/Bag" Binding="{Binding WtPerBag}" Width="50"/>
+                                        <DataGridTextColumn Header="Ext.WT" Binding="{Binding ExtWt}" Width="50"/>
+                                        <DataGridTextColumn Header="Shortage" Binding="{Binding Shortage}" Width="55"/>
+                                        <DataGridTextColumn Header="Ded" Binding="{Binding Deduction}" Width="45"/>
+                                        <DataGridTextColumn Header="TTL Kgs" Binding="{Binding TotalKgs}" Width="60"/>
+                                        <DataGridTextColumn Header="Mnd-Std" Binding="{Binding MoundStandard}" Width="55"/>
+                                        <DataGridTextColumn Header="Rate Type" Binding="{Binding RateType}" Width="75"/>
+                                        <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=N2}" Width="65"/>
+                                        <DataGridTextColumn Header="Br.Dana" Binding="{Binding RateBardana, StringFormat=N2}" Width="55"/>
+                                        <DataGridTextColumn Header="TotalValue" Binding="{Binding TotalValue, StringFormat=N2}" Width="90"/>
+                                        <DataGridTextColumn Header="ShortPer" Binding="{Binding ShortPer}" Width="50"/>
+                                        <DataGridTextColumn Header="ShortType" Binding="{Binding ShortType}" Width="*"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Border>
                         </StackPanel>
                     </Border>
 
                     <!-- 3. SALE GRID SECTION (MIDDLE HALF) -->
-                    <Border BorderBrush="#A0A0A0" BorderThickness="1" Background="#ECECEC" Padding="6,3" Margin="0,0,0,4">
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,0,8">
                         <StackPanel>
                             <!-- Sale Section Header -->
-                            <Grid Margin="0,0,0,2">
+                            <Grid Margin="0,0,0,4">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="65"/>
+                                    <ColumnDefinition Width="75"/>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="65"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="65"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="75"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="75"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="90"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0" Text="Sale Section  Contract ID" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,4,0"/>
+                                <TextBlock Grid.Column="0" Text="Sale Contract ID:" VerticalAlignment="Center" FontWeight="Bold" Foreground="#1E3A8A" Margin="0,0,6,0"/>
                                 <TextBox Grid.Column="1" Text="{Binding SaleContractId}"/>
-                                <TextBlock Grid.Column="2" Text="Contract Date" VerticalAlignment="Center" Margin="6,0,4,0"/>
+                                <TextBlock Grid.Column="2" Text="Contract Date:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="8,0,6,0"/>
                                 <TextBox Grid.Column="3" Text="{Binding SaleContractDate}"/>
-                                <TextBlock Grid.Column="4" Text="Contract Qty" VerticalAlignment="Center" Margin="6,0,4,0"/>
+                                <TextBlock Grid.Column="4" Text="Contract Qty:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="8,0,6,0"/>
                                 <TextBox Grid.Column="5" Text="{Binding SaleContractQty}"/>
-                                <TextBlock Grid.Column="6" Text="Remaining" VerticalAlignment="Center" Margin="6,0,4,0"/>
+                                <TextBlock Grid.Column="6" Text="Remaining:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="8,0,6,0"/>
                                 <TextBox Grid.Column="7" Text="{Binding SaleContractRemaining}"/>
-                                <TextBlock Grid.Column="9" Text="Mounds" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBox Grid.Column="10" Text="{Binding SaleMounds}" FontWeight="Bold" HorizontalContentAlignment="Center"/>
+                                <TextBlock Grid.Column="9" Text="Sale Mounds:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,6,0"/>
+                                <TextBox Grid.Column="10" Text="{Binding SaleMounds}" FontWeight="Bold" HorizontalContentAlignment="Center" Background="#FEF3C7" BorderBrush="#FDE68A" Foreground="#92400E"/>
                             </Grid>
 
                             <!-- Sale Input Row -->
-                            <Grid Margin="0,0,0,2">
+                            <Grid Margin="0,0,0,4">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50"/>  <!-- Product ID -->
-                                    <ColumnDefinition Width="100"/> <!-- Product Name -->
-                                    <ColumnDefinition Width="34"/>  <!-- T.Qty -->
-                                    <ColumnDefinition Width="65"/>  <!-- Vehicle No -->
-                                    <ColumnDefinition Width="34"/>  <!-- B.Qty -->
-                                    <ColumnDefinition Width="34"/>  <!-- P.Qty -->
-                                    <ColumnDefinition Width="38"/>  <!-- Bharti Kgs -->
-                                    <ColumnDefinition Width="38"/>  <!-- Loose Weight -->
-                                    <ColumnDefinition Width="36"/>  <!-- Short -->
-                                    <ColumnDefinition Width="42"/>  <!-- Type -->
-                                    <ColumnDefinition Width="34"/>  <!-- Per -->
-                                    <ColumnDefinition Width="34"/>  <!-- Ded -->
-                                    <ColumnDefinition Width="44"/>  <!-- Total Weight -->
-                                    <ColumnDefinition Width="46"/>  <!-- Mound Standard -->
-                                    <ColumnDefinition Width="70"/>  <!-- Rate Type -->
-                                    <ColumnDefinition Width="45"/>  <!-- Rate -->
-                                    <ColumnDefinition Width="45"/>  <!-- Rate Bardana -->
+                                    <ColumnDefinition Width="65"/>  <!-- Product ID -->
+                                    <ColumnDefinition Width="110"/> <!-- Product Name -->
+                                    <ColumnDefinition Width="40"/>  <!-- T.Qty -->
+                                    <ColumnDefinition Width="75"/>  <!-- Vehicle No -->
+                                    <ColumnDefinition Width="40"/>  <!-- B.Qty -->
+                                    <ColumnDefinition Width="40"/>  <!-- P.Qty -->
+                                    <ColumnDefinition Width="46"/>  <!-- Bharti Kgs -->
+                                    <ColumnDefinition Width="46"/>  <!-- Loose Weight -->
+                                    <ColumnDefinition Width="45"/>  <!-- Short -->
+                                    <ColumnDefinition Width="55"/>  <!-- Type -->
+                                    <ColumnDefinition Width="40"/>  <!-- Per -->
+                                    <ColumnDefinition Width="40"/>  <!-- Ded -->
+                                    <ColumnDefinition Width="55"/>  <!-- Total Weight -->
+                                    <ColumnDefinition Width="55"/>  <!-- Mound Standard -->
+                                    <ColumnDefinition Width="75"/>  <!-- Rate Type -->
+                                    <ColumnDefinition Width="55"/>  <!-- Rate -->
+                                    <ColumnDefinition Width="55"/>  <!-- Rate Bardana -->
                                     <ColumnDefinition Width="*"/>   <!-- Total Value -->
                                     <ColumnDefinition Width="Auto"/> <!-- Add btn -->
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0"><TextBlock Text="Product ID"/><TextBox Text="{Binding SaleProductId}"/></StackPanel>
-                                <StackPanel Grid.Column="1"><TextBlock Text="Product Name"/><TextBox Text="{Binding SaleProductName}"/></StackPanel>
-                                <StackPanel Grid.Column="2"><TextBlock Text="T.Qty"/><TextBox Text="{Binding SaleTQty}"/></StackPanel>
-                                <StackPanel Grid.Column="3"><TextBlock Text="Vehicle No."/><TextBox Text="{Binding SaleRowVehicleNo}"/></StackPanel>
-                                <StackPanel Grid.Column="4"><TextBlock Text="B.Qty"/><TextBox Text="{Binding SaleBQty}"/></StackPanel>
-                                <StackPanel Grid.Column="5"><TextBlock Text="P.Qty"/><TextBox Text="{Binding SalePQty}"/></StackPanel>
-                                <StackPanel Grid.Column="6"><TextBlock Text="Bharti"/><TextBox Text="{Binding SaleBhartiKgs}"/></StackPanel>
-                                <StackPanel Grid.Column="7"><TextBlock Text="Loose"/><TextBox Text="{Binding SaleLooseWeight}"/></StackPanel>
-                                <StackPanel Grid.Column="8"><TextBlock Text="Short"/><TextBox Text="{Binding SaleShort}"/></StackPanel>
-                                <StackPanel Grid.Column="9"><TextBlock Text="Type"/><ComboBox ItemsSource="{Binding ShortTypes}" SelectedItem="{Binding SaleSelectedShortType}"/></StackPanel>
-                                <StackPanel Grid.Column="10"><TextBlock Text="Per"/><TextBox Text="{Binding SalePer}"/></StackPanel>
-                                <StackPanel Grid.Column="11"><TextBlock Text="Ded"/><TextBox Text="{Binding SaleDed}"/></StackPanel>
-                                <StackPanel Grid.Column="12"><TextBlock Text="Total Wt"/><TextBox Text="{Binding SaleTotalWeight}"/></StackPanel>
-                                <StackPanel Grid.Column="13"><TextBlock Text="Mnd Std"/><ComboBox ItemsSource="{Binding MoundStandards}" SelectedItem="{Binding SaleSelectedMoundStandard}"/></StackPanel>
-                                <StackPanel Grid.Column="14"><TextBlock Text="Rate Type"/><ComboBox ItemsSource="{Binding RateTypes}" SelectedItem="{Binding SaleSelectedRateType}"/></StackPanel>
-                                <StackPanel Grid.Column="15"><TextBlock Text="Rate"/><TextBox Text="{Binding SaleRate}"/></StackPanel>
-                                <StackPanel Grid.Column="16"><TextBlock Text="Br.Dana"/><TextBox Text="{Binding SaleRateBardana}"/></StackPanel>
-                                <StackPanel Grid.Column="17"><TextBlock Text="Total Value"/><TextBox Text="{Binding SaleTotalValue}" FontWeight="Bold"/></StackPanel>
-                                <Button Grid.Column="18" Content="+" Command="{Binding AddSaleItemCommand}" Width="20" Height="21" Margin="2,12,0,0" ToolTip="Add Sale Item"/>
+                                <StackPanel Grid.Column="0" Margin="0,0,2,0"><TextBlock Text="Product ID" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleProductId}"/></StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,2,0"><TextBlock Text="Product Name" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleProductName}" FontWeight="SemiBold"/></StackPanel>
+                                <StackPanel Grid.Column="2" Margin="0,0,2,0"><TextBlock Text="T.Qty" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleTQty}"/></StackPanel>
+                                <StackPanel Grid.Column="3" Margin="0,0,2,0"><TextBlock Text="Vehicle No." FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleRowVehicleNo}"/></StackPanel>
+                                <StackPanel Grid.Column="4" Margin="0,0,2,0"><TextBlock Text="B.Qty" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleBQty}"/></StackPanel>
+                                <StackPanel Grid.Column="5" Margin="0,0,2,0"><TextBlock Text="P.Qty" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SalePQty}"/></StackPanel>
+                                <StackPanel Grid.Column="6" Margin="0,0,2,0"><TextBlock Text="Bharti" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleBhartiKgs}"/></StackPanel>
+                                <StackPanel Grid.Column="7" Margin="0,0,2,0"><TextBlock Text="Loose" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleLooseWeight}"/></StackPanel>
+                                <StackPanel Grid.Column="8" Margin="0,0,2,0"><TextBlock Text="Short" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleShort}"/></StackPanel>
+                                <StackPanel Grid.Column="9" Margin="0,0,2,0"><TextBlock Text="Type" FontSize="10" Foreground="#475569"/><ComboBox ItemsSource="{Binding ShortTypes}" SelectedItem="{Binding SaleSelectedShortType}"/></StackPanel>
+                                <StackPanel Grid.Column="10" Margin="0,0,2,0"><TextBlock Text="Per" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SalePer}"/></StackPanel>
+                                <StackPanel Grid.Column="11" Margin="0,0,2,0"><TextBlock Text="Ded" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleDed}"/></StackPanel>
+                                <StackPanel Grid.Column="12" Margin="0,0,2,0"><TextBlock Text="Total Wt" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleTotalWeight}"/></StackPanel>
+                                <StackPanel Grid.Column="13" Margin="0,0,2,0"><TextBlock Text="Mnd Std" FontSize="10" Foreground="#475569"/><ComboBox ItemsSource="{Binding MoundStandards}" SelectedItem="{Binding SaleSelectedMoundStandard}"/></StackPanel>
+                                <StackPanel Grid.Column="14" Margin="0,0,2,0"><TextBlock Text="Rate Type" FontSize="10" Foreground="#475569"/><ComboBox ItemsSource="{Binding RateTypes}" SelectedItem="{Binding SaleSelectedRateType}"/></StackPanel>
+                                <StackPanel Grid.Column="15" Margin="0,0,2,0"><TextBlock Text="Rate" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleRate}"/></StackPanel>
+                                <StackPanel Grid.Column="16" Margin="0,0,2,0"><TextBlock Text="Br.Dana" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleRateBardana}"/></StackPanel>
+                                <StackPanel Grid.Column="17" Margin="0,0,3,0"><TextBlock Text="Total Value" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleTotalValue}" FontWeight="Bold" Background="#F0FDF4" BorderBrush="#A7F3D0" Foreground="#047857"/></StackPanel>
+                                <Button Grid.Column="18" Style="{StaticResource PrimarySaveButton}" Command="{Binding AddSaleItemCommand}" MinWidth="26" Width="26" Height="24" VerticalAlignment="Bottom" ToolTip="Add Sale Item">
+                                    <materialDesign:PackIcon Kind="Plus" Width="13" Height="13"/>
+                                </Button>
                             </Grid>
 
                             <!-- Sale DataGrid -->
-                            <DataGrid ItemsSource="{Binding SaleItems}" SelectedItem="{Binding SelectedSaleItem}" AutoGenerateColumns="False"
-                                      Height="90" Background="White" HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="20" FontSize="10.5">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="P. ID" Binding="{Binding ProductId}" Width="50"/>
-                                    <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="110"/>
-                                    <DataGridTextColumn Header="T.Qty" Binding="{Binding TQty}" Width="45"/>
-                                    <DataGridTextColumn Header="B.Qty" Binding="{Binding BQty}" Width="45"/>
-                                    <DataGridTextColumn Header="P.Qty" Binding="{Binding PQty}" Width="45"/>
-                                    <DataGridTextColumn Header="WT/Bag" Binding="{Binding WtPerBag}" Width="50"/>
-                                    <DataGridTextColumn Header="Ext.WT" Binding="{Binding ExtWt}" Width="50"/>
-                                    <DataGridTextColumn Header="Shortage" Binding="{Binding Shortage}" Width="55"/>
-                                    <DataGridTextColumn Header="Ded" Binding="{Binding Deduction}" Width="45"/>
-                                    <DataGridTextColumn Header="TTL Kgs" Binding="{Binding TotalKgs}" Width="60"/>
-                                    <DataGridTextColumn Header="Mnd-Std" Binding="{Binding MoundStandard}" Width="55"/>
-                                    <DataGridTextColumn Header="Rate Type" Binding="{Binding RateType}" Width="75"/>
-                                    <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=N2}" Width="65"/>
-                                    <DataGridTextColumn Header="Br.Dana" Binding="{Binding RateBardana, StringFormat=N2}" Width="55"/>
-                                    <DataGridTextColumn Header="TotalValue" Binding="{Binding TotalValue, StringFormat=N2}" Width="85"/>
-                                    <DataGridTextColumn Header="ShortPer" Binding="{Binding ShortPer}" Width="50"/>
-                                    <DataGridTextColumn Header="ShortType" Binding="{Binding ShortType}" Width="50"/>
-                                    <DataGridTextColumn Header="ContractID" Binding="{Binding ContractId}" Width="*"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4">
+                                <DataGrid ItemsSource="{Binding SaleItems}" SelectedItem="{Binding SelectedSaleItem}" AutoGenerateColumns="False"
+                                          Height="95" Background="White" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9" RowHeight="22" FontSize="10.5">
+                                    <DataGrid.ColumnHeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#1E293B"/>
+                                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Height" Value="24"/>
+                                            <Setter Property="Padding" Value="6,0"/>
+                                            <Setter Property="BorderBrush" Value="#334155"/>
+                                            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                                        </Style>
+                                    </DataGrid.ColumnHeaderStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="P. ID" Binding="{Binding ProductId}" Width="50"/>
+                                        <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="110"/>
+                                        <DataGridTextColumn Header="T.Qty" Binding="{Binding TQty}" Width="45"/>
+                                        <DataGridTextColumn Header="B.Qty" Binding="{Binding BQty}" Width="45"/>
+                                        <DataGridTextColumn Header="P.Qty" Binding="{Binding PQty}" Width="45"/>
+                                        <DataGridTextColumn Header="WT/Bag" Binding="{Binding WtPerBag}" Width="50"/>
+                                        <DataGridTextColumn Header="Ext.WT" Binding="{Binding ExtWt}" Width="50"/>
+                                        <DataGridTextColumn Header="Shortage" Binding="{Binding Shortage}" Width="55"/>
+                                        <DataGridTextColumn Header="Ded" Binding="{Binding Deduction}" Width="45"/>
+                                        <DataGridTextColumn Header="TTL Kgs" Binding="{Binding TotalKgs}" Width="60"/>
+                                        <DataGridTextColumn Header="Mnd-Std" Binding="{Binding MoundStandard}" Width="55"/>
+                                        <DataGridTextColumn Header="Rate Type" Binding="{Binding RateType}" Width="75"/>
+                                        <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=N2}" Width="65"/>
+                                        <DataGridTextColumn Header="Br.Dana" Binding="{Binding RateBardana, StringFormat=N2}" Width="55"/>
+                                        <DataGridTextColumn Header="TotalValue" Binding="{Binding TotalValue, StringFormat=N2}" Width="85"/>
+                                        <DataGridTextColumn Header="ShortPer" Binding="{Binding ShortPer}" Width="50"/>
+                                        <DataGridTextColumn Header="ShortType" Binding="{Binding ShortType}" Width="50"/>
+                                        <DataGridTextColumn Header="ContractID" Binding="{Binding ContractId}" Width="*"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Border>
                         </StackPanel>
                     </Border>
 
                     <!-- 4. BOTTOM CALCULATIONS: PURCHASE (LEFT) & SALE (RIGHT) -->
-                    <Grid>
+                    <Grid Margin="0,0,0,6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="8"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- LEFT: Purchase Group Box -->
-                        <Border Grid.Column="0" BorderBrush="#A0A0A0" BorderThickness="1" Background="#ECECEC" Padding="6,4">
+                        <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8">
                             <StackPanel>
-                                <TextBlock Text="Purchase" FontWeight="Bold" Margin="0,0,0,2"/>
+                                <TextBlock Text="Purchase Totals &amp; Expenses" FontWeight="Bold" Foreground="#1E3A8A" Margin="0,0,0,4"/>
 
                                 <!-- Row 1: Dami, Gross Total, Bardana, Charity -->
-                                <Grid Margin="0,0,0,3">
+                                <Grid Margin="0,0,0,4">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="130"/>
-                                        <ColumnDefinition Width="65"/>
-                                        <ColumnDefinition Width="75"/>
+                                        <ColumnDefinition Width="135"/>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="80"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Dami -->
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Type"/>
+                                        <TextBlock Text="Dami" FontSize="10" Foreground="#475569"/>
                                         <Grid>
-                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="75"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                             <ComboBox Grid.Column="0" ItemsSource="{Binding DamiTypes}" SelectedItem="{Binding PurchaseDamiType}"/>
                                             <TextBox Grid.Column="1" Text="{Binding PurchaseDamiPercentage}" Margin="1,0"/>
                                             <TextBox Grid.Column="2" Text="{Binding PurchaseDamiValue}"/>
@@ -453,18 +557,18 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Margin="3,0">
-                                        <TextBlock Text="Gross total"/>
+                                        <TextBlock Text="Gross Total" FontSize="10" Foreground="#475569"/>
                                         <TextBox Text="{Binding PurchaseGrossTotal, StringFormat=N2}" FontWeight="Bold"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" Margin="3,0">
-                                        <StackPanel Orientation="Horizontal"><TextBlock Text="Bardana "/><CheckBox Content="Add" IsChecked="{Binding PurchaseAddBardana}" FontSize="9"/></StackPanel>
+                                        <StackPanel Orientation="Horizontal"><TextBlock Text="Bardana " FontSize="10" Foreground="#475569"/><CheckBox Content="Add" IsChecked="{Binding PurchaseAddBardana}" FontSize="9"/></StackPanel>
                                         <TextBox Text="{Binding PurchaseBardana}"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="3">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Charity "/>
+                                            <TextBlock Text="Charity " FontSize="10" Foreground="#475569"/>
                                             <RadioButton Content="%" IsChecked="{Binding PurchaseCharityPercentage}" FontSize="9" Margin="0,0,2,0"/>
                                             <RadioButton Content="/M" IsChecked="{Binding PurchaseCharityMound}" FontSize="9"/>
                                         </StackPanel>
@@ -473,18 +577,18 @@
                                 </Grid>
 
                                 <!-- Row 2: Commission Minus, WHT, Other Exp, Paid, Net Value -->
-                                <Grid Margin="0,0,0,3">
+                                <Grid Margin="0,0,0,4">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="135"/>
                                         <ColumnDefinition Width="110"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0">
-                                        <CheckBox Content="Commission Minus From Balance" IsChecked="{Binding PurchaseCommissionMinus}" FontSize="9" Margin="0,0,0,2"/>
+                                        <CheckBox Content="Commission Minus" IsChecked="{Binding PurchaseCommissionMinus}" FontSize="9.5" Margin="0,0,0,2"/>
                                         <Grid>
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="55"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="W.H.Tax" VerticalAlignment="Center" FontSize="9.5"/>
+                                            <TextBlock Grid.Column="0" Text="W.H.Tax" VerticalAlignment="Center" FontSize="9.5" Foreground="#475569"/>
                                             <TextBox Grid.Column="1" Text="{Binding PurchaseWhtPercentage}" Margin="1,0"/>
                                             <TextBox Grid.Column="2" Text="{Binding PurchaseWhtValue}"/>
                                         </Grid>
@@ -493,32 +597,32 @@
                                     <StackPanel Grid.Column="1" Margin="4,0">
                                         <Grid>
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                            <StackPanel Grid.Column="0"><TextBlock Text="0.Exp... (-)"/><TextBox Text="{Binding PurchaseOtherExpMinus}"/></StackPanel>
-                                            <StackPanel Grid.Column="1" Margin="2,0,0,0"><TextBlock Text="0.Exp... (+)"/><TextBox Text="{Binding PurchaseOtherExpPlus}"/></StackPanel>
+                                            <StackPanel Grid.Column="0"><TextBlock Text="O.Exp (-)" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseOtherExpMinus}"/></StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="2,0,0,0"><TextBlock Text="O.Exp (+)" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding PurchaseOtherExpPlus}"/></StackPanel>
                                         </Grid>
                                     </StackPanel>
 
                                     <Grid Grid.Column="2">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="65"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Paid" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Paid:" VerticalAlignment="Center" FontSize="10.5" Foreground="#475569"/>
                                         <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding PurchasePaid, StringFormat=N2}" Margin="0,1"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Net Value" VerticalAlignment="Center" FontWeight="Bold"/>
-                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PurchaseNetValue, StringFormat=N2}" Margin="0,1" FontWeight="Bold"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Net Value:" VerticalAlignment="Center" FontWeight="Bold" FontSize="10.5" Foreground="#047857"/>
+                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PurchaseNetValue, StringFormat=N2}" Margin="0,1" FontWeight="Bold" Background="#F0FDF4" BorderBrush="#A7F3D0" Foreground="#047857"/>
                                     </Grid>
                                 </Grid>
 
                                 <!-- Row 3: Vehicle Charges, Mazdoori, Previous & Final Balance -->
-                                <Grid Margin="0,0,0,3">
+                                <Grid Margin="0,0,0,4">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="135"/>
                                         <ColumnDefinition Width="110"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Vehicle Charges -->
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Vehicle Charges" FontSize="9.5"/>
+                                        <TextBlock Text="Vehicle Charges" FontSize="9.5" Foreground="#475569"/>
                                         <Grid Margin="0,1">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
@@ -532,12 +636,12 @@
                                                 <RadioButton Content="/M" IsChecked="{Binding PurchaseVehicleRadioMound}" FontSize="8.5"/>
                                             </StackPanel>
                                         </Grid>
-                                        <CheckBox Content="Seperate Veh. Charges" IsChecked="{Binding PurchaseVehicleSeparate}" FontSize="8.5"/>
+                                        <CheckBox Content="Separate Veh. Charges" IsChecked="{Binding PurchaseVehicleSeparate}" FontSize="8.5"/>
                                     </StackPanel>
 
                                     <!-- Mazdoori -->
                                     <StackPanel Grid.Column="1" Margin="4,0">
-                                        <TextBlock Text="Mazdoori" FontSize="9.5"/>
+                                        <TextBlock Text="Mazdoori" FontSize="9.5" Foreground="#475569"/>
                                         <Grid Margin="0,1">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
@@ -552,30 +656,30 @@
                                     <!-- Balances -->
                                     <Grid Grid.Column="2">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Prev Balance" VerticalAlignment="Center"/>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="75"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Prev Balance:" VerticalAlignment="Center" FontSize="10.5" Foreground="#475569"/>
                                         <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding PurchasePreviousBalance, StringFormat=N2}" Margin="0,1"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Final Balance" VerticalAlignment="Center" FontWeight="Bold"/>
-                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PurchaseFinalBalance, StringFormat=N2}" Margin="0,1" FontWeight="Bold" Foreground="#1E3A8A"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Final Balance:" VerticalAlignment="Center" FontWeight="Bold" FontSize="10.5" Foreground="#1E3A8A"/>
+                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PurchaseFinalBalance, StringFormat=N2}" Margin="0,1" FontWeight="Bold" Foreground="#1E3A8A" Background="#EFF6FF" BorderBrush="#BFDBFE"/>
                                     </Grid>
                                 </Grid>
 
                                 <!-- Narration -->
                                 <Grid>
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="55"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Narration:" VerticalAlignment="Center"/>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="65"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Narration:" VerticalAlignment="Center" FontSize="10.5" Foreground="#475569"/>
                                     <TextBox Grid.Column="1" Text="{Binding PurchaseNarration}"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
 
                         <!-- RIGHT: Sale Group Box -->
-                        <Border Grid.Column="2" BorderBrush="#A0A0A0" BorderThickness="1" Background="#ECECEC" Padding="6,4">
+                        <Border Grid.Column="2" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8">
                             <StackPanel>
-                                <TextBlock Text="Sale" FontWeight="Bold" Margin="0,0,0,2"/>
+                                <TextBlock Text="Sale Totals &amp; Expenses" FontWeight="Bold" Foreground="#1E3A8A" Margin="0,0,0,4"/>
 
                                 <!-- Row 1: Dami Sale/Commission, Gross Total, Bardana -->
-                                <Grid Margin="0,0,0,3">
+                                <Grid Margin="0,0,0,4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="140"/>
                                         <ColumnDefinition Width="70"/>
@@ -585,9 +689,9 @@
 
                                     <!-- Dami -->
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Dami Sale/Commission"/>
+                                        <TextBlock Text="Dami / Commission" FontSize="10" Foreground="#475569"/>
                                         <Grid>
-                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="75"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                             <ComboBox Grid.Column="0" ItemsSource="{Binding DamiTypes}" SelectedItem="{Binding SaleDamiType}"/>
                                             <TextBox Grid.Column="1" Text="{Binding SaleDamiPercentage}" Margin="1,0"/>
                                             <TextBox Grid.Column="2" Text="{Binding SaleDamiValue}"/>
@@ -595,61 +699,61 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Margin="3,0">
-                                        <TextBlock Text="Gross Total"/>
+                                        <TextBlock Text="Gross Total" FontSize="10" Foreground="#475569"/>
                                         <TextBox Text="{Binding SaleGrossTotal, StringFormat=N2}" FontWeight="Bold"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" Margin="3,0">
-                                        <StackPanel Orientation="Horizontal"><TextBlock Text="Bardana "/><CheckBox Content="Add In Sale" IsChecked="{Binding SaleAddBardana}" FontSize="8.5"/></StackPanel>
+                                        <StackPanel Orientation="Horizontal"><TextBlock Text="Bardana " FontSize="10" Foreground="#475569"/><CheckBox Content="Add In Sale" IsChecked="{Binding SaleAddBardana}" FontSize="8.5"/></StackPanel>
                                         <TextBox Text="{Binding SaleBardana}"/>
                                     </StackPanel>
 
                                     <Grid Grid.Column="3">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="55"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Received" VerticalAlignment="Center"/>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="60"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Received:" VerticalAlignment="Center" FontSize="10.5" Foreground="#475569"/>
                                         <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SaleReceived, StringFormat=N2}"/>
                                     </Grid>
                                 </Grid>
 
                                 <!-- Row 2: Commission Minus, Other Exp, Net Value -->
-                                <Grid Margin="0,0,0,3">
+                                <Grid Margin="0,0,0,4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="140"/>
-                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="110"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <CheckBox Grid.Column="0" Content="Commission Minus From Balance" IsChecked="{Binding SaleCommissionMinus}" FontSize="9" VerticalAlignment="Center"/>
+                                    <CheckBox Grid.Column="0" Content="Commission Minus" IsChecked="{Binding SaleCommissionMinus}" FontSize="9.5" VerticalAlignment="Center"/>
 
                                     <Grid Grid.Column="1" Margin="4,0">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0"><TextBlock Text="0.Exp... (-)"/><TextBox Text="{Binding SaleOtherExpMinus}"/></StackPanel>
-                                        <StackPanel Grid.Column="1" Margin="2,0,0,0"><TextBlock Text="0.Exp... (+)"/><TextBox Text="{Binding SaleOtherExpPlus}"/></StackPanel>
+                                        <StackPanel Grid.Column="0"><TextBlock Text="O.Exp (-)" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleOtherExpMinus}"/></StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="2,0,0,0"><TextBlock Text="O.Exp (+)" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding SaleOtherExpPlus}"/></StackPanel>
                                     </Grid>
 
                                     <Grid Grid.Column="2">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="65"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Net Value" VerticalAlignment="Center" FontWeight="Bold"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SaleNetValue, StringFormat=N2}" Margin="0,1" FontWeight="Bold"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Prev Balance" VerticalAlignment="Center"/>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Net Value:" VerticalAlignment="Center" FontWeight="Bold" FontSize="10.5" Foreground="#047857"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SaleNetValue, StringFormat=N2}" Margin="0,1" FontWeight="Bold" Background="#F0FDF4" BorderBrush="#A7F3D0" Foreground="#047857"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Prev Bal:" VerticalAlignment="Center" FontSize="10.5" Foreground="#475569"/>
                                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SalePreviousBalance, StringFormat=N2}" Margin="0,1"/>
                                     </Grid>
                                 </Grid>
 
                                 <!-- Row 3: Vehicle Charges, Mazdoori, WH Tax, Final Balance -->
-                                <Grid Margin="0,0,0,3">
+                                <Grid Margin="0,0,0,4">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="90"/>
-                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="95"/>
+                                        <ColumnDefinition Width="85"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Vehicle Charges -->
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Vehicle Charges" FontSize="9.5"/>
+                                        <TextBlock Text="Vehicle Charges" FontSize="9.5" Foreground="#475569"/>
                                         <Grid Margin="0,1">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
@@ -658,12 +762,12 @@
                                             </StackPanel>
                                             <TextBox Grid.Column="1" Text="{Binding SaleVehicleCharges}" Margin="2,0"/>
                                         </Grid>
-                                        <CheckBox Content="Seperate Veh. Charges" IsChecked="{Binding SaleVehicleSeparate}" FontSize="8.5"/>
+                                        <CheckBox Content="Separate Veh." IsChecked="{Binding SaleVehicleSeparate}" FontSize="8.5"/>
                                     </StackPanel>
 
                                     <!-- Mazdoori -->
                                     <StackPanel Grid.Column="1" Margin="2,0">
-                                        <TextBlock Text="Mazdoori" FontSize="9.5"/>
+                                        <TextBlock Text="Mazdoori" FontSize="9.5" Foreground="#475569"/>
                                         <Grid Margin="0,1">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
@@ -682,13 +786,13 @@
 
                                     <!-- WH Tax -->
                                     <StackPanel Grid.Column="2" Margin="2,0">
-                                        <TextBlock Text="WH Tax" FontSize="9.5"/>
+                                        <TextBlock Text="WH Tax" FontSize="9.5" Foreground="#475569"/>
                                         <Grid Margin="0,1">
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                             <TextBox Grid.Column="0" Text="{Binding SaleWhTax1}"/>
                                             <StackPanel Grid.Column="1">
                                                 <RadioButton Content="%" IsChecked="{Binding SaleWhTaxRadioPercent}" FontSize="8.5"/>
-                                                <RadioButton Content="/100Kg" IsChecked="{Binding SaleWhTaxRadio100Kg}" FontSize="8.5"/>
+                                                <RadioButton Content="/100" IsChecked="{Binding SaleWhTaxRadio100Kg}" FontSize="8.5"/>
                                             </StackPanel>
                                         </Grid>
                                         <StackPanel Orientation="Horizontal">
@@ -700,16 +804,16 @@
                                     <!-- Final Balance -->
                                     <Grid Grid.Column="3">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="65"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Final Balance" VerticalAlignment="Center" FontWeight="Bold"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SaleFinalBalance, StringFormat=N2}" FontWeight="Bold" Foreground="#1E3A8A"/>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Final Bal:" VerticalAlignment="Center" FontWeight="Bold" FontSize="10.5" Foreground="#1E3A8A"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SaleFinalBalance, StringFormat=N2}" FontWeight="Bold" Foreground="#1E3A8A" Background="#EFF6FF" BorderBrush="#BFDBFE"/>
                                     </Grid>
                                 </Grid>
 
                                 <!-- Narration -->
                                 <Grid>
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="55"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Narration:" VerticalAlignment="Center"/>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="65"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Narration:" VerticalAlignment="Center" FontSize="10.5" Foreground="#475569"/>
                                     <TextBox Grid.Column="1" Text="{Binding SaleNarration}"/>
                                 </Grid>
                             </StackPanel>
@@ -718,7 +822,6 @@
 
                 </StackPanel>
             </ScrollViewer>
-
         </DockPanel>
     </Grid>
 </Window>

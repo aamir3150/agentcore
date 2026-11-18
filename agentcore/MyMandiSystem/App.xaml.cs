@@ -24,7 +24,7 @@ public partial class App : System.Windows.Application
         System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
     }
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
         this.ShutdownMode = ShutdownMode.OnMainWindowClose;
@@ -57,54 +57,67 @@ public partial class App : System.Windows.Application
 
         try
         {
-            // 1. Show Splash Screen
+            // 1. Show Splash Screen immediately on UI Thread
             Log("2. Creating SplashScreenWindow...");
             var splash = new Views.SplashScreenWindow();
             splash.Show();
             Log("3. SplashScreenWindow shown.");
 
+            // Allow UI Dispatcher to paint the splash screen immediately
+            await Task.Delay(100);
+
             splash.UpdateProgress(20, "Loading configuration & environment...");
 
-            // 2. Build Configuration
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            var configPath = Path.Combine(baseDir, "appsettings.json");
-            var basePath = File.Exists(configPath) ? baseDir : Directory.GetCurrentDirectory();
+            // 2. Build Configuration (Background)
+            var (configuration, requestedYear, isReadOnly) = await Task.Run(() =>
+            {
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var configPath = Path.Combine(baseDir, "appsettings.json");
+                var basePath = File.Exists(configPath) ? baseDir : Directory.GetCurrentDirectory();
 
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .Build();
+                var config = new ConfigurationBuilder()
+                    .SetBasePath(basePath)
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .Build();
+
+                string? year = null;
+                bool readOnly = false;
+                for (int i = 0; i < e.Args.Length; i++)
+                {
+                    if (e.Args[i] == "--year" && i + 1 < e.Args.Length)
+                    {
+                        year = e.Args[i + 1];
+                        readOnly = true;
+                    }
+                }
+                return (config, year, readOnly);
+            });
             Log("4. Configuration built.");
 
-            // 3. Parse Arguments (Agensoft Pattern)
-            string? requestedYear = null;
-            bool isReadOnly = false;
-            for (int i = 0; i < e.Args.Length; i++)
+            splash.UpdateProgress(40, "Registering dependency services...");
+
+            // 3. Register Services (Background)
+            await Task.Run(() =>
             {
-                if (e.Args[i] == "--year" && i + 1 < e.Args.Length)
-                {
-                    requestedYear = e.Args[i + 1];
-                    isReadOnly = true;
-                }
-            }
-
-            splash.UpdateProgress(45, "Registering dependency services...");
-
-            // 4. Register Services
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton<IConfiguration>(configuration);
-            ConfigureServices(serviceCollection, configuration, requestedYear, isReadOnly);
-            ServiceProvider = serviceCollection.BuildServiceProvider();
+                var serviceCollection = new ServiceCollection();
+                serviceCollection.AddSingleton<IConfiguration>(configuration);
+                ConfigureServices(serviceCollection, configuration, requestedYear, isReadOnly);
+                ServiceProvider = serviceCollection.BuildServiceProvider();
+            });
             Log("5. ServiceProvider built.");
 
-            splash.UpdateProgress(75, "Verifying database connection & schemas...");
+            splash.UpdateProgress(65, "Verifying database connection & schemas...");
             Log("6. InitializeDatabase starting...");
-            InitializeDatabase();
+            await Task.Run(() =>
+            {
+                InitializeDatabase();
+            });
             Log("7. InitializeDatabase finished.");
 
-            splash.UpdateProgress(95, "Starting agentcore ERP...");
+            splash.UpdateProgress(90, "Starting agentcore ERP...");
+            await Task.Delay(50);
 
-            // 5. Launch UI
+            // 4. Launch UI on UI Thread
             Log("8. Creating MainWindow...");
             var mainWindow = new MainWindow();
             Log("9. MainWindow instantiated.");
@@ -116,7 +129,7 @@ public partial class App : System.Windows.Application
             MainViewModel mainVm;
             try
             {
-                mainVm = ServiceProvider.GetRequiredService<MainViewModel>();
+                mainVm = ServiceProvider!.GetRequiredService<MainViewModel>();
                 Log("11. MainViewModel resolved.");
             }
             catch (Exception ex)
@@ -173,44 +186,17 @@ public partial class App : System.Windows.Application
         {
             if (context.Database.CanConnect())
             {
-                Log("InitDb: CanConnect is true. Calling EnsureLegacyCompatibility...");
-                EnsureLegacyCompatibility(context);
-                Log("InitDb: EnsureLegacyCompatibility done. Checking PendingMigrations...");
-
-                var pendingMigrations = context.Database.GetPendingMigrations().ToList();
-                Log($"InitDb: PendingMigrations count: {pendingMigrations.Count}");
-                if (pendingMigrations.Any())
-                {
-                    Log("InitDb: Running Migrate()...");
-                    context.Database.Migrate();
-                    Log("InitDb: Migrate done.");
-                }
-                Log("InitDb: Calling SeedMasterData...");
-                SeedMasterData(context);
-                Log("InitDb: SeedMasterData completed.");
+                Log("InitDb: CanConnect is true. Connected to database successfully (Database-First mode, zero migrations/alterations).");
             }
             else
             {
-                Log("InitDb: CanConnect is false. Running Migrate()...");
-                context.Database.Migrate();
-                EnsureLegacyCompatibility(context);
-                SeedMasterData(context);
-                Log("InitDb: Fallback done.");
+                Log("InitDb: CanConnect is false. Database could not be reached.");
             }
         }
         catch (Exception ex)
         {
             Log($"InitDb EXCEPTION: {ex}");
-            System.Diagnostics.Debug.WriteLine($"Database initialization warning: {ex.Message}");
-            try
-            {
-                EnsureLegacyCompatibility(context);
-                SeedMasterData(context);
-            }
-            catch (Exception ex2)
-            {
-                Log($"InitDb secondary EXCEPTION: {ex2}");
-            }
+            System.Diagnostics.Debug.WriteLine($"Database connection check warning: {ex.Message}");
         }
     }
 
@@ -219,6 +205,18 @@ public partial class App : System.Windows.Application
         try
         {
             var sql = @"
+IF OBJECT_ID('dbo.Accounts') IS NOT NULL
+BEGIN
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'BalFlag' AND object_id = OBJECT_ID('dbo.Accounts'))
+        ALTER TABLE dbo.Accounts ADD [BalFlag] bit NOT NULL DEFAULT 1;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'PLFlag' AND object_id = OBJECT_ID('dbo.Accounts'))
+        ALTER TABLE dbo.Accounts ADD [PLFlag] varchar(1) NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'ExpFlag' AND object_id = OBJECT_ID('dbo.Accounts'))
+        ALTER TABLE dbo.Accounts ADD [ExpFlag] bit NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'ExpenseLimit' AND object_id = OBJECT_ID('dbo.Accounts'))
+        ALTER TABLE dbo.Accounts ADD [ExpenseLimit] decimal(18,2) NULL;
+END;
+
 IF OBJECT_ID('dbo.Users') IS NOT NULL AND NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'FullName' AND object_id = OBJECT_ID('dbo.Users'))
 BEGIN
     IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Id' AND object_id = OBJECT_ID('dbo.Users')) ALTER TABLE dbo.Users ADD [Id] int IDENTITY(1,1);
@@ -349,19 +347,24 @@ BEGIN
         ALTER TABLE dbo.ProductGroups ADD CONSTRAINT DF_ProductGroups_GroupName DEFAULT ('') FOR [GroupName];
 END;
 
-IF OBJECT_ID('dbo.Salesmen') IS NOT NULL AND NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Name' AND object_id = OBJECT_ID('dbo.Salesmen'))
+IF OBJECT_ID('dbo.Salesmen') IS NOT NULL
 BEGIN
-    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Id' AND object_id = OBJECT_ID('dbo.Salesmen')) ALTER TABLE dbo.Salesmen ADD [Id] int IDENTITY(1,1);
-    ALTER TABLE dbo.Salesmen ADD [Name] nvarchar(100) NULL;
-    ALTER TABLE dbo.Salesmen ADD [Phone] nvarchar(50) NULL;
-    ALTER TABLE dbo.Salesmen ADD [AccountId] int NULL;
-    ALTER TABLE dbo.Salesmen ADD [IsActive] bit NOT NULL DEFAULT 1;
-    ALTER TABLE dbo.Salesmen ADD [RowVersion] rowversion NULL;
-    ALTER TABLE dbo.Salesmen ADD [CreatedBy] int NOT NULL DEFAULT 1;
-    ALTER TABLE dbo.Salesmen ADD [CreatedAt] datetime2 NOT NULL DEFAULT GETDATE();
-    ALTER TABLE dbo.Salesmen ADD [UpdatedBy] int NULL;
-    ALTER TABLE dbo.Salesmen ADD [UpdatedAt] datetime2 NULL;
-    ALTER TABLE dbo.Salesmen ADD [IsDeleted] bit NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Name' AND object_id = OBJECT_ID('dbo.Salesmen'))
+    BEGIN
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Id' AND object_id = OBJECT_ID('dbo.Salesmen')) ALTER TABLE dbo.Salesmen ADD [Id] int IDENTITY(1,1);
+        ALTER TABLE dbo.Salesmen ADD [Name] nvarchar(100) NULL;
+        ALTER TABLE dbo.Salesmen ADD [Phone] nvarchar(50) NULL;
+        ALTER TABLE dbo.Salesmen ADD [AccountId] int NULL;
+        ALTER TABLE dbo.Salesmen ADD [IsActive] bit NOT NULL DEFAULT 1;
+        ALTER TABLE dbo.Salesmen ADD [RowVersion] rowversion NULL;
+        ALTER TABLE dbo.Salesmen ADD [CreatedBy] int NOT NULL DEFAULT 1;
+        ALTER TABLE dbo.Salesmen ADD [CreatedAt] datetime2 NOT NULL DEFAULT GETDATE();
+        ALTER TABLE dbo.Salesmen ADD [UpdatedBy] int NULL;
+        ALTER TABLE dbo.Salesmen ADD [UpdatedAt] datetime2 NULL;
+        ALTER TABLE dbo.Salesmen ADD [IsDeleted] bit NOT NULL DEFAULT 0;
+    END;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'CommissionRate' AND object_id = OBJECT_ID('dbo.Salesmen'))
+        ALTER TABLE dbo.Salesmen ADD [CommissionRate] decimal(18,2) NOT NULL DEFAULT 0;
 END;
 
 IF OBJECT_ID('dbo.Promises') IS NOT NULL AND NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Remarks' AND object_id = OBJECT_ID('dbo.Promises'))
@@ -378,44 +381,83 @@ BEGIN
     ALTER TABLE dbo.Promises ADD [IsDeleted] bit NOT NULL DEFAULT 0;
 END;
 
-IF OBJECT_ID('dbo.Parties') IS NOT NULL AND NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Name' AND object_id = OBJECT_ID('dbo.Parties'))
+IF OBJECT_ID('dbo.Parties') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Id' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [Id] int IDENTITY(1,1);
     IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'PartyNo' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [PartyNo] nvarchar(50) NULL;
-    ALTER TABLE dbo.Parties ADD [Name] nvarchar(150) NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Name' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [Name] nvarchar(150) NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'UrduName' AND object_id = OBJECT_ID('dbo.Parties'))
+    BEGIN
+        ALTER TABLE dbo.Parties ADD [UrduName] nvarchar(150) NULL;
+        IF EXISTS (SELECT * FROM sys.columns WHERE name = 'NameUrdu' AND object_id = OBJECT_ID('dbo.Parties'))
+            EXEC('UPDATE dbo.Parties SET [UrduName] = [NameUrdu] WHERE [UrduName] IS NULL AND [NameUrdu] IS NOT NULL');
+    END;
     IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'PartyType' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [PartyType] int NOT NULL DEFAULT 1;
-    ALTER TABLE dbo.Parties ADD [AccountId] int NULL;
-    ALTER TABLE dbo.Parties ADD [TownId] int NULL;
-    ALTER TABLE dbo.Parties ADD [Phone] nvarchar(50) NULL;
-    ALTER TABLE dbo.Parties ADD [CNIC] nvarchar(30) NULL;
-    ALTER TABLE dbo.Parties ADD [CreditLimit] decimal(18,2) NOT NULL DEFAULT 0;
-    ALTER TABLE dbo.Parties ADD [WHT_Percentage] decimal(18,2) NOT NULL DEFAULT 0;
-    ALTER TABLE dbo.Parties ADD [DefaultMarkupRate] decimal(18,2) NOT NULL DEFAULT 0;
-    ALTER TABLE dbo.Parties ADD [IsActive] bit NOT NULL DEFAULT 1;
-    ALTER TABLE dbo.Parties ADD [RowVersion] rowversion NULL;
-    ALTER TABLE dbo.Parties ADD [CreatedBy] int NOT NULL DEFAULT 1;
-    ALTER TABLE dbo.Parties ADD [CreatedAt] datetime2 NOT NULL DEFAULT GETDATE();
-    ALTER TABLE dbo.Parties ADD [UpdatedBy] int NULL;
-    ALTER TABLE dbo.Parties ADD [UpdatedAt] datetime2 NULL;
-    ALTER TABLE dbo.Parties ADD [IsDeleted] bit NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'AccountId' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [AccountId] int NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'TownId' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [TownId] int NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Phone' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [Phone] nvarchar(50) NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'CNIC' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [CNIC] nvarchar(30) NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'CreditLimit' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [CreditLimit] decimal(18,2) NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'WHT_Percentage' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [WHT_Percentage] decimal(18,2) NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'DefaultMarkupRate' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [DefaultMarkupRate] decimal(18,2) NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'IsActive' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [IsActive] bit NOT NULL DEFAULT 1;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'RowVersion' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [RowVersion] rowversion NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'CreatedBy' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [CreatedBy] int NOT NULL DEFAULT 1;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'CreatedAt' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [CreatedAt] datetime2 NOT NULL DEFAULT GETDATE();
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'UpdatedBy' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [UpdatedBy] int NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'UpdatedAt' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [UpdatedAt] datetime2 NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'IsDeleted' AND object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties ADD [IsDeleted] bit NOT NULL DEFAULT 0;
+    IF EXISTS (SELECT * FROM sys.columns c JOIN sys.types t ON c.user_type_id = t.user_type_id WHERE c.object_id = OBJECT_ID('dbo.Parties') AND c.name = 'SectorID' AND t.name IN ('tinyint', 'smallint'))
+        ALTER TABLE dbo.Parties ALTER COLUMN SectorID int NULL;
 END;
 
-IF OBJECT_ID('dbo.Products') IS NOT NULL AND NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Name' AND object_id = OBJECT_ID('dbo.Products'))
+IF OBJECT_ID('dbo.Products') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Id' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [Id] int IDENTITY(1,1);
     IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'ProductCode' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [ProductCode] nvarchar(50) NULL;
-    ALTER TABLE dbo.Products ADD [Name] nvarchar(150) NULL;
-    ALTER TABLE dbo.Products ADD [ProductGroupId] int NULL;
-    ALTER TABLE dbo.Products ADD [CostPrice] decimal(18,2) NOT NULL DEFAULT 0;
-    ALTER TABLE dbo.Products ADD [OpeningStock] decimal(18,3) NOT NULL DEFAULT 0;
-    ALTER TABLE dbo.Products ADD [CurrentStock] decimal(18,3) NOT NULL DEFAULT 0;
-    ALTER TABLE dbo.Products ADD [IsActive] bit NOT NULL DEFAULT 1;
-    ALTER TABLE dbo.Products ADD [RowVersion] rowversion NULL;
-    ALTER TABLE dbo.Products ADD [CreatedBy] int NOT NULL DEFAULT 1;
-    ALTER TABLE dbo.Products ADD [CreatedAt] datetime2 NOT NULL DEFAULT GETDATE();
-    ALTER TABLE dbo.Products ADD [UpdatedBy] int NULL;
-    ALTER TABLE dbo.Products ADD [UpdatedAt] datetime2 NULL;
-    ALTER TABLE dbo.Products ADD [IsDeleted] bit NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'Name' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [Name] nvarchar(150) NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'UrduName' AND object_id = OBJECT_ID('dbo.Products'))
+    BEGIN
+        ALTER TABLE dbo.Products ADD [UrduName] nvarchar(150) NULL;
+        IF EXISTS (SELECT * FROM sys.columns WHERE name = 'NameUrdu' AND object_id = OBJECT_ID('dbo.Products'))
+            EXEC('UPDATE dbo.Products SET [UrduName] = [NameUrdu] WHERE [UrduName] IS NULL AND [NameUrdu] IS NOT NULL');
+    END;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'BarcodeNo' AND object_id = OBJECT_ID('dbo.Products'))
+    BEGIN
+        ALTER TABLE dbo.Products ADD [BarcodeNo] nvarchar(50) NULL;
+        IF EXISTS (SELECT * FROM sys.columns WHERE name = 'BarCode' AND object_id = OBJECT_ID('dbo.Products'))
+            EXEC('UPDATE dbo.Products SET [BarcodeNo] = [BarCode] WHERE [BarcodeNo] IS NULL AND [BarCode] IS NOT NULL');
+    END;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'IsPestro' AND object_id = OBJECT_ID('dbo.Products'))
+    BEGIN
+        ALTER TABLE dbo.Products ADD [IsPestro] bit NOT NULL DEFAULT 0;
+        IF EXISTS (SELECT * FROM sys.columns WHERE name = 'IsPest' AND object_id = OBJECT_ID('dbo.Products'))
+            EXEC('UPDATE dbo.Products SET [IsPestro] = [IsPest] WHERE [IsPest] IS NOT NULL');
+    END;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'ExpiryTracking' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [ExpiryTracking] bit NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'ReorderLevel' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [ReorderLevel] int NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'HSCode' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [HSCode] nvarchar(50) NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'ProductGroupId' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [ProductGroupId] int NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'CostPrice' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [CostPrice] decimal(18,2) NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'OpeningStock' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [OpeningStock] decimal(18,3) NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'CurrentStock' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [CurrentStock] decimal(18,3) NOT NULL DEFAULT 0;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'IsActive' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [IsActive] bit NOT NULL DEFAULT 1;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'RowVersion' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [RowVersion] rowversion NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'CreatedBy' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [CreatedBy] int NOT NULL DEFAULT 1;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'CreatedAt' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [CreatedAt] datetime2 NOT NULL DEFAULT GETDATE();
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'UpdatedBy' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [UpdatedBy] int NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'UpdatedAt' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [UpdatedAt] datetime2 NULL;
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE name = 'IsDeleted' AND object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products ADD [IsDeleted] bit NOT NULL DEFAULT 0;
+
+    -- Legacy AgenSoft schema compatibility for Products
+    IF EXISTS (SELECT * FROM sys.columns c JOIN sys.types t ON c.user_type_id = t.user_type_id WHERE c.object_id = OBJECT_ID('dbo.Products') AND c.name = 'CompanyID' AND t.name IN ('varchar', 'nvarchar', 'char', 'nchar'))
+        ALTER TABLE dbo.Products ALTER COLUMN CompanyID int NULL;
+    IF EXISTS (SELECT * FROM sys.columns c JOIN sys.types t ON c.user_type_id = t.user_type_id WHERE c.object_id = OBJECT_ID('dbo.Products') AND c.name = 'UnitID' AND t.name IN ('tinyint', 'smallint'))
+        ALTER TABLE dbo.Products ALTER COLUMN UnitID int NULL;
+    IF EXISTS (SELECT * FROM sys.columns c JOIN sys.types t ON c.user_type_id = t.user_type_id WHERE c.object_id = OBJECT_ID('dbo.Products') AND c.name = 'GroupID' AND t.name IN ('tinyint', 'smallint'))
+        ALTER TABLE dbo.Products ALTER COLUMN GroupID int NULL;
+    IF EXISTS (SELECT * FROM sys.columns WHERE name = 'ProductGroupId' AND object_id = OBJECT_ID('dbo.Products'))
+        EXEC('UPDATE dbo.Products SET [ProductGroupId] = [GroupID] WHERE [ProductGroupId] IS NULL AND [GroupID] IS NOT NULL');
 END;
 ";
             context.Database.ExecuteSqlRaw(sql);
@@ -445,10 +487,46 @@ ALTER TABLE dbo.ProductGroups ALTER COLUMN GroupName varchar(100) NULL;
 ALTER TABLE dbo.PartyGroups ALTER COLUMN PartyGroupID int NULL;
 ALTER TABLE dbo.PartyGroups ALTER COLUMN GroupName varchar(100) NULL;
 
+-- Modernize dbo.Products
+IF EXISTS (SELECT * FROM sys.key_constraints WHERE name = 'PK_Products' AND parent_object_id = OBJECT_ID('dbo.Products')) ALTER TABLE dbo.Products DROP CONSTRAINT PK_Products;
+ALTER TABLE dbo.Products ALTER COLUMN [ProductID] varchar(50) NULL;
+ALTER TABLE dbo.Products ALTER COLUMN [CompanyID] varchar(50) NULL;
+ALTER TABLE dbo.Products ALTER COLUMN [UnitID] tinyint NULL;
+ALTER TABLE dbo.Products ALTER COLUMN [IsCrop] bit NULL;
+ALTER TABLE dbo.Products ALTER COLUMN [ProductName] nvarchar(150) NULL;
+ALTER TABLE dbo.Products ALTER COLUMN [PurchasePrice] decimal(18,2) NULL;
+ALTER TABLE dbo.Products ALTER COLUMN [SalePrice] decimal(18,2) NULL;
+
+-- Modernize dbo.Parties
+IF EXISTS (SELECT * FROM sys.key_constraints WHERE name = 'PK_Parties' AND parent_object_id = OBJECT_ID('dbo.Parties')) ALTER TABLE dbo.Parties DROP CONSTRAINT PK_Parties;
+ALTER TABLE dbo.Parties ALTER COLUMN [PartyID] varchar(50) NULL;
+ALTER TABLE dbo.Parties ALTER COLUMN [PartyName] nvarchar(150) NULL;
+ALTER TABLE dbo.Parties ALTER COLUMN [IsCustomer] bit NULL;
+ALTER TABLE dbo.Parties ALTER COLUMN [IsVendor] bit NULL;
+
+-- Modernize dbo.Users
+IF EXISTS (SELECT * FROM sys.key_constraints WHERE name = 'PK_Users' AND parent_object_id = OBJECT_ID('dbo.Users')) ALTER TABLE dbo.Users DROP CONSTRAINT PK_Users;
+ALTER TABLE dbo.Users ALTER COLUMN [UserID] smallint NULL;
+ALTER TABLE dbo.Users ALTER COLUMN [UserName] varchar(50) NULL;
+ALTER TABLE dbo.Users ALTER COLUMN [Password] varchar(50) NULL;
+ALTER TABLE dbo.Users ALTER COLUMN [IsAdministrator] bit NULL;
+
 IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT_ID('dbo.Units') AND type = 'PK') ALTER TABLE dbo.Units ADD CONSTRAINT PK_Units_Id PRIMARY KEY CLUSTERED (Id);
 IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT_ID('dbo.Companies') AND type = 'PK') ALTER TABLE dbo.Companies ADD CONSTRAINT PK_Companies_Id PRIMARY KEY CLUSTERED (Id);
 IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT_ID('dbo.ProductGroups') AND type = 'PK') ALTER TABLE dbo.ProductGroups ADD CONSTRAINT PK_ProductGroups_Id PRIMARY KEY CLUSTERED (Id);
 IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT_ID('dbo.PartyGroups') AND type = 'PK') ALTER TABLE dbo.PartyGroups ADD CONSTRAINT PK_PartyGroups_Id PRIMARY KEY CLUSTERED (Id);
+IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT_ID('dbo.Products') AND type = 'PK') ALTER TABLE dbo.Products ADD CONSTRAINT PK_Products_Id PRIMARY KEY CLUSTERED (Id);
+IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT_ID('dbo.Parties') AND type = 'PK') ALTER TABLE dbo.Parties ADD CONSTRAINT PK_Parties_Id PRIMARY KEY CLUSTERED (Id);
+IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT_ID('dbo.Users') AND type = 'PK') ALTER TABLE dbo.Users ADD CONSTRAINT PK_Users_Id PRIMARY KEY CLUSTERED (Id);
+
+IF OBJECT_ID('dbo.TR_Products_SyncLegacyFields', 'TR') IS NOT NULL DROP TRIGGER dbo.TR_Products_SyncLegacyFields;
+IF OBJECT_ID('dbo.TR_Parties_SyncLegacyFields', 'TR') IS NOT NULL DROP TRIGGER dbo.TR_Parties_SyncLegacyFields;
+
+IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID('dbo.Products') AND name = 'DF_Products_ProductID')
+    ALTER TABLE dbo.Products ADD CONSTRAINT DF_Products_ProductID DEFAULT '' FOR ProductID;
+
+IF NOT EXISTS (SELECT * FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID('dbo.Parties') AND name = 'DF_Parties_PartyID')
+    ALTER TABLE dbo.Parties ADD CONSTRAINT DF_Parties_PartyID DEFAULT '' FOR PartyID;
 ");
             }
             catch (Exception exFix)
@@ -595,83 +673,10 @@ IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT
         }
         catch (Exception ex) { Log($"Seed: 4. Cash Account error: {ex.Message}"); }
 
-        // 5. Seed Default Party Groups
+        // 5. Setup PrintContext from system configs (no dummy overrides)
         try
         {
-            Log("Seed: 5. Checking PartyGroups...");
-            if (!context.PartyGroups.Any())
-            {
-                context.PartyGroups.AddRange(
-                    new Core.Entities.PartyGroup { Name = "General Customers" },
-                    new Core.Entities.PartyGroup { Name = "Zamindaraan (Farmers)" },
-                    new Core.Entities.PartyGroup { Name = "Beopari / Traders" }
-                );
-                context.SaveChanges();
-                Log("Seed: 5. PartyGroups saved.");
-            }
-        }
-        catch (Exception ex) { Log($"Seed: 5. PartyGroups error: {ex.Message}"); }
-
-        // 6. Seed Default Units
-        try
-        {
-            Log("Seed: 6. Checking Units...");
-            if (!context.Units.Any())
-            {
-                context.Units.AddRange(
-                    new Core.Entities.Unit { ShortName = "BAG", Name = "Bag (بوری)" },
-                    new Core.Entities.Unit { ShortName = "KG", Name = "Kilogram (کلو)" },
-                    new Core.Entities.Unit { ShortName = "MND", Name = "Mound / Mann (من)" }
-                );
-                context.SaveChanges();
-                Log("Seed: 6. Units saved.");
-            }
-        }
-        catch (Exception ex) { Log($"Seed: 6. Units error: {ex.InnerException?.Message ?? ex.Message}"); }
-
-        // 7. Seed Default Companies
-        try
-        {
-            Log("Seed: 7. Checking Companies...");
-            if (!context.Companies.Any())
-            {
-                context.Companies.AddRange(
-                    new Core.Entities.Company { Name = "General / Local (لوکل / عام)", ShortName = "GEN", IsActive = true },
-                    new Core.Entities.Company { Name = "City Computers Marot", ShortName = "CCM", IsActive = true },
-                    new Core.Entities.Company { Name = "Engro Fertilizers", ShortName = "ENGRO", IsActive = true },
-                    new Core.Entities.Company { Name = "Fauji Fertilizer Company (FFC)", ShortName = "FFC", IsActive = true },
-                    new Core.Entities.Company { Name = "Syngenta Pakistan", ShortName = "SYNGENTA", IsActive = true },
-                    new Core.Entities.Company { Name = "Bayer CropScience", ShortName = "BAYER", IsActive = true }
-                );
-                context.SaveChanges();
-                Log("Seed: 7. Companies saved.");
-            }
-        }
-        catch (Exception ex) { Log($"Seed: 7. Companies error: {ex.InnerException?.Message ?? ex.Message}"); }
-
-        // 8. Seed Default Product Groups
-        try
-        {
-            Log("Seed: 8. Checking ProductGroups...");
-            if (!context.ProductGroups.Any())
-            {
-                context.ProductGroups.AddRange(
-                    new Core.Entities.ProductGroup { Name = "Grains & Crops (اجناس و فصلیں)" },
-                    new Core.Entities.ProductGroup { Name = "Fertilizers (کھادیں)" },
-                    new Core.Entities.ProductGroup { Name = "Pesticides & Chemicals (زرعی ادویات)" },
-                    new Core.Entities.ProductGroup { Name = "Seeds (بیج)" },
-                    new Core.Entities.ProductGroup { Name = "General Products (جنرل آئٹمز)" }
-                );
-                context.SaveChanges();
-                Log("Seed: 8. ProductGroups saved.");
-            }
-        }
-        catch (Exception ex) { Log($"Seed: 8. ProductGroups error: {ex.InnerException?.Message ?? ex.Message}"); }
-
-        // Setup PrintContext and seed/load business configs
-        try
-        {
-            Log("Seed: 9. Checking SystemConfigs...");
+            Log("Seed: Checking SystemConfigs...");
             var configs = context.SystemConfigs.Where(c => c.ConfigKey.StartsWith("Business_")).ToList();
             var cfgName = configs.FirstOrDefault(c => c.ConfigKey == "Business_Name")?.ConfigValue;
             var cfgUrdu = configs.FirstOrDefault(c => c.ConfigKey == "Business_NameUrdu")?.ConfigValue;
@@ -680,36 +685,15 @@ IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT
             var cfgPhone = configs.FirstOrDefault(c => c.ConfigKey == "Business_Phone")?.ConfigValue;
             var cfgReg = configs.FirstOrDefault(c => c.ConfigKey == "Business_RegistrationNo")?.ConfigValue;
 
-            if (string.IsNullOrWhiteSpace(cfgName))
-            {
-                var defaultCompany = context.Companies.FirstOrDefault(c => c.IsActive)?.Name ?? "City Computers Marot";
-                context.SystemConfigs.AddRange(
-                    new Core.Entities.SystemConfig { ConfigKey = "Business_Name", ConfigValue = defaultCompany, Description = "Business/Firm Name English" },
-                    new Core.Entities.SystemConfig { ConfigKey = "Business_NameUrdu", ConfigValue = "سٹی کمپیوٹرز مروٹ", Description = "Business/Firm Name Urdu" },
-                    new Core.Entities.SystemConfig { ConfigKey = "Business_Proprietor", ConfigValue = "", Description = "Proprietor / Malik Name" },
-                    new Core.Entities.SystemConfig { ConfigKey = "Business_Address", ConfigValue = "Grain Market, Marot (غلہ منڈی مروٹ)", Description = "Business Address" },
-                    new Core.Entities.SystemConfig { ConfigKey = "Business_Phone", ConfigValue = "0344-7436314", Description = "Business Phone / Mobile" },
-                    new Core.Entities.SystemConfig { ConfigKey = "Business_RegistrationNo", ConfigValue = "", Description = "License / Reg No" }
-                );
-                context.SaveChanges();
-
-                Printing.PrintContext.Company.Name = defaultCompany;
-                Printing.PrintContext.Company.NameUrdu = "سٹی کمپیوٹرز مروٹ";
-                Printing.PrintContext.Company.Address = "Grain Market, Marot (غلہ منڈی مروٹ)";
-                Printing.PrintContext.Company.Phone = "0344-7436314";
-            }
-            else
-            {
-                Printing.PrintContext.Company.Name = cfgName;
-                if (!string.IsNullOrWhiteSpace(cfgUrdu)) Printing.PrintContext.Company.NameUrdu = cfgUrdu;
-                if (!string.IsNullOrWhiteSpace(cfgProp)) Printing.PrintContext.Company.Proprietor = cfgProp;
-                if (!string.IsNullOrWhiteSpace(cfgAddr)) Printing.PrintContext.Company.Address = cfgAddr;
-                if (!string.IsNullOrWhiteSpace(cfgPhone)) Printing.PrintContext.Company.Phone = cfgPhone;
-                if (!string.IsNullOrWhiteSpace(cfgReg)) Printing.PrintContext.Company.RegistrationNo = cfgReg;
-            }
-            Log("Seed: 9. SystemConfigs processed.");
+            if (!string.IsNullOrWhiteSpace(cfgName)) Printing.PrintContext.Company.Name = cfgName;
+            if (!string.IsNullOrWhiteSpace(cfgUrdu)) Printing.PrintContext.Company.NameUrdu = cfgUrdu;
+            if (!string.IsNullOrWhiteSpace(cfgProp)) Printing.PrintContext.Company.Proprietor = cfgProp;
+            if (!string.IsNullOrWhiteSpace(cfgAddr)) Printing.PrintContext.Company.Address = cfgAddr;
+            if (!string.IsNullOrWhiteSpace(cfgPhone)) Printing.PrintContext.Company.Phone = cfgPhone;
+            if (!string.IsNullOrWhiteSpace(cfgReg)) Printing.PrintContext.Company.RegistrationNo = cfgReg;
+            Log("Seed: SystemConfigs loaded.");
         }
-        catch (Exception ex) { Log($"Seed: 9. SystemConfigs error: {ex.Message}"); }
+        catch (Exception ex) { Log($"Seed: SystemConfigs error: {ex.Message}"); }
         
         Log("Seed: ALL steps finished successfully!");
     }
@@ -726,7 +710,8 @@ IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT
 
         // Build Dynamic Connection String
         string year = yearArg ?? configService.GetCurrentFinancialYear();
-        string dbName = $"MyMandi_{year}";
+        string prefix = configService.GetDatabasePrefix();
+        string dbName = string.IsNullOrWhiteSpace(prefix) || prefix.Contains(year) ? prefix : $"{prefix}_{year}";
         string connectionString = configService.GetConnectionString(dbName);
 
         services.AddSingleton<AuditInterceptor>();
@@ -753,15 +738,27 @@ IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT
         services.AddSingleton<ICatalogService, CatalogService>();
         services.AddSingleton<IYearEndService, YearEndService>();
         services.AddSingleton<IDatabaseManagementService, DatabaseManagementService>();
+        services.AddSingleton<IBankingService, BankingService>();
+        services.AddSingleton<IInsuranceService, InsuranceService>();
+        services.AddSingleton<IPromiseService, PromiseService>();
 
         // Print Engine Services
         services.AddSingleton<MyMandiSystem.Core.Printing.IPrintService, MyMandiSystem.Printing.PrintService>();
         services.AddSingleton<MyMandiSystem.Core.Printing.IPrintModelFactory, MyMandiSystem.Infrastructure.Printing.PrintModelFactory>();
 
         services.AddTransient<MainViewModel>();
+        services.AddTransient<AccountLedgerViewModel>();
+        services.AddTransient<Views.AccountLedgerWindow>();
         services.AddTransient<CashReceivingVoucherViewModel>();
         services.AddTransient<JournalVoucherViewModel>();
         services.AddTransient<CashPaymentVoucherViewModel>();
+        services.AddTransient<ChequeDepositViewModel>();
+        services.AddTransient<CashDepositViewModel>();
+        services.AddTransient<DepositReconciliationViewModel>();
+        services.AddTransient<BankChequeIssueViewModel>();
+        services.AddTransient<ChequeBookGenerationViewModel>();
+        services.AddTransient<BankChequeEditingViewModel>();
+        services.AddTransient<BankChequesReconciliationViewModel>();
         services.AddTransient<ChartOfAccountsViewModel>();
         services.AddTransient<MasterDataViewModel>();
         services.AddTransient<PartyViewModel>();
@@ -780,8 +777,45 @@ IF NOT EXISTS (SELECT * FROM sys.key_constraints WHERE parent_object_id = OBJECT
         services.AddTransient<ProfitLossStatementViewModel>();
         services.AddTransient<BalanceSheetViewModel>();
         services.AddTransient<BrokeragePurchaseInvoiceViewModel>();
+        services.AddTransient<Views.BrokeragePurchaseInvoiceWindow>();
         services.AddTransient<BrokerageSaleInvoiceViewModel>();
+        services.AddTransient<Views.BrokerageSaleInvoiceWindow>();
         services.AddTransient<BrokerageMultiInvoiceViewModel>();
+        services.AddTransient<Views.BrokerageMultiInvoiceWindow>();
+        services.AddTransient<GatePassSaleViewModel>();
+        services.AddTransient<PurchaseContractViewModel>();
+        services.AddTransient<SaleContractViewModel>();
+        services.AddTransient<BrokerageShortageViewModel>();
         services.AddTransient<BusinessProfileViewModel>();
+        services.AddTransient<BankingViewModel>();
+        services.AddTransient<PortSettingViewModel>();
+        services.AddTransient<ExpenseTypesViewModel>();
+        services.AddTransient<UsersManagementViewModel>();
+        services.AddTransient<DatabaseBackupViewModel>();
+        services.AddTransient<StockRecalculationViewModel>();
+        services.AddTransient<SmsSendingViewModel>();
+        services.AddTransient<MarkupCalculatorViewModel>();
+        services.AddTransient<InsuranceRegisterViewModel>();
+        services.AddTransient<UserLogRegisterViewModel>();
+        services.AddTransient<MonthlyExpenseChartViewModel>();
+        services.AddTransient<BrokerageReportsViewModel>();
+        services.AddTransient<AccountReportsViewModel>();
+        services.AddTransient<PestroOpeningStockViewModel>();
+        services.AddTransient<PestroPurchaseInvoiceViewModel>();
+        services.AddTransient<PestroPurchaseReturnViewModel>();
+        services.AddTransient<PestroChangeExpiryDateViewModel>();
+        services.AddTransient<PestroSaleAutoBatchViewModel>();
+        services.AddTransient<PestroSaleManualBatchViewModel>();
+        services.AddTransient<PestroSaleReturnViewModel>();
+        services.AddTransient<PestroInvoiceLookupViewModel>();
+        services.AddTransient<GeneralPurchaseInvoiceViewModel>();
+        services.AddTransient<GeneralSaleInvoiceViewModel>();
+        services.AddTransient<GeneralMultiInvoiceViewModel>();
+        services.AddTransient<GeneralInvoiceLookupViewModel>();
+        services.AddTransient<ProfitLossSettingsViewModel>();
+        services.AddTransient<BalanceSheetSettingsViewModel>();
+        services.AddTransient<ExpenseReportSettingsViewModel>();
+        services.AddTransient<InsuranceViewModel>();
+        services.AddTransient<PromisesViewModel>();
     }
 }

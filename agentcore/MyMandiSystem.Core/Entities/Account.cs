@@ -19,6 +19,12 @@ public class Account : AuditBase
     public decimal CurrentBalance { get; set; }
     public bool IsSystemAccount { get; set; }
     public bool IsActive { get; set; } = true;
+
+    // Report Settings Flags (AgenSoft 100% Exact Parity)
+    public string? PLFlag { get; set; } // 'B' = Both, 'P' = Profit & Loss, null/empty = Excluded
+    public bool BalFlag { get; set; } = true; // Include in Balance Sheet
+    public bool ExpFlag { get; set; } // Include in Expense Report
+    public decimal? ExpenseLimit { get; set; } // Monthly/Annual Budget Limit
     
     [Timestamp]
     public byte[] RowVersion { get; set; } = null!;

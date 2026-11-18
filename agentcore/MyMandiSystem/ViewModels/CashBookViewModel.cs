@@ -13,6 +13,28 @@ public partial class CashBookViewModel : ObservableObject
     private readonly IReportService _reportService;
     private readonly ISystemService _systemService;
 
+    [ObservableProperty] private string _windowTitle = "Cash Book";
+    [ObservableProperty] private string _headerTitle = "Cash Book";
+    [ObservableProperty] private string _headerSubtitle = "Daily Cash Receipts & Payments Register";
+
+    public void SetDayBookMode(bool isDayBook)
+    {
+        if (isDayBook)
+        {
+            WindowTitle = "Day Book";
+            HeaderTitle = "Day Book";
+            HeaderSubtitle = "Day Book Financial Journal & Daily Transactions";
+            IsSingleDate = true;
+            IsAllDates = false;
+        }
+        else
+        {
+            WindowTitle = "Cash Book";
+            HeaderTitle = "Cash Book";
+            HeaderSubtitle = "Daily Cash Receipts & Payments Register";
+        }
+    }
+
     // Date Filters
     [ObservableProperty] private bool _isAllDates = true;
     [ObservableProperty] private bool _isSingleDate = false;
@@ -51,15 +73,17 @@ public partial class CashBookViewModel : ObservableObject
     [RelayCommand]
     private async Task PreviewAsync()
     {
-        DateTime date = IsSingleDate ? SingleDate.Date : (IsDateRange ? ToDate.Date : DateTime.Today);
-        var data = await _reportService.GetDayBookReportAsync(date);
+        DateTime? from = IsAllDates ? null : (IsSingleDate ? SingleDate.Date : FromDate.Date);
+        DateTime? to = IsAllDates ? null : (IsSingleDate ? SingleDate.Date.AddDays(1).AddSeconds(-1) : ToDate.Date.AddDays(1).AddSeconds(-1));
+
+        var data = await _reportService.GetCashBookReportAsync(from, to, ShowDefaultCashBookView);
 
         var reportWindow = new ReportWindow(
-            reportPath: "Reports/DayBookReport.rdlc",
-            dataSourceName: "DataSet1",
+            reportPath: "Reports/CashBookReport.rdlc",
+            dataSourceName: "DS_CashBook",
             data: data
         );
-        reportWindow.Title = $"Cash Book Report - {(IsAllDates ? "All Dates" : (IsSingleDate ? SingleDate.ToShortDateString() : $"{FromDate.ToShortDateString()} To {ToDate.ToShortDateString()}"))}";
+        reportWindow.Title = $"Cash Book - {(IsAllDates ? "All Dates" : (IsSingleDate ? SingleDate.ToString("dd/MM/yyyy") : $"{FromDate:dd/MM/yyyy} To {ToDate:dd/MM/yyyy}"))}";
         reportWindow.ShowDialog();
     }
 

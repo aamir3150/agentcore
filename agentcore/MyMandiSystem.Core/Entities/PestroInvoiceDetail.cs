@@ -16,4 +16,29 @@ public class PestroInvoiceDetail : AuditBase
     public decimal Rate { get; set; }
     public decimal Amount { get; set; }
     public DateTime? ExpiryDate { get; set; }
+
+    // Extended fields for AgenSoft compatibility & accurate batch/tax calculations
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public string BatchNo { get; set; } = string.Empty;
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal Bonus { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal DiscRatio1 { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal DiscRatio2 { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal STRatio { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal STValue { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal TTLValue { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal TTLSalestax { get; set; }
 }

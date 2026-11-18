@@ -64,6 +64,7 @@ public class AppDbContext : DbContext
     // 1J. Stock & Inventory
     public DbSet<StockTransaction> StockTransactions => Set<StockTransaction>();
     public DbSet<InsuranceEntry> InsuranceEntries => Set<InsuranceEntry>();
+    public DbSet<InsurancePolicy> InsurancePolicies => Set<InsurancePolicy>();
     public DbSet<Promise> Promises => Set<Promise>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -210,5 +211,10 @@ public class AppDbContext : DbContext
             .WithMany(fy => fy.CropSeasons)
             .HasForeignKey(cs => cs.FinancialYearId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        // Insurance Policy Master (AgenSoft Legacy Parity)
+        modelBuilder.Entity<InsurancePolicy>()
+            .ToTable("Insurance")
+            .HasKey(p => p.SrNo);
     }
 }

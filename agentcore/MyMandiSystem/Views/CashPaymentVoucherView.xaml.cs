@@ -51,6 +51,17 @@ public partial class CashPaymentVoucherView : System.Windows.Controls.UserContro
             return;
         }
 
+        // F4: Delete Voucher
+        if (e.Key == Key.F4)
+        {
+            if (vm.IsExistingVoucher && vm.DeleteVoucherCommand.CanExecute(null))
+            {
+                e.Handled = true;
+                vm.DeleteVoucherCommand.Execute(null);
+                return;
+            }
+        }
+
         // Ctrl+P: Print Voucher
         if (e.Key == Key.P && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
         {
@@ -181,5 +192,11 @@ public partial class CashPaymentVoucherView : System.Windows.Controls.UserContro
             }
             e.Handled = true;
         }
+    }
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        var win = Window.GetWindow(this);
+        win?.Close();
     }
 }

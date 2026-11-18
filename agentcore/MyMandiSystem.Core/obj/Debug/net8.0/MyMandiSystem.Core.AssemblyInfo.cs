@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MyMandiSystem.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e37bd0ccc42819b78a707aee8942858755a002f5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+43c6a38fd1e2b313f2043b67d6c737a30a87664b")]
 [assembly: System.Reflection.AssemblyProductAttribute("MyMandiSystem.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MyMandiSystem.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

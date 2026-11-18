@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Account Ledger Extended - تفصیلی کھاتہ لیجر" 
+        Title="Account Ledger Extended" 
         Height="570" Width="720"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize"
@@ -120,7 +120,7 @@
                             </Border>
                             <TextBlock Text="Account Ledger Extended" FontSize="21" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="کھاتہ لیجر (تفصیلی اکاؤنٹ سٹیٹمنٹ رپورٹ)" FontSize="14" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
+                        <TextBlock Text="Account Statement &amp; General Ledger Report" FontSize="12" Foreground="#94A3B8" Margin="44,2,0,0"/>
                     </StackPanel>
 
                     <!-- Right Graphic Emblem -->
@@ -172,7 +172,7 @@
                     <CheckBox Grid.Column="1" IsChecked="{Binding UrduPrint}" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="Urdu Print" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="(اردو پرنٹ)" FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="14" Foreground="#475569" VerticalAlignment="Center"/>
+                            <TextBlock Text="(Urdu Print)" FontSize="12" Foreground="#475569" VerticalAlignment="Center"/>
                         </StackPanel>
                     </CheckBox>
                 </Grid>
@@ -225,7 +225,7 @@
 
                         <!-- Lookup Button [...] -->
                         <Button Grid.Column="2" Command="{Binding OpenAccountLookupCommand}" Width="36" Height="32" Margin="6,0,14,0" 
-                                Background="#1E3A8A" Foreground="White" BorderThickness="0" ToolTip="Select Account (کھاتہ تلاش کریں)" Cursor="Hand">
+                                Background="#1E3A8A" Foreground="White" BorderThickness="0" ToolTip="Select Account" Cursor="Hand">
                             <Button.Resources>
                                 <Style TargetType="Border">
                                     <Setter Property="CornerRadius" Value="5"/>
@@ -251,7 +251,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- All Dates Option -->
-                        <RadioButton Grid.Row="0" Content="All Dates (تمام تاریخیں)" IsChecked="{Binding IsAllDates}" Margin="0,2,0,14" FontWeight="SemiBold" FontSize="13.5" Foreground="#1E293B"/>
+                        <RadioButton Grid.Row="0" Content="All Dates" IsChecked="{Binding IsAllDates}" Margin="0,2,0,14" FontWeight="SemiBold" FontSize="13.5" Foreground="#1E293B"/>
 
                         <!-- Single Date Option -->
                         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,14">
@@ -313,7 +313,7 @@
                             </Border>
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="Select Account" FontSize="16" FontWeight="Bold" Foreground="#0F172A"/>
-                                <TextBlock Text="کھاتہ منتخب کریں" FontSize="13" Foreground="#64748B" FontFamily="{StaticResource FontJameelNooriNastaleeq}"/>
+                                <TextBlock Text="Select Account" FontSize="13" Foreground="#64748B"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -391,7 +391,7 @@
                             </DataGridTextColumn>
 
                             <!-- Urdu Name Column (Jameel Noori Nastaleeq + RTL) -->
-                            <DataGridTextColumn Header="Urdu Name / نام" Binding="{Binding UrduName}" Width="170">
+                            <DataGridTextColumn Header="Urdu Name" Binding="{Binding UrduName}" Width="170">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="VerticalAlignment" Value="Center"/>

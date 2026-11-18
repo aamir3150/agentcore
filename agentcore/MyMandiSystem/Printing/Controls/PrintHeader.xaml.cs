@@ -11,6 +11,9 @@ public partial class PrintHeader : UserControl
     public static readonly DependencyProperty SubtitleProperty =
         DependencyProperty.Register(nameof(Subtitle), typeof(string), typeof(PrintHeader), new PropertyMetadata(string.Empty));
 
+    public static readonly DependencyProperty ShowUrduCompanyProperty =
+        DependencyProperty.Register(nameof(ShowUrduCompany), typeof(bool), typeof(PrintHeader), new PropertyMetadata(true));
+
     public string Title
     {
         get => (string)GetValue(TitleProperty);
@@ -21,6 +24,12 @@ public partial class PrintHeader : UserControl
     {
         get => (string)GetValue(SubtitleProperty);
         set => SetValue(SubtitleProperty, value);
+    }
+
+    public bool ShowUrduCompany
+    {
+        get => (bool)GetValue(ShowUrduCompanyProperty);
+        set => SetValue(ShowUrduCompanyProperty, value);
     }
 
     public CompanyInfo Company => PrintContext.Company;

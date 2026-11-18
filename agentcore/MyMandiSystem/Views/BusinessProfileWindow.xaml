@@ -2,9 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="Business Profile &amp; Print Header Setup" 
-        Width="680" 
-        SizeToContent="Height"
+        Title="Configuration &amp; Business Profile" 
+        Width="780" 
+        Height="620"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -27,7 +27,8 @@
         <Grid ClipToBounds="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/> <!-- Title Bar -->
-                <RowDefinition Height="*"/>    <!-- Form Fields Body -->
+                <RowDefinition Height="Auto"/> <!-- Tabs Header -->
+                <RowDefinition Height="*"/>    <!-- Tab Body -->
                 <RowDefinition Height="Auto"/> <!-- Footer Actions -->
             </Grid.RowDefinitions>
 
@@ -44,12 +45,12 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0" Width="40" Height="40" CornerRadius="8" Background="#1E293B" Margin="0,0,12,0">
-                        <materialDesign:PackIcon Kind="OfficeBuilding" Width="24" Height="24" Foreground="{StaticResource BrushAccentTealLight}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <materialDesign:PackIcon Kind="CogOutline" Width="24" Height="24" Foreground="{StaticResource BrushAccentTealLight}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Business Profile &amp; Print Setup" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF"/>
-                        <TextBlock Text="کاروباری معلومات و پرنٹنگ ہیڈر کی ترتیبات" 
+                        <TextBlock Text="System Configuration &amp; Business Profile" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF"/>
+                        <TextBlock Text="کاروباری معلومات، پرنٹر ترتیبات اور منڈی رسید کے اردو نوٹس" 
                                    FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="15" Foreground="#94A3B8"/>
                     </StackPanel>
 
@@ -61,110 +62,205 @@
             </Border>
 
             <!-- ══════════════════════════════════════════════════════════ -->
-            <!--                       FORM FIELDS BODY                     -->
+            <!--                        TABS HEADER                         -->
             <!-- ══════════════════════════════════════════════════════════ -->
-            <ScrollViewer Grid.Row="1" MaxHeight="560" VerticalScrollBarVisibility="Auto" Padding="24,18">
-                <StackPanel>
-
-                    <!-- Info Alert -->
-                    <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,0,0,16">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="InformationOutline" Width="20" Height="20" Foreground="#16A34A" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <TextBlock Text="Yahan likha gaya Naam, Pata aur Phone Number tamam Ledgers, Slips aur Invoices ke print par khud-ba-khud show hoga." 
-                                       FontSize="12.5" Foreground="#166534" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- 1. Business / Firm Name (Urdu) -->
-                    <StackPanel Margin="0,0,0,14">
-                        <TextBlock Text="Business Name in Urdu (دکان / آڑھت کا نام اردو میں) *" FontWeight="Bold" FontSize="12.5" Foreground="#1E293B" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding BusinessNameUrdu, UpdateSourceTrigger=PropertyChanged}" 
-                                 FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="18" FlowDirection="RightToLeft"
-                                 Padding="10,6" MinHeight="42" Background="#FFFFFF" BorderBrush="#CBD5E1"/>
-                    </StackPanel>
-
-                    <!-- 2. Business / Firm Name (English) -->
-                    <StackPanel Margin="0,0,0,14">
-                        <TextBlock Text="Business Name in English (کاروبار کا نام انگلش میں) *" FontWeight="Bold" FontSize="12.5" Foreground="#1E293B" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding BusinessName, UpdateSourceTrigger=PropertyChanged}" 
-                                 FontSize="13.5" FontWeight="SemiBold"
-                                 Padding="10,8" Background="#FFFFFF" BorderBrush="#CBD5E1"/>
-                    </StackPanel>
-
-                    <!-- 3. Proprietor / Owner Name -->
-                    <StackPanel Margin="0,0,0,14">
-                        <TextBlock Text="Proprietor / Malik Name (مالک یا آڑھتی کا نام)" FontWeight="Bold" FontSize="12.5" Foreground="#1E293B" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding Proprietor, UpdateSourceTrigger=PropertyChanged}" 
-                                 FontSize="13" Padding="10,8" Background="#FFFFFF" BorderBrush="#CBD5E1"/>
-                    </StackPanel>
-
-                    <!-- 4. Address & Location -->
-                    <StackPanel Margin="0,0,0,14">
-                        <TextBlock Text="Market / Shop Address (دکان کا پتہ یا غلہ منڈی)" FontWeight="Bold" FontSize="12.5" Foreground="#1E293B" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" 
-                                 FontSize="13" Padding="10,8" Background="#FFFFFF" BorderBrush="#CBD5E1"/>
-                    </StackPanel>
-
-                    <!-- 5. Phone / Mobile Numbers & License -->
-                    <Grid Margin="0,0,0,18">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="14"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Phone -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Phone / Mobile Numbers (موبائل نمبرز) *" FontWeight="Bold" FontSize="12.5" Foreground="#1E293B" Margin="0,0,0,4"/>
-                            <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" 
-                                     FontSize="13" Padding="10,8" Background="#FFFFFF" BorderBrush="#CBD5E1"/>
-                        </StackPanel>
-
-                        <!-- License / Reg # -->
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Mandi License / Reg # (لائسنس یا رجسٹریشن)" FontWeight="Bold" FontSize="12.5" Foreground="#1E293B" Margin="0,0,0,4"/>
-                            <TextBox Text="{Binding RegistrationNo, UpdateSourceTrigger=PropertyChanged}" 
-                                     FontSize="13" Padding="10,8" Background="#FFFFFF" BorderBrush="#CBD5E1"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Live Print Preview Box -->
-                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1.5" CornerRadius="10" Padding="16,12">
-                        <StackPanel>
-                            <TextBlock Text="پرنٹ ہیڈر کا پری ویو (Live Print Preview):" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="0,0,0,6"/>
-                            <Border Background="White" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="16,10">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding BusinessNameUrdu}" FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="20" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding BusinessName}" FontSize="14" FontWeight="Bold" Foreground="#1E293B" HorizontalAlignment="Center" Margin="0,2,0,2"/>
-                                    <TextBlock Text="{Binding Address, StringFormat='📍 {0}'}" FontSize="12" Foreground="#475569" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding Phone, StringFormat='📞 {0}'}" FontSize="12" FontWeight="SemiBold" Foreground="#0F766E" HorizontalAlignment="Center" Margin="0,2,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
+            <Border Grid.Row="1" Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="0,0,0,1" Padding="20,8">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Content="کاروباری پروفائل (Profile Info)" Style="{StaticResource MaterialDesignTabRadioButton}" 
+                                 IsChecked="True" FontSize="13" FontWeight="Bold" Margin="0,0,12,0" Checked="Tab1_Checked"/>
+                    <RadioButton Content="پرنٹر و سسٹم ترتیبات (Preferences)" Style="{StaticResource MaterialDesignTabRadioButton}" 
+                                 FontSize="13" FontWeight="Bold" Margin="0,0,12,0" Checked="Tab2_Checked"/>
+                    <RadioButton Content="رسید اردو فوٹرز (Urdu Footers)" Style="{StaticResource MaterialDesignTabRadioButton}" 
+                                 FontSize="13" FontWeight="Bold" Checked="Tab3_Checked"/>
                 </StackPanel>
-            </ScrollViewer>
+            </Border>
 
             <!-- ══════════════════════════════════════════════════════════ -->
-            <!--                      FOOTER ACTIONS                        -->
+            <!--                         TAB BODY                           -->
             <!-- ══════════════════════════════════════════════════════════ -->
-            <Border Grid.Row="2" Background="#F8FAFC" CornerRadius="0,0,18,18" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="22,14">
+            <Grid Grid.Row="2" Margin="24,16">
+                <!-- Tab 1: Profile & Company Info -->
+                <ScrollViewer x:Name="Tab1Panel" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- English & Urdu Business Name -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Business Name (English)" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding BusinessName, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="کاروبار / آڑھت کا نام (اردو)" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="15"
+                                     Text="{Binding BusinessNameUrdu, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+
+                        <!-- Proprietor & Registration -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Proprietor / مالک یا آڑھتی کا نام" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding Proprietor, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="License / Registration No." 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding RegistrationNo, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+
+                        <!-- Address & City -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Address / دکان و منڈی کا پتہ" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="City / شہر" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding City, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+
+                        <!-- Phones & Mobile -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Phone 1 (فون نمبر ۱)" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="Phone 2 (فون نمبر ۲)" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding Phone2, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="4" materialDesign:HintAssist.Hint="Mobile / موبائل نمبر" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding Mobile, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+
+                        <!-- Tax Numbers NTN / STN -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="NTN (نیشنل ٹیکس نمبر)" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding Ntn, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="2" materialDesign:HintAssist.Hint="STN / سیلز ٹیکس نمبر" 
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Text="{Binding Stn, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Tab 2: System, Printer & Auto-Backup -->
+                <ScrollViewer x:Name="Tab2Panel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- Printing Options -->
+                        <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="Printer Settings / پرنٹنگ کے اختیارات" FontWeight="Bold" FontSize="13" Foreground="#0284C7" Margin="0,0,0,10"/>
+                                <CheckBox Content="Thermal Printer Receipt Mode (تھرمل پرنٹر فارمیٹ)" IsChecked="{Binding ThermalPrint}" Margin="0,0,0,8"/>
+                                <CheckBox Content="Direct Print Voucher on Save (بغیر ڈائیلاگ فوری پرنٹ)" IsChecked="{Binding DirectPrintVoucher}" Margin="0,0,0,8"/>
+                                <CheckBox Content="Auto Print Vouchers (خودکار پرنٹنگ)" IsChecked="{Binding AutoPrint}" Margin="0,0,0,8"/>
+                                <CheckBox Content="Show Report Grid Lines (رپورٹ پر گرڈ لائنز دکھائیں)" IsChecked="{Binding ShowReportBodyLines}" Margin="0,0,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Automated Backup Options -->
+                        <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14">
+                            <StackPanel>
+                                <TextBlock Text="Hourly Auto-Backup / خودکار گھنٹہ وار بیک اپ" FontWeight="Bold" FontSize="13" Foreground="#0284C7" Margin="0,0,0,10"/>
+                                <CheckBox Content="Enable Hourly Automatic Database Backup (گھنٹہ وار بیک اپ فعال کریں)" IsChecked="{Binding HourlyBackupEnabled}" Margin="0,0,0,10"/>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" materialDesign:HintAssist.Hint="Interval (Minutes)" 
+                                             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                             Text="{Binding HourlyBackupTime, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,14,0"/>
+                                    <TextBox Grid.Column="1" materialDesign:HintAssist.Hint="Backup Destination Folder" 
+                                             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                             Text="{Binding BackupPath, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Tab 3: Urdu Footers -->
+                <ScrollViewer x:Name="Tab3Panel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="Urdu Footer Terms for Invoices / بلوں و رسیدوں پر نیچے درج ہونے والی شرائط" 
+                                   FontWeight="Bold" FontSize="13" Foreground="#334155" Margin="0,0,0,10"/>
+
+                        <!-- General Sale Footer -->
+                        <TextBox materialDesign:HintAssist.Hint="جنرل سیل انوائس فوٹر (General Sale Footer)" 
+                                 Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,12"
+                                 FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="14"
+                                 Text="{Binding FooterGenUrdu, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Crops Sale Footer -->
+                        <TextBox materialDesign:HintAssist.Hint="فصل خریداری و فروخت فوٹر (Crops Sale / Purchase Footer)" 
+                                 Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,12"
+                                 FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="14"
+                                 Text="{Binding FooterCropUrdu, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Pestro Footer -->
+                        <TextBox materialDesign:HintAssist.Hint="پیسٹیسائڈ و کھاد فوٹر (Pesticide / Fertilizer Footer)" 
+                                 Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,12"
+                                 FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="14"
+                                 Text="{Binding FooterPestUrdu, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <!-- Brokerage Footer -->
+                        <TextBox materialDesign:HintAssist.Hint="بروکریج فوٹر (Brokerage Invoice Footer)" 
+                                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                 FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="14"
+                                 Text="{Binding FooterBrokUrdu, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                       FOOTER ACTIONS                       -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border Grid.Row="3" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="20,14" CornerRadius="0,0,18,18">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="1" Click="SaveButton_Click" Cursor="Hand" Style="{StaticResource ModernPrimaryButton}" Height="38" Padding="26,0">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="ContentSaveCheckOutline" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBlock Text="Save Profile (محفوظ کریں)" FontSize="13.5" FontWeight="Bold" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Height="38" Padding="14,0" Margin="0,0,10,0"
+                                Click="CloseButton_Click" Foreground="#64748B" BorderBrush="#CBD5E1">
+                            <TextBlock Text="Close / بند کریں"/>
+                        </Button>
+
+                        <Button Command="{Binding SaveCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                                Background="{StaticResource BrushPrimaryNavy}" Foreground="#FFFFFF" BorderThickness="0" Height="38" Padding="20,0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="ContentSaveCheck" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="Save Profile / محفوظ کریں" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Border>
-
         </Grid>
     </Border>
 </Window>

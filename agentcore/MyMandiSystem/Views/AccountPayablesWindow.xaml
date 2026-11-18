@@ -5,235 +5,415 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="{Binding WindowTitle}" 
-        Height="540" Width="680"
+        Title="{Binding WindowTitle}"
+        Width="780"
+        SizeToContent="Height"
+        MinHeight="540"
+        MaxHeight="820"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
-        Background="#EAEAEA"
-        FontFamily="Segoe UI" FontSize="13">
+        ResizeMode="CanMinimize"
+        Background="{StaticResource BrushSurfaceBg}"
+        FontFamily="Segoe UI"
+        FontSize="13"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
     <Window.Resources>
-        <!-- Classic / ERP Styled Button -->
-        <Style x:Key="ClassicReportButton" TargetType="Button">
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="MinWidth" Value="88"/>
-            <Setter Property="Margin" Value="4,0"/>
-            <Setter Property="Background" Value="#F2F2F2"/>
-            <Setter Property="BorderBrush" Value="#707070"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="btnBorder" CornerRadius="3" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="8,4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#E0EEF8"/>
-                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#0078D7"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#CCE4F7"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <Style x:Key="SectionCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BrushSurfaceCard}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceBorderDark}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="16,14" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+            <Setter Property="Effect" Value="{StaticResource EffectCardShadow}" />
+        </Style>
+
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource BrushPrimarySlate}" />
+            <Setter Property="Margin" Value="0,0,0,5" />
+        </Style>
+
+        <Style x:Key="CardTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{StaticResource BrushPrimaryNavy}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="FilterComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignOutlinedComboBox}">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="FilterTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="FilterDatePickerStyle" TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignOutlinedDatePicker}">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
     </Window.Resources>
 
-    <Grid>
-        <DockPanel LastChildFill="True">
+    <DockPanel LastChildFill="True">
 
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!--                       HEADER BANNER                        -->
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <Border DockPanel.Dock="Top" Height="82" Background="#0F172A">
-                <Grid>
-                    <Grid.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#0F172A" Offset="0"/>
-                            <GradientStop Color="#1E293B" Offset="0.6"/>
-                            <GradientStop Color="#1E3A8A" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Grid.Background>
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!--                 AGENTCORE MODERN HEADER BANNER             -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <Border DockPanel.Dock="Top" Padding="20,14">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#0F172A" Offset="0" />
+                    <GradientStop Color="#1E293B" Offset="0.65" />
+                    <GradientStop Color="#0F766E" Offset="1" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-                    <!-- Title Header -->
-                    <StackPanel VerticalAlignment="Center" Margin="24,0,0,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Width="34" Height="34" CornerRadius="8" Background="#1E3A8A" Margin="0,0,10,0">
-                                <materialDesign:PackIcon Kind="AccountCashOutline" Width="22" Height="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock Text="{Binding HeaderTitle}" FontSize="21" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Text="واجب الادا / واجب الوصول کھاتہ جات تفصیلی لسٹ" FontSize="14" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
-                    </StackPanel>
+                <Border Grid.Column="0" Width="44" Height="44" CornerRadius="10" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" Margin="0,0,14,0">
+                    <materialDesign:PackIcon Kind="AccountCashOutline" Width="24" Height="24" Foreground="#2DD4BF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
 
-                    <!-- Right Graphic Emblem -->
-                    <Border HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,24,0">
-                        <Border Width="48" Height="48" CornerRadius="12" Background="#1E293B" BorderBrush="#334155" BorderThickness="1.5">
-                            <materialDesign:PackIcon Kind="Tractor" Width="28" Height="28" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding HeaderTitle}" FontSize="19" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center" />
+                        <Border Background="#0D9488" CornerRadius="5" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding ModeBadgeText}" FontSize="10.5" FontWeight="Bold" Foreground="#FFFFFF" />
                         </Border>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!--                     BOTTOM BUTTONS BAR                     -->
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <Border DockPanel.Dock="Bottom" Background="#DCDCDC" BorderBrush="#B8B8B8" BorderThickness="0,1,0,0" Padding="14,10">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                        <!-- Preview Button -->
-                        <Button Style="{StaticResource ClassicReportButton}" Command="{Binding PreviewCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="FileEyeOutline" Width="16" Height="16" Foreground="#005A9E" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock Text="Preview" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-
-                        <!-- Print Button -->
-                        <Button Style="{StaticResource ClassicReportButton}" Command="{Binding PrintCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Printer" Width="16" Height="16" Foreground="#333333" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock Text="Print" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-
-                        <!-- Close Button -->
-                        <Button Style="{StaticResource ClassicReportButton}" Command="{Binding CloseCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="CloseCircle" Width="16" Height="16" Foreground="#D13438" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <TextBlock Text="Close" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
                     </StackPanel>
+                    <TextBlock Text="{Binding HeaderSubtitle}" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0" />
+                </StackPanel>
 
-                    <!-- Right Checkboxes (Urdu Print, Send SMS) -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <CheckBox Content="Urdu Print" IsChecked="{Binding UrduPrint}" VerticalAlignment="Center" Margin="0,0,16,0" FontWeight="SemiBold"/>
-                        <CheckBox Content="Send SMS" IsChecked="{Binding SendSMS}" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                <Border Grid.Column="2" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="8" Padding="12,6" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="CalendarRange" Width="16" Height="16" Foreground="#38BDF8" VerticalAlignment="Center" Margin="0,0,7,0" />
+                        <TextBlock Text="{Binding DateModeDisplayText}" FontSize="12" FontWeight="SemiBold" Foreground="#E2E8F0" VerticalAlignment="Center" />
                     </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!--                      FORM CONTROLS                         -->
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <Grid Background="#F5F5F5" Margin="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/> <!-- Date & Season Row -->
-                    <RowDefinition Height="*"/>    <!-- Filter Grid (Party Type, Group, City, Town, Sector, Amount) -->
-                    <RowDefinition Height="Auto"/> <!-- Sorting & Options -->
-                </Grid.RowDefinitions>
-
-                <!-- 1. Top Section: Date Radios (Left) + Crop Season (Right) -->
-                <Border Grid.Row="0" Background="#ECECEC" BorderBrush="#D0D0D0" BorderThickness="0,0,0,1" Padding="28,12">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Date Radios -->
-                        <StackPanel Grid.Column="0">
-                            <RadioButton Content="All Dates" IsChecked="{Binding IsAllDates}" Margin="0,2,0,6" FontWeight="SemiBold"/>
-                            
-                            <StackPanel Orientation="Horizontal" Margin="0,2,0,6">
-                                <RadioButton Content="Till Date" IsChecked="{Binding IsTillDate}" FontWeight="SemiBold" Width="90" VerticalAlignment="Center"/>
-                                <DatePicker SelectedDate="{Binding TillDate}" IsEnabled="{Binding IsTillDate}" Width="120" Height="26" VerticalAlignment="Center"/>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
-                                <RadioButton Content="Date Range" IsChecked="{Binding IsDateRange}" FontWeight="SemiBold" Width="90" VerticalAlignment="Center"/>
-                                <DatePicker SelectedDate="{Binding FromDate}" IsEnabled="{Binding IsDateRange}" Width="110" Height="26" VerticalAlignment="Center"/>
-                                <TextBlock Text="To" VerticalAlignment="Center" Margin="6,0,6,0" IsEnabled="{Binding IsDateRange}"/>
-                                <DatePicker SelectedDate="{Binding ToDate}" IsEnabled="{Binding IsDateRange}" Width="110" Height="26" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- Crop Season (Right) -->
-                        <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="20,4,0,0" Width="200">
-                            <TextBlock Text="Crop Season" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                            <ComboBox ItemsSource="{Binding CropSeasons}" SelectedItem="{Binding SelectedCropSeason}" Height="28" Padding="6,2"/>
-                        </StackPanel>
-                    </Grid>
                 </Border>
-
-                <!-- 2. Middle Section (Party, City, Town, Sector, Amount) -->
-                <Grid Grid.Row="1" Margin="28,14,28,10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Row 1: Party Type (Left) | Party Group (Right) -->
-                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
-                        <TextBlock Text="Party Type" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                        <ComboBox ItemsSource="{Binding PartyTypes}" SelectedItem="{Binding SelectedPartyType}" Height="28" Padding="6,2"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,10">
-                        <TextBlock Text="Party Group" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                        <ComboBox ItemsSource="{Binding PartyGroups}" SelectedItem="{Binding SelectedPartyGroup}" Height="28" Padding="6,2"/>
-                    </StackPanel>
-
-                    <!-- Row 2: Amount Greator Then (Left) | City (Right) -->
-                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
-                        <TextBlock Text="Amount Greator Then" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding AmountGreaterThan, UpdateSourceTrigger=PropertyChanged}" Height="28" VerticalContentAlignment="Center" Padding="6,2" FontWeight="Bold" Foreground="#1E3A8A"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,10">
-                        <TextBlock Text="City" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                        <ComboBox ItemsSource="{Binding Cities}" SelectedItem="{Binding SelectedCity}" Height="28" Padding="6,2"/>
-                    </StackPanel>
-
-                    <!-- Row 3: Town Name (Left) | Sector Name (Right) -->
-                    <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,6">
-                        <TextBlock Text="Town Name" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                        <ComboBox ItemsSource="{Binding Towns}" SelectedItem="{Binding SelectedTown}" Height="28" Padding="6,2"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,6">
-                        <TextBlock Text="Sector Name" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                        <ComboBox ItemsSource="{Binding Sectors}" SelectedItem="{Binding SelectedSector}" Height="28" Padding="6,2"/>
-                    </StackPanel>
-                </Grid>
-
-                <!-- 3. Bottom Options & Sorting Row -->
-                <Border Grid.Row="2" Background="#ECECEC" BorderBrush="#D0D0D0" BorderThickness="0,1,0,0" Padding="28,12">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Sorting Radios -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <RadioButton Content="Sort By Account Name" IsChecked="{Binding IsSortByAccountName}" FontWeight="SemiBold" Margin="0,0,20,0"/>
-                            <RadioButton Content="Sort By Account ID" IsChecked="{Binding IsSortByAccountId}" FontWeight="SemiBold"/>
-                        </StackPanel>
-
-                        <!-- Show Only Final Balance -->
-                        <CheckBox Grid.Column="1" Content="Show Only Final Balance" IsChecked="{Binding ShowOnlyFinalBalance}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    </Grid>
-                </Border>
-
             </Grid>
-        </DockPanel>
-    </Grid>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!--                    BOTTOM ACTION BAR                       -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <Border DockPanel.Dock="Bottom" Background="#FFFFFF" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="0,1,0,0" Padding="20,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="9,4">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <materialDesign:PackIcon Kind="KeyboardOutline" Width="15" Height="15" Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Enter: Next Field   |   Ctrl+Q: Close" FontSize="11.5" Foreground="#475569" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    <ProgressBar IsIndeterminate="True" Width="90" Height="4" Margin="14,0,0,0"
+                                 Foreground="{StaticResource BrushAccentTeal}"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="CmdPreview"
+                            Command="{Binding PreviewCommand}"
+                            MinWidth="112" Margin="0,0,10,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ModernPrimaryButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="EyeOutline" Width="17" Height="17" VerticalAlignment="Center" Margin="0,0,7,0" />
+                            <TextBlock Text="Preview" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="CmdPrint"
+                            Command="{Binding PrintCommand}"
+                            MinWidth="106" Margin="0,0,10,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ModernSuccessButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="PrinterOutline" Width="17" Height="17" VerticalAlignment="Center" Margin="0,0,7,0" />
+                            <TextBlock Text="Print" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="CmdClose"
+                            Command="{Binding CloseCommand}"
+                            Style="{StaticResource ModernDangerButton}"
+                            MinWidth="96">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="CloseCircleOutline" Width="17" Height="17" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Close" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!--                       MAIN FORM BODY                       -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="20,16,20,8">
+
+                <!-- 1. Date Mode & Conditional Date Inputs / Crop Season -->
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <materialDesign:PackIcon Kind="CalendarCheckOutline" Width="17" Height="17" Foreground="{StaticResource BrushAccentTeal}" VerticalAlignment="Center" Margin="0,0,7,0" />
+                            <TextBlock Text="Report Period &amp; Season" Style="{StaticResource CardTitleStyle}" />
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- AgenSoft Date Radios (OptAllDates default True) -->
+                            <Border Grid.Column="0" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10,6" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton x:Name="OptAllDates" GroupName="DateMode" Content="All Dates"
+                                                 IsChecked="{Binding IsAllDates}" FontWeight="SemiBold"
+                                                 Foreground="{StaticResource BrushPrimaryNavy}" Margin="2,0,16,0" VerticalAlignment="Center" />
+                                    <RadioButton x:Name="OptTillDate" GroupName="DateMode" Content="Till Date"
+                                                 IsChecked="{Binding IsTillDate}" FontWeight="SemiBold"
+                                                 Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,16,0" VerticalAlignment="Center" />
+                                    <RadioButton x:Name="OptDateRange" GroupName="DateMode" Content="Date Range"
+                                                 IsChecked="{Binding IsDateRange}" FontWeight="SemiBold"
+                                                 Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,4,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Conditional Date Pickers -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <!-- Single Date (DtpSingleDate) -->
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                            Visibility="{Binding ShowSingleDatePicker, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="Till Date:" Style="{StaticResource FieldLabelStyle}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <DatePicker x:Name="DtpSingleDate"
+                                                xml:lang="en-GB"
+                                                SelectedDate="{Binding SingleDate}"
+                                                Style="{StaticResource FilterDatePickerStyle}"
+                                                Width="155" />
+                                </StackPanel>
+
+                                <!-- Date Range Frame (FrmDateRange) -->
+                                <StackPanel x:Name="FrmDateRange" Orientation="Horizontal" VerticalAlignment="Center"
+                                            Visibility="{Binding ShowDateRangeFrame, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="From:" Style="{StaticResource FieldLabelStyle}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                    <DatePicker x:Name="DtpFrom"
+                                                xml:lang="en-GB"
+                                                SelectedDate="{Binding FromDate}"
+                                                Style="{StaticResource FilterDatePickerStyle}"
+                                                Width="148" Margin="0,0,12,0" />
+
+                                    <TextBlock Text="To:" Style="{StaticResource FieldLabelStyle}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                    <DatePicker x:Name="DtpTo"
+                                                xml:lang="en-GB"
+                                                SelectedDate="{Binding ToDate}"
+                                                Style="{StaticResource FilterDatePickerStyle}"
+                                                Width="148" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Conditional Crop Season Group (visible only if EnableCropSeason = 1) -->
+                        <StackPanel x:Name="GrpCropSeason" Margin="0,12,0,0"
+                                    Visibility="{Binding ShowCropSeason, Converter={StaticResource BoolToVis}}">
+                            <Separator Margin="0,0,0,10" Background="#E2E8F0" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Crop Season" Style="{StaticResource FieldLabelStyle}" VerticalAlignment="Center" Margin="0" />
+                                <ComboBox x:Name="CmbCropsSeason"
+                                          Grid.Column="1"
+                                          ItemsSource="{Binding CropSeasons}"
+                                          SelectedItem="{Binding SelectedCropSeason}"
+                                          DisplayMemberPath="Name"
+                                          Style="{StaticResource FilterComboBoxStyle}" />
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 2. Exact 2-Column AgenSoft Party & Location Filters -->
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <materialDesign:PackIcon Kind="FilterVariant" Width="17" Height="17" Foreground="{StaticResource BrushAccentIndigo}" VerticalAlignment="Center" Margin="0,0,7,0" />
+                            <TextBlock Text="Account, Amount &amp; Location Filters" Style="{StaticResource CardTitleStyle}" />
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="18" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="12" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="12" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Row 1 Left: Party Type -->
+                            <StackPanel Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="Party Type" Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox x:Name="CmbParties"
+                                          ItemsSource="{Binding PartyTypes}"
+                                          SelectedItem="{Binding SelectedPartyType}"
+                                          DisplayMemberPath="Name"
+                                          Style="{StaticResource FilterComboBoxStyle}" />
+                            </StackPanel>
+
+                            <!-- Row 1 Right: Party Group -->
+                            <StackPanel Grid.Row="0" Grid.Column="2">
+                                <TextBlock Text="Party Group" Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox x:Name="cmbPartyGroup"
+                                          ItemsSource="{Binding PartyGroups}"
+                                          SelectedItem="{Binding SelectedPartyGroup}"
+                                          DisplayMemberPath="Name"
+                                          Style="{StaticResource FilterComboBoxStyle}" />
+                            </StackPanel>
+
+                            <!-- Row 2 Left: Amount Greator Then -->
+                            <StackPanel Grid.Row="2" Grid.Column="0">
+                                <TextBlock Text="Amount Greator Then" Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox x:Name="TxtGreaterThen"
+                                         Text="{Binding GreaterThanAmountText, UpdateSourceTrigger=PropertyChanged}"
+                                         TextAlignment="Right"
+                                         GotKeyboardFocus="TxtGreaterThen_GotKeyboardFocus"
+                                         Style="{StaticResource FilterTextBoxStyle}" />
+                            </StackPanel>
+
+                            <!-- Row 2 Right: City -->
+                            <StackPanel Grid.Row="2" Grid.Column="2">
+                                <TextBlock Text="City" Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox x:Name="CmbCity"
+                                          ItemsSource="{Binding Cities}"
+                                          SelectedItem="{Binding SelectedCity}"
+                                          Style="{StaticResource FilterComboBoxStyle}" />
+                            </StackPanel>
+
+                            <!-- Row 3 Left: Town Name -->
+                            <StackPanel Grid.Row="4" Grid.Column="0">
+                                <TextBlock Text="Town Name" Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox x:Name="CmbTown"
+                                          ItemsSource="{Binding Towns}"
+                                          SelectedItem="{Binding SelectedTown}"
+                                          DisplayMemberPath="Name"
+                                          Style="{StaticResource FilterComboBoxStyle}" />
+                            </StackPanel>
+
+                            <!-- Row 3 Right: Sector Name -->
+                            <StackPanel Grid.Row="4" Grid.Column="2">
+                                <TextBlock Text="Sector Name" Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox x:Name="CmbSector"
+                                          ItemsSource="{Binding Sectors}"
+                                          SelectedItem="{Binding SelectedSector}"
+                                          DisplayMemberPath="Name"
+                                          Style="{StaticResource FilterComboBoxStyle}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 3. Sorting & Statement Options -->
+                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,4">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <materialDesign:PackIcon Kind="TuneVariant" Width="17" Height="17" Foreground="{StaticResource BrushAccentSky}" VerticalAlignment="Center" Margin="0,0,7,0" />
+                            <TextBlock Text="Sorting &amp; Statement Options" Style="{StaticResource CardTitleStyle}" />
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="18" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Sorting Radios (Frame3) -->
+                            <Border Grid.Column="0" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                                <StackPanel>
+                                    <TextBlock Text="Sort Order" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,6" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton x:Name="OptByName" GroupName="SortMode" Content="Sort By Account Name"
+                                                     IsChecked="{Binding SortByName}" Margin="0,0,16,0"
+                                                     Foreground="{StaticResource BrushPrimaryNavy}" FontWeight="Medium" />
+                                        <RadioButton x:Name="OptByAccID" GroupName="SortMode" Content="Sort By Account ID"
+                                                     IsChecked="{Binding SortByAccountId}"
+                                                     Foreground="{StaticResource BrushPrimaryNavy}" FontWeight="Medium" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Output Checkboxes -->
+                            <Border Grid.Column="2" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                                <StackPanel>
+                                    <TextBlock Text="Report Mode &amp; Actions" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,6" />
+                                    <WrapPanel Orientation="Horizontal">
+                                        <CheckBox x:Name="ChkOnlyFinals" Content="Show Only Final Balance"
+                                                  IsChecked="{Binding ShowOnlyFinalBalance}"
+                                                  Margin="0,0,16,4" FontWeight="Medium" Foreground="{StaticResource BrushPrimaryNavy}" />
+                                        <CheckBox x:Name="ChkFinalBalances" Content="Show Final Balances"
+                                                  IsChecked="{Binding ShowFinalBalances}"
+                                                  Visibility="{Binding ShowFinalBalancesCheckbox, Converter={StaticResource BoolToVis}}"
+                                                  Margin="0,0,16,4" FontWeight="Medium" Foreground="{StaticResource BrushPrimaryNavy}" />
+                                        <CheckBox x:Name="ChkUrdu" Content="Urdu Print"
+                                                  IsChecked="{Binding IsUrduPrint}"
+                                                  Visibility="{Binding ShowUrduCheckbox, Converter={StaticResource BoolToVis}}"
+                                                  Margin="0,0,16,4" FontWeight="Medium" Foreground="{StaticResource BrushPrimaryNavy}" />
+                                        <CheckBox x:Name="ChksmsEnabled" Content="Send SMS"
+                                                  IsChecked="{Binding SendSms}"
+                                                  Margin="0,0,4,4" FontWeight="Medium" Foreground="{StaticResource BrushPrimaryNavy}" />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
 </Window>

@@ -116,18 +116,33 @@ public partial class PestroViewModel : ObservableObject
         InvoiceDetails.Add(detail);
     }
 
-    public async void OnRowProductChanged(PestroInvoiceDetail detail)
+    [RelayCommand]
+    private void RemoveRow(PestroInvoiceDetail detail)
     {
-        if (detail.ProductId != 0)
+        if (detail != null)
         {
-            var batches = await _pestroService.GetActiveBatchesAsync(detail.ProductId);
-            // In a better UI, this would populate a per-row dropdown or a global list
+            InvoiceDetails.Remove(detail);
+            CalculateTotals();
         }
+    }
+
+    public void OnRowChanged(PestroInvoiceDetail detail)
+    {
+        detail.Amount = detail.Quantity * detail.Rate;
+        CalculateTotals();
+    }
+
+    public void CalculateTotals()
+    {
+        CurrentInvoice.SubTotal = InvoiceDetails.Sum(d => d.Amount);
+        CurrentInvoice.NetAmount = CurrentInvoice.SubTotal - CurrentInvoice.DiscountAmount;
+        OnPropertyChanged(nameof(CurrentInvoice));
     }
 
     [RelayCommand]
     private async Task SaveInvoiceAsync()
     {
+        CalculateTotals();
         CurrentInvoice.Details = InvoiceDetails.Where(d => d.ProductId != 0).ToList();
         await _pestroService.SavePestroInvoiceAsync(CurrentInvoice);
         await LoadInvoicesAsync();

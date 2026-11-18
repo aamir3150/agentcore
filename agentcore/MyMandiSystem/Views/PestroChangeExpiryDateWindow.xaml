@@ -1,0 +1,201 @@
+<Window x:Class="MyMandiSystem.Views.PestroChangeExpiryDateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Change Expiry Date - تبدیلی ایکسپائری تاریخ" 
+        Height="620" Width="850"
+        MinHeight="500" MinWidth="750"
+        WindowStartupLocation="CenterScreen"
+        Background="#EAEAEA"
+        FontFamily="Segoe UI" FontSize="11.5">
+
+    <Window.Resources>
+        <Style x:Key="ClassicButton" TargetType="Button">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Background" Value="#F2F2F2"/>
+            <Setter Property="BorderBrush" Value="#707070"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="3" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="8,2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#E0EEF8"/>
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#059669"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#A7F3D0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,1"/>
+            <Setter Property="BorderBrush" Value="#7A7A7A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,1"/>
+            <Setter Property="BorderBrush" Value="#7A7A7A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#111111"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="12,10">
+        <DockPanel LastChildFill="True">
+
+            <!-- TOP BANNER -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#C0C0C0" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,0,0,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <materialDesign:PackIcon Kind="CalendarClock" Width="32" Height="32" Foreground="#0284C7" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Change Expiry Date - تبدیلی ایکسپائری تاریخ" FontSize="18" FontWeight="Bold" Foreground="#0369A1"/>
+                        <TextBlock Text="Update authentic batch expiry dates across CurrentStockPestro, PurchasesBatch, &amp; OpeningBatch" FontSize="11" Foreground="#555555"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- BOTTOM TOOLBAR -->
+            <Border DockPanel.Dock="Bottom" Background="#DCDCDC" BorderBrush="#B8B8B8" BorderThickness="0,1,0,0" Padding="8,8" Margin="0,8,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Style="{StaticResource ClassicButton}" Command="{Binding UpdateExpiryDateCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="CheckCircleOutline" Width="14" Height="14" Foreground="#059669" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Update Expiry (اپڈیٹ کریں)" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ClassicButton}" Command="{Binding CloseCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="CloseBoxOutline" Width="14" Height="14" Foreground="#DC2626" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Close (بند کریں)" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- PRODUCT SELECTOR & BATCH EDIT CARD -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#C0C0C0" BorderThickness="1" CornerRadius="4" Padding="12,10" Margin="0,0,0,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Product selector -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="380"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Select Pesticide / Product (پروڈکٹ منتخب کریں):" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                            <ComboBox ItemsSource="{Binding AvailableProducts}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedProduct}" Height="26"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Batch update controls -->
+                    <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="3" Padding="10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Text="Selected Batch (منتخب بیچ):" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                                <TextBox Text="{Binding SelectedBatchNo}" IsReadOnly="True" Background="#EEF2F6" FontWeight="Bold"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                                <TextBlock Text="Current Expiry (موجودہ):" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                                <TextBox Text="{Binding CurrentExpiryDate, StringFormat='dd/MM/yyyy'}" IsReadOnly="True" Background="#EEF2F6"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                                <TextBlock Text="New Expiry Date (نئی تاریخ)*:" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                                <DatePicker SelectedDate="{Binding NewExpiryDate}" Height="24"/>
+                            </StackPanel>
+
+                            <Button Grid.Column="3" Style="{StaticResource ClassicButton}" Command="{Binding UpdateExpiryDateCommand}" VerticalAlignment="Bottom" Height="26" Margin="10,0,0,0" HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="CalendarSync" Width="14" Height="14" Foreground="#0284C7" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Apply New Date (تبدیل کریں)" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- BATCHES GRID -->
+            <Border Background="#FFFFFF" BorderBrush="#C0C0C0" BorderThickness="1" CornerRadius="4">
+                <DockPanel LastChildFill="True">
+                    <TextBlock DockPanel.Dock="Top" Text="Available Batches in Current Stock (موجودہ اسٹاک بیچز):" FontWeight="Bold" Margin="10,8,0,4" Foreground="#334155"/>
+                    <DataGrid ItemsSource="{Binding Batches}" SelectedItem="{Binding SelectedBatch}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" GridLinesVisibility="All" HeadersVisibility="Column" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Batch No" Binding="{Binding BatchNo}" Width="160" FontWeight="SemiBold"/>
+                            <DataGridTextColumn Header="Expiry Date" Binding="{Binding ExpiryDate, StringFormat='dd/MM/yyyy'}" Width="150">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Foreground" Value="#0369A1"/>
+                                        <Setter Property="Margin" Value="4,0,0,0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Available Qty" Binding="{Binding Quantity, StringFormat=N0}" Width="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#047857"/>
+                                        <Setter Property="Margin" Value="0,0,6,0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Cost Price" Binding="{Binding Cost, StringFormat=N2}" Width="130">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Margin" Value="0,0,6,0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+        </DockPanel>
+    </Grid>
+</Window>

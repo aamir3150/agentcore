@@ -9,6 +9,7 @@ public class VoucherDetail : AuditBase
     public virtual Voucher Voucher { get; set; } = null!;
     public int LineNo { get; set; }
     public int AccountId { get; set; }
+    public string? AccountNo { get; set; }
     public virtual Account Account { get; set; } = null!;
     public string? Narration { get; set; }
     public decimal Debit { get; set; }

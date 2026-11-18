@@ -99,8 +99,8 @@ public partial class MasterDataViewModel : ObservableObject
     }
 
     // --- UNITS ---
-    [RelayCommand] private void AddUnit() { CurrentUnit = new Unit(); IsUnitFormVisible = true; }
-    [RelayCommand] private void EditUnit(Unit unit) { if (unit != null) { CurrentUnit = new Unit { Id = unit.Id, Name = unit.Name, ShortName = unit.ShortName }; IsUnitFormVisible = true; } }
+    [RelayCommand] private void AddUnit() { CurrentUnit = new Unit { Multiplier = 1.0m }; IsUnitFormVisible = true; }
+    [RelayCommand] private void EditUnit(Unit unit) { if (unit != null) { CurrentUnit = new Unit { Id = unit.Id, Name = unit.Name, ShortName = unit.ShortName, Multiplier = unit.Multiplier ?? 1.0m }; IsUnitFormVisible = true; } }
     [RelayCommand] private void CancelUnit() => IsUnitFormVisible = false;
 
     [RelayCommand]
@@ -111,7 +111,13 @@ public partial class MasterDataViewModel : ObservableObject
         else 
         {
             var existing = Units.FirstOrDefault(u => u.Id == CurrentUnit.Id);
-            if (existing != null) { existing.Name = CurrentUnit.Name; existing.ShortName = CurrentUnit.ShortName; await _catalogService.UpdateUnitAsync(existing); }
+            if (existing != null) 
+            { 
+                existing.Name = CurrentUnit.Name; 
+                existing.ShortName = CurrentUnit.ShortName; 
+                existing.Multiplier = CurrentUnit.Multiplier ?? 1.0m;
+                await _catalogService.UpdateUnitAsync(existing); 
+            }
         }
         IsUnitFormVisible = false;
         await LoadAllDataAsync();

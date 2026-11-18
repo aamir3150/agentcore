@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:MyMandiSystem.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="700" d:DesignWidth="1000"
+             d:DesignHeight="700" d:DesignWidth="1050"
              TextElement.Foreground="{StaticResource BrushTextPrimary}"
              TextElement.FontWeight="Regular"
              TextElement.FontSize="13"
@@ -16,111 +16,306 @@
     <Border Margin="12" Background="#FFFFFF" CornerRadius="16" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Effect="{StaticResource EffectCardShadow}">
         <Grid Margin="20">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/> <!-- Header -->
+                <RowDefinition Height="Auto"/> <!-- Filter Controls (AgenSoft Parity) -->
+                <RowDefinition Height="*"/>    <!-- DataGrid -->
+                <RowDefinition Height="Auto"/> <!-- Totals & Action Buttons -->
             </Grid.RowDefinitions>
             
-            <!-- Header Banner -->
-            <Grid Grid.Row="0" Margin="0,0,0,16">
+            <!-- 1. Header Banner -->
+            <Grid Grid.Row="0" Margin="0,0,0,14">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Border Width="42" Height="42" CornerRadius="10" Background="{StaticResource BrushGradientIndigo}" Margin="0,0,12,0" VerticalAlignment="Center">
                     <materialDesign:PackIcon Kind="ScaleBalance" Width="24" Height="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="Fiscal Opening Balances &amp; Initial Stock" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
-                    <TextBlock Text="Setup starting balances for general ledgers, bank accounts, and commodity inventory" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                    <TextBlock Text="Accounts Opening Balances" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                    <TextBlock Text="کھاتوں کا ابتدائی بیلنس - AgenSoft ChartOfAccounts Exact Parity" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
                 </StackPanel>
+                <Border Grid.Column="2" Background="#F1F5F9" CornerRadius="8" Padding="12,6" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="AccountMultipleOutline" Width="16" Height="16" Foreground="{StaticResource BrushAccentIndigo}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Accounts: " FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding TotalAccountsCount}" FontWeight="Bold" Foreground="{StaticResource BrushAccentIndigo}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
             </Grid>
 
-            <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex}" BorderThickness="0" Background="Transparent">
-                
-                <!-- FINANCIAL OPENING -->
-                <TabItem Header="Financial Ledger Balances">
-                    <Grid Margin="0,16,0,0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        
-                        <Border CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
-                            <DataGrid ItemsSource="{Binding AccountBalances}" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single"
-                                      Style="{StaticResource ModernDataGrid}">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="A/C CODE" Binding="{Binding AccountNo}" IsReadOnly="True" Width="120"/>
-                                    <DataGridTextColumn Header="ACCOUNT TITLE" Binding="{Binding Name}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTemplateColumn Header="OPENING BALANCE (PKR)" Width="220">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Balance, StringFormat=N2}" TextAlignment="Right" Padding="8,4" FontWeight="Bold" Foreground="{StaticResource BrushAccentEmerald}" VerticalAlignment="Center"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                        <DataGridTemplateColumn.CellEditingTemplate>
-                                            <DataTemplate>
-                                                <TextBox Text="{Binding Balance, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" materialDesign:TextFieldAssist.PrefixText="₨ " TextAlignment="Right"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellEditingTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Border>
+            <!-- 2. Filter Bar (AgenSoft CmbFilter & txtAccNameFilter) -->
+            <Border Grid.Row="1" Background="#F8FAFC" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Padding="16,10" Margin="0,0,0,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="24"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-                            <Button Content="Save Financial Balances" Command="{Binding SaveFinancialCommand}" Style="{StaticResource ModernPrimaryButton}" Height="36"/>
+                    <!-- Account Type (Label13 & CmbFilter) -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <materialDesign:PackIcon Kind="FilterVariant" Width="18" Height="18" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Account Type:" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Border Grid.Column="1" 
+                            Background="#FFFFFF" 
+                            BorderBrush="{StaticResource BrushSurfaceBorderDark}" 
+                            BorderThickness="1.5" 
+                            CornerRadius="8" 
+                            Height="40" 
+                            VerticalAlignment="Center" 
+                            Padding="8,0">
+                        <ComboBox x:Name="CmbFilter"
+                                  ItemsSource="{Binding AccountTypes}" 
+                                  SelectedItem="{Binding SelectedAccountType}" 
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  FontSize="13"
+                                  FontWeight="SemiBold"
+                                  Foreground="{StaticResource BrushTextPrimary}"
+                                  VerticalContentAlignment="Center"
+                                  Height="36"/>
+                    </Border>
+
+                    <!-- Account Name Filter (Label2 & txtAccNameFilter) -->
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Account Name:" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <Border Grid.Column="4" 
+                            Background="#FFFFFF" 
+                            BorderBrush="{StaticResource BrushSurfaceBorderDark}" 
+                            BorderThickness="1.5" 
+                            CornerRadius="8" 
+                            Height="40" 
+                            VerticalAlignment="Center" 
+                            Padding="12,0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsFocused, ElementName=txtAccNameFilter}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{StaticResource BrushAccentTeal}"/>
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Grid VerticalAlignment="Center">
+                            <!-- Watermark / Placeholder Text -->
+                            <TextBlock Text="Type account name or code to filter in real-time... (تلاش کے لیے کھاتہ کا نام یا کوڈ لکھیں)" 
+                                       Foreground="#64748B" 
+                                       FontSize="12.5"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text.Length, ElementName=txtAccNameFilter}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Text, ElementName=txtAccNameFilter}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Text, ElementName=txtAccNameFilter}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            
+                            <!-- Actual TextBox -->
+                            <TextBox x:Name="txtAccNameFilter" 
+                                     Text="{Binding AccountNameFilter, UpdateSourceTrigger=PropertyChanged}" 
+                                     Background="Transparent" 
+                                     BorderThickness="0" 
+                                     FontSize="13" 
+                                     FontWeight="SemiBold"
+                                     Foreground="{StaticResource BrushTextPrimary}"
+                                     VerticalContentAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Clear Filter Button -->
+                    <Button Grid.Column="5" Command="{Binding ClearCommand}" 
+                            Style="{StaticResource MaterialDesignOutlinedButton}" 
+                            ToolTip="Clear Filters (F3)" Margin="10,0,0,0" Height="40">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="FilterRemoveOutline" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Clear (F3)" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </Grid>
-                </TabItem>
+                    </Button>
+                </Grid>
+            </Border>
 
-                <!-- INVENTORY OPENING -->
-                <TabItem Header="Commodity &amp; Product Stock">
-                    <Grid Margin="0,16,0,0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+            <!-- 3. Available Accounts DataGrid (AgenSoft SSOleDBGrid Parity) -->
+            <Border Grid.Row="2" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                <DataGrid x:Name="GridAccounts"
+                          ItemsSource="{Binding FilteredAccountBalances}" 
+                          AutoGenerateColumns="False" 
+                          CanUserAddRows="False" 
+                          CanUserDeleteRows="False"
+                          SelectionMode="Single"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="{StaticResource BrushSurfaceBorder}"
+                          Style="{StaticResource ModernDataGrid}">
+                    <DataGrid.Columns>
+                        <!-- Column 0: A/c No. (ID) -->
+                        <DataGridTextColumn Header="A/c No." 
+                                            Binding="{Binding AccountNo}" 
+                                            IsReadOnly="True" 
+                                            Width="110">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="Padding" Value="8,4"/>
+                                    <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <!-- Column 1: A/c Name (Name) -->
+                        <DataGridTextColumn Header="A/c Name" 
+                                            Binding="{Binding Name}" 
+                                            IsReadOnly="True" 
+                                            Width="*">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="Padding" Value="8,4"/>
+                                    <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <!-- Column 2: Opening Debit (Debit) -->
+                        <DataGridTemplateColumn Header="Opening Debit" Width="150">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding OpeningDebit, StringFormat={}{0:N2}}" 
+                                               TextAlignment="Right" Padding="8,4" 
+                                               FontWeight="Bold" 
+                                               Foreground="{StaticResource BrushAccentEmerald}" 
+                                               VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding OpeningDebit, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N2}}" 
+                                             materialDesign:TextFieldAssist.PrefixText="₨ " 
+                                             FontWeight="Bold"
+                                             TextAlignment="Right"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Column 3: Opening Credit (Credit) -->
+                        <DataGridTemplateColumn Header="Opening Credit" Width="150">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding OpeningCredit, StringFormat={}{0:N2}}" 
+                                               TextAlignment="Right" Padding="8,4" 
+                                               FontWeight="Bold" 
+                                               Foreground="{StaticResource BrushAccentRose}" 
+                                               VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding OpeningCredit, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N2}}" 
+                                             materialDesign:TextFieldAssist.PrefixText="₨ " 
+                                             FontWeight="Bold"
+                                             TextAlignment="Right"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Column 4: Crop Season (CropSeason) -->
+                        <DataGridTemplateColumn Header="Crop Season" Width="170">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding CropName, FallbackValue='--'}" 
+                                               Padding="8,4" 
+                                               VerticalAlignment="Center" 
+                                               Foreground="{StaticResource BrushTextSecondary}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding DataContext.CropSeasons, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              SelectedValue="{Binding CropSeason, UpdateSourceTrigger=PropertyChanged}"
+                                              SelectedValuePath="ProductId"
+                                              DisplayMemberPath="ProductName"
+                                              Height="32"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Net Balance Column -->
+                        <DataGridTextColumn Header="Net Balance" 
+                                            Binding="{Binding NetBalance, StringFormat={}{0:N2}}" 
+                                            IsReadOnly="True" 
+                                            Width="130">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextAlignment" Value="Right"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="Padding" Value="8,4"/>
+                                    <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- 4. Totals Footer & Actions (AgenSoft CmdSave, CmdClear, CmdClose) -->
+            <Grid Grid.Row="3" Margin="0,14,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Totals Summary Bar -->
+                <Border Background="#F1F5F9" CornerRadius="10" Padding="16,8" VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Total Debit: " FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding TotalDebit, StringFormat=₨ {0:N2}}" FontWeight="Bold" Foreground="{StaticResource BrushAccentEmerald}" Margin="0,0,20,0" VerticalAlignment="Center"/>
                         
-                        <Border CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
-                            <DataGrid ItemsSource="{Binding ProductStocks}" AutoGenerateColumns="False" CanUserAddRows="False"
-                                      Style="{StaticResource ModernDataGrid}">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="ITEM CODE" Binding="{Binding Code}" IsReadOnly="True" Width="120"/>
-                                    <DataGridTextColumn Header="COMMODITY / PRODUCT NAME" Binding="{Binding Name}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTemplateColumn Header="OPENING QTY" Width="140">
-                                        <DataGridTemplateColumn.CellEditingTemplate>
-                                            <DataTemplate>
-                                                <TextBox Text="{Binding Qty, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellEditingTemplate>
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Qty}" TextAlignment="Right" Padding="8,4" FontWeight="Bold" VerticalAlignment="Center"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="COST RATE (PKR)" Width="160">
-                                        <DataGridTemplateColumn.CellEditingTemplate>
-                                            <DataTemplate>
-                                                <TextBox Text="{Binding Rate, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellEditingTemplate>
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Rate, StringFormat=N2}" TextAlignment="Right" Padding="8,4" FontWeight="Bold" Foreground="{StaticResource BrushAccentEmerald}" VerticalAlignment="Center"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Border>
+                        <TextBlock Text="Total Credit: " FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding TotalCredit, StringFormat=₨ {0:N2}}" FontWeight="Bold" Foreground="{StaticResource BrushAccentRose}" Margin="0,0,20,0" VerticalAlignment="Center"/>
 
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-                            <Button Content="Save Opening Stock" Command="{Binding SaveStockCommand}" Style="{StaticResource ModernPrimaryButton}" Height="36"/>
-                        </StackPanel>
-                    </Grid>
-                </TabItem>
-            </TabControl>
+                        <TextBlock Text="Difference: " FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Difference, StringFormat=₨ {0:N2}}" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Action Buttons: Save (F2), Clear (F3), Close (Esc) -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Save (F2)" 
+                            Command="{Binding SaveFinancialCommand}" 
+                            Style="{StaticResource ModernPrimaryButton}" 
+                            Height="38" MinWidth="110" Margin="0,0,10,0"/>
+                    <Button Content="Clear (F3)" 
+                            Command="{Binding ClearCommand}" 
+                            Style="{StaticResource MaterialDesignOutlinedButton}" 
+                            Height="38" MinWidth="100" Margin="0,0,10,0"/>
+                    <Button Content="Close (Esc)" 
+                            Command="{Binding CloseCommand}" 
+                            Style="{StaticResource MaterialDesignFlatButton}" 
+                            Height="38" MinWidth="90"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Border>
 </UserControl>

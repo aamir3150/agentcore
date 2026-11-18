@@ -1,0 +1,192 @@
+<Window x:Class="MyMandiSystem.Views.StockRecalculationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="Recalculate Stock Balances - agentcore ERP" 
+        Width="880" 
+        Height="650"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True">
+
+    <Window.Resources>
+        <Storyboard x:Key="FadeInStoryboard">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:0.25"/>
+        </Storyboard>
+    </Window.Resources>
+
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource FadeInStoryboard}"/>
+        </EventTrigger>
+    </Window.Triggers>
+
+    <Border Margin="16" CornerRadius="18" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1.5" Effect="{StaticResource EffectModalShadow}">
+        <Grid ClipToBounds="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Title Bar -->
+                <RowDefinition Height="Auto"/> <!-- Filter Radio Bar -->
+                <RowDefinition Height="*"/>    <!-- Products Grid -->
+                <RowDefinition Height="Auto"/> <!-- Progress Status -->
+                <RowDefinition Height="Auto"/> <!-- Footer Actions -->
+            </Grid.RowDefinitions>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                       TOP TITLE BAR                        -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border Grid.Row="0" Background="{StaticResource BrushPrimaryNavy}" CornerRadius="18,18,0,0" Padding="22,14"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" Cursor="SizeAll">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="40" Height="40" CornerRadius="8" Background="#1E293B" Margin="0,0,12,0">
+                        <materialDesign:PackIcon Kind="CalculatorVariant" Width="24" Height="24" Foreground="{StaticResource BrushAccentTealLight}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Recalculate Stock Balances (اسٹاک بیلنس ری-کیلکولیشن)" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF"/>
+                        <TextBlock Text="تمام خرید و فروخت کے بلوں اور واؤچرز کی بنیاد پر گودام کے اسٹاک کا ازسرنو حساب" 
+                                   FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="15" Foreground="#94A3B8"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="2" Click="CloseButton_Click" Cursor="Hand" Width="30" Height="30" 
+                            Background="Transparent" BorderThickness="0" Padding="0">
+                        <materialDesign:PackIcon Kind="Close" Width="20" Height="20" Foreground="#94A3B8"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                    FILTER & SEARCH BAR                     -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="220"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Radio Filters matching AgenSoft -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <RadioButton Content="تمام مصنوعات (All Items)" IsChecked="{Binding FilterAll}" 
+                                     FontWeight="SemiBold" Margin="0,0,14,0" Checked="Filter_Changed"/>
+                        <RadioButton Content="زرعی اجناس (Crop Stock)" IsChecked="{Binding FilterCrops}" 
+                                     FontWeight="SemiBold" Margin="0,0,14,0" Checked="Filter_Changed"/>
+                        <RadioButton Content="عام مال (General Stock)" IsChecked="{Binding FilterGeneral}" 
+                                     FontWeight="SemiBold" Margin="0,0,14,0" Checked="Filter_Changed"/>
+                        <RadioButton Content="بروکریج (Brokerage)" IsChecked="{Binding FilterBrokerage}" 
+                                     FontWeight="SemiBold" Checked="Filter_Changed"/>
+                    </StackPanel>
+
+                    <!-- Search Input -->
+                    <TextBox Grid.Column="1" materialDesign:HintAssist.Hint="Search Item / نام سے تلاش..." 
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}" Padding="10,6" FontSize="12"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TextChanged="SearchText_Changed"/>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                       PRODUCTS GRID                        -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border Grid.Row="2" Margin="20,14" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Selection Header Controls -->
+                    <Border Grid.Row="0" Background="#F1F5F9" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="12,6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Button Command="{Binding SelectAllCommand}" Style="{StaticResource MaterialDesignOutlinedButton}" 
+                                        Height="26" Padding="8,0" Margin="0,0,6,0" FontSize="11">
+                                    <TextBlock Text="Select All / سب منتخب"/>
+                                </Button>
+                                <Button Command="{Binding DeselectAllCommand}" Style="{StaticResource MaterialDesignOutlinedButton}" 
+                                        Height="26" Padding="8,0" FontSize="11">
+                                    <TextBlock Text="Clear All / سب غیر منتخب"/>
+                                </Button>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="{Binding FilteredProducts.Count, StringFormat='Showing {0} Items'}" 
+                                       Foreground="#64748B" FontSize="11" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- DataGrid -->
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding FilteredProducts}" AutoGenerateColumns="False" CanUserAddRows="False"
+                              GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9" BorderThickness="0"
+                              Background="Transparent" HeadersVisibility="Column" RowHeight="34">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="Select" Binding="{Binding IsSelected}" Width="60"/>
+                            <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="90" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Item Name" Binding="{Binding Name}" Width="*" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="اردو نام" Binding="{Binding UrduName}" Width="160" IsReadOnly="True"
+                                                ElementStyle="{StaticResource UrduDataGridTextStyle}"/>
+                            <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="120" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Current Stock" Binding="{Binding CurrentStock, StringFormat='{}{0:N2}'}" Width="110" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Foreground" Value="#0284C7"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                      PROGRESS STATUS                       -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border Grid.Row="3" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="20,10">
+                <StackPanel>
+                    <TextBlock Text="{Binding ProgressText}" FontSize="12" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,6"/>
+                    <ProgressBar Value="{Binding ProgressValue}" Maximum="100" Height="8" 
+                                 Foreground="{StaticResource BrushAccentTeal}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                       FOOTER ACTIONS                       -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border Grid.Row="4" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="20,14" CornerRadius="0,0,18,18">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Height="38" Padding="14,0" Margin="0,0,10,0"
+                                Click="CloseButton_Click" Foreground="#64748B" BorderBrush="#CBD5E1">
+                            <TextBlock Text="Close / بند کریں"/>
+                        </Button>
+
+                        <Button Command="{Binding StartRecalculationCommand}" IsEnabled="{Binding IsRecalculating, Converter={x:Null}}"
+                                Background="{StaticResource BrushPrimaryNavy}" Foreground="#FFFFFF" BorderThickness="0" Height="38" Padding="20,0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="PlayCircleOutline" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="Start Recalculation / حساب شروع کریں" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

@@ -126,13 +126,15 @@
                     <MenuItem Header="_File">
                         <MenuItem Header="_Users" Command="{Binding UsersCommand}">
                             <MenuItem.Icon><materialDesign:PackIcon Kind="AccountGroup" /></MenuItem.Icon>
-                            <MenuItem Header="Manage Users" />
                         </MenuItem>
-                        <MenuItem Header="_Configuration (کاروباری معلومات / پروفائل)" Command="{Binding ConfigurationCommand}">
+                        <MenuItem Header="_Configuration" Command="{Binding ConfigurationCommand}">
                             <MenuItem.Icon><materialDesign:PackIcon Kind="Settings" /></MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Header="_Backup Database" Command="{Binding BackupDatabaseCommand}">
                             <MenuItem.Icon><materialDesign:PackIcon Kind="DatabaseSync" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Database Administrator Tool" Command="{Binding OpenDatabaseToolCommand}">
+                            <MenuItem.Icon><materialDesign:PackIcon Kind="DatabaseCog" /></MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Header="_Refresh System" Command="{Binding RefreshSystemCommand}">
                             <MenuItem.Icon><materialDesign:PackIcon Kind="Refresh" /></MenuItem.Icon>
@@ -219,7 +221,7 @@
                         <MenuItem Header="_Units" Command="{Binding UnitsDefCommand}">
                             <MenuItem.Icon><materialDesign:PackIcon Kind="Ruler" /></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="_Crop Seasons (سیزن فصل)" Command="{Binding CropSeasonsDefCommand}">
+                        <MenuItem Header="_Crop Seasons" Command="{Binding CropSeasonsDefCommand}">
                             <MenuItem.Icon><materialDesign:PackIcon Kind="Sprout" /></MenuItem.Icon>
                         </MenuItem>
                         <Separator />
@@ -850,7 +852,7 @@
                                     </Grid>
 
                                     <!-- 6 Action Tiles -->
-                                    <UniformGrid Columns="2">
+                                    <UniformGrid Columns="3">
                                         
                                         <!-- Cash Receiving Voucher -->
                                         <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding CashReceivingVoucherEntryCommand}">
@@ -973,7 +975,7 @@
 
                                     <!-- 9 Action Tiles -->
                                     <!-- 9 Action Tiles -->
-                                    <UniformGrid Columns="2">
+                                    <UniformGrid Columns="3">
                                         <!-- 1. Account Ledger -->
                                         <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding RptAccountLedgerCommand}">
                                             <Grid>
@@ -1115,7 +1117,7 @@
                                     </Grid>
 
                                     <!-- Action Tiles -->
-                                    <UniformGrid Columns="2">
+                                    <UniformGrid Columns="3">
                                         <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding BrokeragePurchaseInvoiceCommand}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -1176,7 +1178,7 @@
                                     </Grid>
 
                                     <!-- Action Tiles -->
-                                    <UniformGrid Columns="2">
+                                    <UniformGrid Columns="3">
                                         <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding GeneralPurchaseInvoiceCommand}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -1237,7 +1239,7 @@
                                     </Grid>
 
                                     <!-- Action Tiles -->
-                                    <UniformGrid Columns="2">
+                                    <UniformGrid Columns="3">
                                         <Button Style="{StaticResource ModernDashboardActionTile}" Command="{Binding PestroPurchaseCommand}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>

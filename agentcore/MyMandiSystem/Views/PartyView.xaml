@@ -496,6 +496,69 @@
                     </Grid>
                 </TabItem>
 
+                <!-- ─────────────────────────────────────────────── -->
+                <!--             PARTY GROUPS TAB                    -->
+                <!-- ─────────────────────────────────────────────── -->
+                <TabItem Header="Party Groups (پارٹی گروپس)">
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left Column: Groups DataGrid -->
+                        <Border Grid.Column="0" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                            <DataGrid ItemsSource="{Binding PartyGroups}" SelectedItem="{Binding SelectedPartyGroup}" 
+                                      AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" SelectionMode="Single"
+                                      Style="{StaticResource ModernDataGrid}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="80"/>
+                                    <DataGridTextColumn Header="PARTY GROUP NAME / گروپ کا نام" Binding="{Binding Name}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+
+                        <!-- Right Column: Actions & Form -->
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+                                <Button Content="+ Add Group" Command="{Binding AddPartyGroupCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34" Margin="0,0,6,0"/>
+                                <Button Content="Edit" Command="{Binding EditPartyGroupCommand}" CommandParameter="{Binding SelectedPartyGroup}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,6,0"/>
+                                <Button Content="Delete" Command="{Binding DeletePartyGroupCommand}" CommandParameter="{Binding SelectedPartyGroup}" Style="{StaticResource ModernDangerButton}" Height="34"/>
+                            </StackPanel>
+
+                            <Border Grid.Row="1" CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" 
+                                    Background="#F8FAFC" Padding="18" 
+                                    Visibility="{Binding IsPartyGroupFormVisible, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,14">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Party Group Information" FontSize="15" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                                        <Button Grid.Column="1" Command="{Binding CancelPartyGroupCommand}" Style="{StaticResource MaterialDesignIconButton}" Width="28" Height="28">
+                                            <materialDesign:PackIcon Kind="Close" Width="18" Height="18" Foreground="{StaticResource BrushTextSecondary}"/>
+                                        </Button>
+                                    </Grid>
+
+                                    <TextBox materialDesign:HintAssist.Hint="Party Group Name (e.g. General, Farmers, Beopari)" Text="{Binding CurrentPartyGroup.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,16"/>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="Cancel" Command="{Binding CancelPartyGroupCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,8,0"/>
+                                        <Button Content="Save Group" Command="{Binding SavePartyGroupCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
             </TabControl>
         </Grid>
     </Border>

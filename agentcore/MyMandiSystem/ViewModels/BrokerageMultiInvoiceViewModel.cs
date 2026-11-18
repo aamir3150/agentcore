@@ -264,25 +264,215 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
         RecalculateTotals();
     }
 
+    private void RecalculatePurchaseCurrentLine()
+    {
+        decimal grossKgs = (PurchaseTQty * PurchaseBhartiKgs) + PurchaseLooseWeight;
+        decimal totalKgs = grossKgs;
+
+        if (PurchaseShort > 0)
+        {
+            if (PurchaseSelectedShortType == "%")
+            {
+                totalKgs -= Math.Round((totalKgs * PurchaseShort) / 100m, 2);
+            }
+            else if (PurchaseSelectedShortType == "Mnd-")
+            {
+                decimal std = PurchaseSelectedMoundStandard > 0 ? PurchaseSelectedMoundStandard : 40m;
+                totalKgs -= (PurchaseShort * std);
+            }
+            else // "Mnd+"
+            {
+                decimal std = PurchaseSelectedMoundStandard > 0 ? PurchaseSelectedMoundStandard : 40m;
+                totalKgs += (PurchaseShort * std);
+            }
+        }
+
+        if (PurchaseDed > 0)
+        {
+            totalKgs -= PurchaseDed;
+        }
+
+        if (totalKgs < 0) totalKgs = 0;
+        PurchaseTotalWeight = Math.Round(totalKgs, 2);
+
+        decimal stdMound = PurchaseSelectedMoundStandard > 0 ? PurchaseSelectedMoundStandard : 40m;
+        decimal baseValue = 0;
+
+        if (PurchaseSelectedRateType == "Rate/Mound")
+        {
+            decimal mds = PurchaseTotalWeight / stdMound;
+            baseValue = mds * PurchaseRate;
+        }
+        else if (PurchaseSelectedRateType == "Rate/Kg")
+        {
+            baseValue = PurchaseTotalWeight * PurchaseRate;
+        }
+        else if (PurchaseSelectedRateType == "Rate/Bag")
+        {
+            baseValue = PurchaseTQty * PurchaseRate;
+        }
+        else // "Fixed"
+        {
+            baseValue = PurchaseRate;
+        }
+
+        decimal bardanaValue = PurchaseTQty * PurchaseRateBardana;
+        PurchaseTotalValue = Math.Round(baseValue + bardanaValue, 2);
+    }
+
+    private void RecalculateSaleCurrentLine()
+    {
+        decimal grossKgs = (SaleTQty * SaleBhartiKgs) + SaleLooseWeight;
+        decimal totalKgs = grossKgs;
+
+        if (SaleShort > 0)
+        {
+            if (SaleSelectedShortType == "%")
+            {
+                totalKgs -= Math.Round((totalKgs * SaleShort) / 100m, 2);
+            }
+            else if (SaleSelectedShortType == "Mnd-")
+            {
+                decimal std = SaleSelectedMoundStandard > 0 ? SaleSelectedMoundStandard : 40m;
+                totalKgs -= (SaleShort * std);
+            }
+            else // "Mnd+"
+            {
+                decimal std = SaleSelectedMoundStandard > 0 ? SaleSelectedMoundStandard : 40m;
+                totalKgs += (SaleShort * std);
+            }
+        }
+
+        if (SaleDed > 0)
+        {
+            totalKgs -= SaleDed;
+        }
+
+        if (totalKgs < 0) totalKgs = 0;
+        SaleTotalWeight = Math.Round(totalKgs, 2);
+
+        decimal stdMound = SaleSelectedMoundStandard > 0 ? SaleSelectedMoundStandard : 40m;
+        decimal baseValue = 0;
+
+        if (SaleSelectedRateType == "Rate/Mound")
+        {
+            decimal mds = SaleTotalWeight / stdMound;
+            baseValue = mds * SaleRate;
+        }
+        else if (SaleSelectedRateType == "Rate/Kg")
+        {
+            baseValue = SaleTotalWeight * SaleRate;
+        }
+        else if (SaleSelectedRateType == "Rate/Bag")
+        {
+            baseValue = SaleTQty * SaleRate;
+        }
+        else // "Fixed"
+        {
+            baseValue = SaleRate;
+        }
+
+        decimal bardanaValue = SaleTQty * SaleRateBardana;
+        SaleTotalValue = Math.Round(baseValue + bardanaValue, 2);
+    }
+
     public void RecalculateTotals()
     {
-        // Purchase calculations
-        PurchaseGrossTotal = PurchaseItems.Sum(i => i.TotalValue);
+        // 1. Purchase Calculations
+        PurchaseGrossTotal = Math.Round(PurchaseItems.Sum(i => i.TotalValue), 2);
         decimal pKgs = PurchaseItems.Sum(i => i.TotalKgs);
-        decimal pMds = Math.Floor(pKgs / 37.324m);
-        decimal pRem = pKgs % 37.324m;
+        int pBags = PurchaseItems.Sum(i => i.TQty);
+        decimal pMds = Math.Floor(pKgs / 40m);
+        decimal pRem = Math.Round(pKgs % 40m, 2);
         PurchaseMounds = $"{pMds}- {pRem:00}";
 
-        PurchaseNetValue = PurchaseGrossTotal + (PurchaseAddBardana ? PurchaseBardana : 0) - PurchaseOtherExpMinus + PurchaseOtherExpPlus;
-        PurchaseFinalBalance = PurchasePreviousBalance + PurchaseNetValue - PurchasePaid;
+        if (PurchaseDamiPercentage > 0)
+        {
+            if (PurchaseDamiType == "TotalValueWise")
+                PurchaseDamiValue = Math.Round((PurchaseGrossTotal * PurchaseDamiPercentage) / 100m, 2);
+            else if (PurchaseDamiType == "PerBag")
+                PurchaseDamiValue = Math.Round(pBags * PurchaseDamiPercentage, 2);
+            else
+                PurchaseDamiValue = Math.Round((pKgs / 40m) * PurchaseDamiPercentage, 2);
+        }
+        else PurchaseDamiValue = 0;
 
-        // Sale calculations
-        SaleGrossTotal = SaleItems.Sum(i => i.TotalValue);
-        SaleNetValue = SaleGrossTotal + (SaleAddBardana ? SaleBardana : 0) - SaleOtherExpMinus + SaleOtherExpPlus;
-        SaleFinalBalance = SalePreviousBalance + SaleNetValue - SaleReceived;
+        if (PurchaseWhtPercentage > 0)
+        {
+            if (PurchaseCommissionMinus)
+                PurchaseWhtValue = Math.Round((PurchaseDamiValue * PurchaseWhtPercentage) / 100m, 2);
+            else
+                PurchaseWhtValue = Math.Round((PurchaseGrossTotal * PurchaseWhtPercentage) / 100m, 2);
+        }
+        else PurchaseWhtValue = 0;
 
-        // Profit / Loss Calculation
-        ProfitLoss = SaleNetValue - PurchaseNetValue;
+        decimal pVeh = 0;
+        if (PurchaseVehicleCharges > 0)
+        {
+            if (PurchaseVehicleRadioBag) pVeh = Math.Round(pBags * PurchaseVehicleCharges, 2);
+            else if (PurchaseVehicleRadioMound) pVeh = Math.Round((pKgs / 40m) * PurchaseVehicleCharges, 2);
+            else if (PurchaseVehicleRadioPercent) pVeh = Math.Round((PurchaseGrossTotal * PurchaseVehicleCharges) / 100m, 2);
+            else pVeh = PurchaseVehicleCharges;
+        }
+
+        decimal pMaz = 0;
+        if (PurchaseMazdoori > 0) pMaz = Math.Round(pBags * PurchaseMazdoori, 2);
+
+        decimal pBardana = PurchaseAddBardana ? PurchaseBardana : 0;
+        decimal pCommDeduction = PurchaseCommissionMinus ? PurchaseDamiValue : 0;
+        decimal pVehicleAdj = PurchaseVehiclePlus ? pVeh : (PurchaseVehicleMinus ? -pVeh : 0);
+        decimal pMazdooriAdj = PurchaseMazdooriPlus ? pMaz : (PurchaseMazdooriMinus ? -pMaz : 0);
+
+        PurchaseNetValue = Math.Round(PurchaseGrossTotal + pBardana - PurchaseOtherExpMinus + PurchaseOtherExpPlus - pCommDeduction + pVehicleAdj + pMazdooriAdj - PurchaseWhtValue, 2);
+        PurchaseFinalBalance = Math.Round(PurchasePreviousBalance + PurchaseNetValue - PurchasePaid, 2);
+
+        // 2. Sale Calculations
+        SaleGrossTotal = Math.Round(SaleItems.Sum(i => i.TotalValue), 2);
+        decimal sKgs = SaleItems.Sum(i => i.TotalKgs);
+        int sBags = SaleItems.Sum(i => i.TQty);
+        decimal sMds = Math.Floor(sKgs / 40m);
+        decimal sRem = Math.Round(sKgs % 40m, 2);
+        SaleMounds = $"{sMds}- {sRem:00}";
+
+        if (SaleDamiPercentage > 0)
+        {
+            if (SaleDamiType == "TotalValueWise")
+                SaleDamiValue = Math.Round((SaleGrossTotal * SaleDamiPercentage) / 100m, 2);
+            else if (SaleDamiType == "PerBag")
+                SaleDamiValue = Math.Round(sBags * SaleDamiPercentage, 2);
+            else
+                SaleDamiValue = Math.Round((sKgs / 40m) * SaleDamiPercentage, 2);
+        }
+        else SaleDamiValue = 0;
+
+        decimal sMaz = 0;
+        if (SaleMazdoori > 0)
+        {
+            if (SaleMazdooriRadioBag) sMaz = Math.Round(sBags * SaleMazdoori, 2);
+            else if (SaleMazdooriRadioMound) sMaz = Math.Round((sKgs / 40m) * SaleMazdoori, 2);
+            else if (SaleMazdooriRadioPercent) sMaz = Math.Round((SaleGrossTotal * SaleMazdoori) / 100m, 2);
+            else sMaz = SaleMazdoori;
+        }
+
+        if (SaleWhTax1 > 0)
+        {
+            if (SaleWhTaxRadioPercent) SaleWhTax2 = Math.Round((SaleGrossTotal * SaleWhTax1) / 100m, 2);
+            else if (SaleWhTaxRadio100Kg) SaleWhTax2 = Math.Round((sKgs / 100m) * SaleWhTax1, 2);
+            else SaleWhTax2 = SaleWhTax1;
+        }
+        else SaleWhTax2 = 0;
+
+        decimal sBardana = SaleAddBardana ? SaleBardana : 0;
+        decimal sCommDeduction = SaleCommissionMinus ? SaleDamiValue : 0;
+        decimal sVehicleAdj = SaleVehiclePlus ? SaleVehicleCharges : (SaleVehicleMinus ? -SaleVehicleCharges : 0);
+        decimal sMazdooriAdj = SaleMazdooriPlus ? sMaz : (SaleMazdooriMinus ? -sMaz : 0);
+        decimal sWhtAdj = SaleWhTaxPlus ? SaleWhTax2 : (SaleWhTaxMinus ? -SaleWhTax2 : 0);
+
+        SaleNetValue = Math.Round(SaleGrossTotal + sBardana - SaleOtherExpMinus + SaleOtherExpPlus - sCommDeduction + sVehicleAdj + sMazdooriAdj + sWhtAdj, 2);
+        SaleFinalBalance = Math.Round(SalePreviousBalance + SaleNetValue - SaleReceived, 2);
+
+        // 3. Profit / Loss Calculation
+        ProfitLoss = Math.Round(SaleNetValue - PurchaseNetValue, 2);
     }
 
     [RelayCommand]
@@ -290,9 +480,7 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
     {
         if (PurchaseTotalValue <= 0 && PurchaseRate <= 0) return;
 
-        decimal totalKgs = (PurchaseTQty * PurchaseBhartiKgs) + PurchaseLooseWeight - PurchaseShort - PurchaseDed;
-        decimal mds = PurchaseSelectedMoundStandard > 0 ? totalKgs / PurchaseSelectedMoundStandard : totalKgs / 37.324m;
-        decimal value = PurchaseSelectedRateType == "Rate/Mound" ? mds * PurchaseRate : totalKgs * PurchaseRate;
+        RecalculatePurchaseCurrentLine();
 
         PurchaseItems.Add(new BrokerageMultiPurchaseItemDto
         {
@@ -305,12 +493,14 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
             ExtWt = PurchaseLooseWeight,
             Shortage = PurchaseShort,
             Deduction = PurchaseDed,
-            TotalKgs = totalKgs,
+            TotalKgs = PurchaseTotalWeight,
             MoundStandard = PurchaseSelectedMoundStandard,
             RateType = PurchaseSelectedRateType,
             Rate = PurchaseRate,
             RateBardana = PurchaseRateBardana,
-            TotalValue = value
+            TotalValue = PurchaseTotalValue,
+            ShortType = PurchaseSelectedShortType,
+            ShortPer = PurchasePer
         });
 
         RecalculateTotals();
@@ -321,9 +511,7 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
     {
         if (SaleTotalValue <= 0 && SaleRate <= 0) return;
 
-        decimal totalKgs = (SaleTQty * SaleBhartiKgs) + SaleLooseWeight - SaleShort - SaleDed;
-        decimal mds = SaleSelectedMoundStandard > 0 ? totalKgs / SaleSelectedMoundStandard : totalKgs / 37.324m;
-        decimal value = SaleSelectedRateType == "Rate/Mound" ? mds * SaleRate : totalKgs * SaleRate;
+        RecalculateSaleCurrentLine();
 
         SaleItems.Add(new BrokerageMultiSaleItemDto
         {
@@ -337,12 +525,15 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
             ExtWt = SaleLooseWeight,
             Shortage = SaleShort,
             Deduction = SaleDed,
-            TotalKgs = totalKgs,
+            TotalKgs = SaleTotalWeight,
             MoundStandard = SaleSelectedMoundStandard,
             RateType = SaleSelectedRateType,
             Rate = SaleRate,
             RateBardana = SaleRateBardana,
-            TotalValue = value
+            TotalValue = SaleTotalValue,
+            ShortType = SaleSelectedShortType,
+            ShortPer = SalePer,
+            ContractId = SaleContractId
         });
 
         RecalculateTotals();
@@ -444,6 +635,81 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
         }
     }
 
+    // Purchase line inputs
+    partial void OnPurchaseTQtyChanged(int value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchaseBQtyChanged(int value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchasePQtyChanged(int value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchaseBhartiKgsChanged(decimal value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchaseLooseWeightChanged(decimal value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchaseShortChanged(decimal value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchaseSelectedShortTypeChanged(string value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchaseDedChanged(decimal value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchaseSelectedMoundStandardChanged(decimal value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchaseSelectedRateTypeChanged(string value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchaseRateChanged(decimal value) => RecalculatePurchaseCurrentLine();
+    partial void OnPurchaseRateBardanaChanged(decimal value) => RecalculatePurchaseCurrentLine();
+
+    // Sale line inputs
+    partial void OnSaleTQtyChanged(int value) => RecalculateSaleCurrentLine();
+    partial void OnSaleBQtyChanged(int value) => RecalculateSaleCurrentLine();
+    partial void OnSalePQtyChanged(int value) => RecalculateSaleCurrentLine();
+    partial void OnSaleBhartiKgsChanged(decimal value) => RecalculateSaleCurrentLine();
+    partial void OnSaleLooseWeightChanged(decimal value) => RecalculateSaleCurrentLine();
+    partial void OnSaleShortChanged(decimal value) => RecalculateSaleCurrentLine();
+    partial void OnSaleSelectedShortTypeChanged(string value) => RecalculateSaleCurrentLine();
+    partial void OnSaleDedChanged(decimal value) => RecalculateSaleCurrentLine();
+    partial void OnSaleSelectedMoundStandardChanged(decimal value) => RecalculateSaleCurrentLine();
+    partial void OnSaleSelectedRateTypeChanged(string value) => RecalculateSaleCurrentLine();
+    partial void OnSaleRateChanged(decimal value) => RecalculateSaleCurrentLine();
+    partial void OnSaleRateBardanaChanged(decimal value) => RecalculateSaleCurrentLine();
+
+    // Purchase bottom calculations
+    partial void OnPurchaseDamiTypeChanged(string value) => RecalculateTotals();
+    partial void OnPurchaseDamiPercentageChanged(decimal value) => RecalculateTotals();
+    partial void OnPurchaseCommissionMinusChanged(bool value) => RecalculateTotals();
+    partial void OnPurchaseWhtPercentageChanged(decimal value) => RecalculateTotals();
+    partial void OnPurchaseBardanaChanged(decimal value) => RecalculateTotals();
+    partial void OnPurchaseAddBardanaChanged(bool value) => RecalculateTotals();
+    partial void OnPurchaseCharityChanged(decimal value) => RecalculateTotals();
+    partial void OnPurchaseCharityPercentageChanged(bool value) => RecalculateTotals();
+    partial void OnPurchaseCharityMoundChanged(bool value) => RecalculateTotals();
+    partial void OnPurchaseOtherExpMinusChanged(decimal value) => RecalculateTotals();
+    partial void OnPurchaseOtherExpPlusChanged(decimal value) => RecalculateTotals();
+    partial void OnPurchaseVehicleChargesChanged(decimal value) => RecalculateTotals();
+    partial void OnPurchaseVehiclePlusChanged(bool value) => RecalculateTotals();
+    partial void OnPurchaseVehicleMinusChanged(bool value) => RecalculateTotals();
+    partial void OnPurchaseVehicleRadioPercentChanged(bool value) => RecalculateTotals();
+    partial void OnPurchaseVehicleRadioBagChanged(bool value) => RecalculateTotals();
+    partial void OnPurchaseVehicleRadioMoundChanged(bool value) => RecalculateTotals();
+    partial void OnPurchaseMazdooriChanged(decimal value) => RecalculateTotals();
+    partial void OnPurchaseMazdooriPlusChanged(bool value) => RecalculateTotals();
+    partial void OnPurchaseMazdooriMinusChanged(bool value) => RecalculateTotals();
+    partial void OnPurchasePaidChanged(decimal value) => RecalculateTotals();
+
+    // Sale bottom calculations
+    partial void OnSaleDamiTypeChanged(string value) => RecalculateTotals();
+    partial void OnSaleDamiPercentageChanged(decimal value) => RecalculateTotals();
+    partial void OnSaleCommissionMinusChanged(bool value) => RecalculateTotals();
+    partial void OnSaleBardanaChanged(decimal value) => RecalculateTotals();
+    partial void OnSaleAddBardanaChanged(bool value) => RecalculateTotals();
+    partial void OnSaleOtherExpMinusChanged(decimal value) => RecalculateTotals();
+    partial void OnSaleOtherExpPlusChanged(decimal value) => RecalculateTotals();
+    partial void OnSaleVehicleChargesChanged(decimal value) => RecalculateTotals();
+    partial void OnSaleVehiclePlusChanged(bool value) => RecalculateTotals();
+    partial void OnSaleVehicleMinusChanged(bool value) => RecalculateTotals();
+    partial void OnSaleMazdooriChanged(decimal value) => RecalculateTotals();
+    partial void OnSaleMazdooriPlusChanged(bool value) => RecalculateTotals();
+    partial void OnSaleMazdooriMinusChanged(bool value) => RecalculateTotals();
+    partial void OnSaleMazdooriRadioPercentChanged(bool value) => RecalculateTotals();
+    partial void OnSaleMazdooriRadioBagChanged(bool value) => RecalculateTotals();
+    partial void OnSaleMazdooriRadioMoundChanged(bool value) => RecalculateTotals();
+    partial void OnSaleWhTax1Changed(decimal value) => RecalculateTotals();
+    partial void OnSaleWhTaxRadioPercentChanged(bool value) => RecalculateTotals();
+    partial void OnSaleWhTaxRadio100KgChanged(bool value) => RecalculateTotals();
+    partial void OnSaleWhTaxPlusChanged(bool value) => RecalculateTotals();
+    partial void OnSaleWhTaxMinusChanged(bool value) => RecalculateTotals();
+    partial void OnSaleReceivedChanged(decimal value) => RecalculateTotals();
+
     [RelayCommand]
     private async Task Save()
     {
@@ -465,26 +731,38 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
 
         try
         {
+            BrokerageInvoice? pInvoice = null;
+            BrokerageInvoice? sInvoice = null;
+
             // 1. Save Purchase side if exists
             if (PurchaseItems.Any() && !string.IsNullOrWhiteSpace(PartyId))
             {
                 var party = await _partyService.GetPartyByNoAsync(PartyId);
                 if (party != null)
                 {
-                    var pInvoice = new BrokerageInvoice
+                    if (LoadedPurchaseInvoiceId > 0)
                     {
-                        InvoiceNo = PurchaseId1,
-                        InvoiceType = InvoiceType.BrkPurchase,
-                        InvoiceDate = InvoiceDate,
-                        FinancialYearId = year.Id,
-                        CropSeasonId = activeSeason?.Id ?? 1,
-                        PartyId = party.Id,
-                        GrossAmount = PurchaseGrossTotal,
-                        CommissionAmount = 0,
-                        NetAmount = PurchaseNetValue,
-                        VehicleNo = PurchaseVehicleNo,
-                        Status = InvoiceStatus.Draft
-                    };
+                        pInvoice = await _brokerageService.GetBrokerageInvoiceByIdAsync(LoadedPurchaseInvoiceId) ?? new BrokerageInvoice();
+                        pInvoice.Details.Clear();
+                    }
+                    else
+                    {
+                        pInvoice = new BrokerageInvoice();
+                    }
+
+                    pInvoice.InvoiceNo = PurchaseId1;
+                    pInvoice.InvoiceType = InvoiceType.BrkPurchase;
+                    pInvoice.InvoiceDate = InvoiceDate;
+                    pInvoice.FinancialYearId = year.Id;
+                    pInvoice.CropSeasonId = activeSeason?.Id ?? 1;
+                    pInvoice.PartyId = party.Id;
+                    pInvoice.GrossAmount = PurchaseGrossTotal;
+                    pInvoice.CommissionAmount = PurchaseDamiValue;
+                    pInvoice.WHT_Amount = PurchaseWhtValue;
+                    pInvoice.LaborCharges = PurchaseMazdoori;
+                    pInvoice.NetAmount = PurchaseNetValue;
+                    pInvoice.VehicleNo = PurchaseVehicleNo;
+                    pInvoice.Status = InvoiceStatus.Draft;
 
                     int lineNo = 1;
                     foreach (var item in PurchaseItems)
@@ -517,20 +795,29 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
                 var customer = await _partyService.GetPartyByNoAsync(CustomerId);
                 if (customer != null)
                 {
-                    var sInvoice = new BrokerageInvoice
+                    if (LoadedSaleInvoiceId > 0)
                     {
-                        InvoiceNo = !string.IsNullOrWhiteSpace(SaleId1) ? SaleId1 : PurchaseId1,
-                        InvoiceType = InvoiceType.BrkSale,
-                        InvoiceDate = InvoiceDate,
-                        FinancialYearId = year.Id,
-                        CropSeasonId = activeSeason?.Id ?? 1,
-                        PartyId = customer.Id,
-                        GrossAmount = SaleGrossTotal,
-                        CommissionAmount = 0,
-                        NetAmount = SaleNetValue,
-                        VehicleNo = VehicleNo,
-                        Status = InvoiceStatus.Draft
-                    };
+                        sInvoice = await _brokerageService.GetBrokerageInvoiceByIdAsync(LoadedSaleInvoiceId) ?? new BrokerageInvoice();
+                        sInvoice.Details.Clear();
+                    }
+                    else
+                    {
+                        sInvoice = new BrokerageInvoice();
+                    }
+
+                    sInvoice.InvoiceNo = !string.IsNullOrWhiteSpace(SaleId1) ? SaleId1 : PurchaseId1;
+                    sInvoice.InvoiceType = InvoiceType.BrkSale;
+                    sInvoice.InvoiceDate = InvoiceDate;
+                    sInvoice.FinancialYearId = year.Id;
+                    sInvoice.CropSeasonId = activeSeason?.Id ?? 1;
+                    sInvoice.PartyId = customer.Id;
+                    sInvoice.GrossAmount = SaleGrossTotal;
+                    sInvoice.CommissionAmount = SaleDamiValue;
+                    sInvoice.WHT_Amount = SaleWhTax2;
+                    sInvoice.LaborCharges = SaleMazdoori;
+                    sInvoice.NetAmount = SaleNetValue;
+                    sInvoice.VehicleNo = VehicleNo;
+                    sInvoice.Status = InvoiceStatus.Draft;
 
                     int lineNo = 1;
                     foreach (var item in SaleItems)
@@ -557,6 +844,9 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
                 }
             }
 
+            // 3. Sync Legacy Multi Invoice tables (MultiInvoice, MultiBody, ContractInvoice)
+            await _brokerageService.SyncLegacyMultiInvoiceAsync(MultiId, pInvoice, sInvoice, ProfitLoss, AccountNo);
+
             System.Windows.MessageBox.Show($"Brokerage Multi Invoice {MultiId} saved to database and posted successfully!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
             Clear();
             PurchaseId1 = await _systemService.GetNextDocumentNoAsync(DocumentType.BrokerageInvoice, year.Id);
@@ -569,9 +859,14 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
         }
     }
 
+    [ObservableProperty] private int _loadedPurchaseInvoiceId = 0;
+    [ObservableProperty] private int _loadedSaleInvoiceId = 0;
+
     [RelayCommand]
     private void Clear()
     {
+        LoadedPurchaseInvoiceId = 0;
+        LoadedSaleInvoiceId = 0;
         PurchaseItems.Clear();
         SaleItems.Clear();
         PurchaseGrossTotal = 0;
@@ -587,18 +882,144 @@ public partial class BrokerageMultiInvoiceViewModel : ObservableObject
     [RelayCommand]
     private void Print()
     {
-        System.Windows.MessageBox.Show("Printing Brokerage Multi Invoice...", "Print", MessageBoxButton.OK, MessageBoxImage.Information);
+        System.Windows.MessageBox.Show($"Printing Brokerage Multi Invoice #{MultiId}...", "Print Preview", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     [RelayCommand]
-    private void Open()
+    private async Task Open()
     {
-        System.Windows.MessageBox.Show("Open Multi Invoice Lookup dialog.", "Open", MessageBoxButton.OK, MessageBoxImage.Information);
+        var lookupVm = new BrokerageMultiInvoiceLookupViewModel(_brokerageService);
+
+        var lookupWin = new Views.BrokerageMultiInvoiceLookupWindow
+        {
+            DataContext = lookupVm,
+            Owner = Application.Current.MainWindow
+        };
+
+        lookupWin.ShowDialog();
+
+        if (lookupVm.IsConfirmed && lookupVm.SelectedInvoice != null)
+        {
+            var multiData = await _brokerageService.GetMultiInvoiceDataAsync(lookupVm.SelectedInvoice.MultiId);
+            MultiId = lookupVm.SelectedInvoice.MultiId;
+            AccountNo = string.IsNullOrWhiteSpace(multiData.PlsAccount) ? "40001" : multiData.PlsAccount;
+
+            // Load Purchase Side
+            if (multiData.Purchase != null)
+            {
+                LoadedPurchaseInvoiceId = multiData.Purchase.Id;
+                PurchaseId1 = multiData.Purchase.InvoiceNo;
+                InvoiceDate = multiData.Purchase.InvoiceDate;
+                PartyId = multiData.Purchase.Party?.PartyNo ?? "";
+                PartyName = multiData.Purchase.Party?.Name ?? "";
+                PartyPhone = multiData.Purchase.Party?.Phone ?? "";
+                PartyAddress = multiData.Purchase.Party?.Address ?? "";
+                PurchaseVehicleNo = multiData.Purchase.VehicleNo ?? "";
+                PurchaseGrossTotal = multiData.Purchase.GrossAmount;
+                PurchaseDamiValue = multiData.Purchase.CommissionAmount;
+                PurchaseWhtValue = multiData.Purchase.WHT_Amount;
+                PurchaseMazdoori = multiData.Purchase.LaborCharges;
+                PurchaseNetValue = multiData.Purchase.NetAmount;
+
+                PurchaseItems.Clear();
+                foreach (var detail in multiData.Purchase.Details)
+                {
+                    decimal wtPerBag = detail.Bags > 0 ? (detail.GrossWeight / detail.Bags) : 50;
+                    PurchaseItems.Add(new BrokerageMultiPurchaseItemDto
+                    {
+                        ProductId = detail.Product?.ProductCode ?? detail.ProductId.ToString(),
+                        ProductName = detail.Product?.Name ?? "",
+                        TQty = detail.Bags,
+                        BQty = detail.Bags,
+                        PQty = 0,
+                        WtPerBag = wtPerBag,
+                        TotalKgs = detail.NetWeight,
+                        Rate = detail.Rate,
+                        TotalValue = detail.Amount,
+                        Shortage = detail.TareWeight,
+                        RateType = "Rate/Mound"
+                    });
+                }
+            }
+
+            // Load Sale Side
+            if (multiData.Sale != null)
+            {
+                LoadedSaleInvoiceId = multiData.Sale.Id;
+                SaleId1 = multiData.Sale.InvoiceNo;
+                CustomerId = multiData.Sale.Party?.PartyNo ?? "";
+                CustomerName = multiData.Sale.Party?.Name ?? "";
+                CustomerPhone = multiData.Sale.Party?.Phone ?? "";
+                CustomerAddress = multiData.Sale.Party?.Address ?? "";
+                VehicleNo = multiData.Sale.VehicleNo ?? "";
+                SaleGrossTotal = multiData.Sale.GrossAmount;
+                SaleDamiValue = multiData.Sale.CommissionAmount;
+                SaleWhTax2 = multiData.Sale.WHT_Amount;
+                SaleMazdoori = multiData.Sale.LaborCharges;
+                SaleNetValue = multiData.Sale.NetAmount;
+
+                SaleItems.Clear();
+                foreach (var detail in multiData.Sale.Details)
+                {
+                    decimal wtPerBag = detail.Bags > 0 ? (detail.GrossWeight / detail.Bags) : 50;
+                    SaleItems.Add(new BrokerageMultiSaleItemDto
+                    {
+                        ProductId = detail.Product?.ProductCode ?? detail.ProductId.ToString(),
+                        ProductName = detail.Product?.Name ?? "",
+                        TQty = detail.Bags,
+                        BQty = detail.Bags,
+                        PQty = 0,
+                        WtPerBag = wtPerBag,
+                        TotalKgs = detail.NetWeight,
+                        Rate = detail.Rate,
+                        TotalValue = detail.Amount,
+                        Shortage = detail.TareWeight,
+                        RateType = "Rate/Mound",
+                        VehicleNo = multiData.Sale.VehicleNo ?? ""
+                    });
+                }
+            }
+
+            ProfitLoss = multiData.ProfitLoss;
+            RecalculateTotals();
+        }
     }
 
     [RelayCommand]
-    private void Remove()
+    private async Task Remove()
     {
+        if (LoadedPurchaseInvoiceId > 0 || LoadedSaleInvoiceId > 0 || !string.IsNullOrWhiteSpace(MultiId))
+        {
+            var result = MessageBox.Show(
+                $"Are you sure you want to delete this multi invoice (#{MultiId}) from database?\n\n(Yes = Delete multi invoice and all accounting entries\nNo = Remove only selected item from list)",
+                "Confirm Delete Multi Invoice",
+                MessageBoxButton.YesNoCancel,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                await _brokerageService.DeleteMultiInvoiceAsync(MultiId);
+                MessageBox.Show($"Multi Invoice #{MultiId} deleted successfully.", "Delete Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                Clear();
+                var year = await _systemService.GetCurrentYearAsync();
+                if (year != null)
+                {
+                    PurchaseId1 = await _systemService.GetNextDocumentNoAsync(DocumentType.BrokerageInvoice, year.Id);
+                    SaleId1 = PurchaseId1;
+                    MultiId = PurchaseId1;
+                }
+                return;
+            }
+            else if (result == MessageBoxResult.No)
+            {
+                if (SelectedPurchaseItem != null) PurchaseItems.Remove(SelectedPurchaseItem);
+                if (SelectedSaleItem != null) SaleItems.Remove(SelectedSaleItem);
+                RecalculateTotals();
+                return;
+            }
+            return;
+        }
+
         if (SelectedPurchaseItem != null)
         {
             PurchaseItems.Remove(SelectedPurchaseItem);

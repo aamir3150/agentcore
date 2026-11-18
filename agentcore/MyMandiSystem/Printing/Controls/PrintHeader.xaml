@@ -6,6 +6,9 @@
              mc:Ignorable="d" 
              x:Name="HeaderRoot"
              d:DesignWidth="500">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
     <Grid Margin="0,0,0,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -34,7 +37,8 @@
             </StackPanel>
 
             <!-- Urdu Company Name (Right) -->
-            <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Visibility="{Binding ShowUrduCompany, ElementName=HeaderRoot, Converter={StaticResource BoolToVis}}">
                 <TextBlock Text="{Binding Company.NameUrdu, ElementName=HeaderRoot}" 
                            FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Arial"
                            FontSize="20" FontWeight="Bold" Foreground="#0F172A" 

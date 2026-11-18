@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Daily Vouchers Detail" 
-        Height="480" Width="640"
+        Title="{Binding WindowTitle}" 
+        Height="540" Width="640"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Background="#EAEAEA"
@@ -66,9 +66,9 @@
                             <Border Width="34" Height="34" CornerRadius="8" Background="#1E3A8A" Margin="0,0,10,0">
                                 <materialDesign:PackIcon Kind="CalendarTextOutline" Width="22" Height="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-                            <TextBlock Text="Daily Vouchers Detail" FontSize="21" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding HeaderTitle}" FontSize="21" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="روزنامچہ واؤچرز تفصیل رپورٹ (تمام روزانہ واؤچرز)" FontSize="14" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
+                        <TextBlock Text="{Binding HeaderSubtitle}" FontSize="14" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
                     </StackPanel>
 
                     <!-- Right Graphic Emblem -->
@@ -156,10 +156,27 @@
                     <CheckBox Content="Include Invoices" IsChecked="{Binding IncludeInvoices}" Margin="0,0,0,14" FontWeight="SemiBold"/>
 
                     <!-- Row 3: Voucher Type -->
-                    <StackPanel>
+                    <StackPanel Margin="0,0,0,10">
                         <TextBlock Text="Voucher Type" FontWeight="SemiBold" Margin="0,0,0,4"/>
                         <ComboBox ItemsSource="{Binding VoucherTypes}" SelectedItem="{Binding SelectedVoucherType}" Height="28" Padding="6,2"/>
                     </StackPanel>
+
+                    <!-- Row 4: Voucher Number Range -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="From Voucher No" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding FromVoucherNo, UpdateSourceTrigger=PropertyChanged}" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="To Voucher No" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBox Text="{Binding ToVoucherNo, UpdateSourceTrigger=PropertyChanged}" Height="28" VerticalContentAlignment="Center" Padding="4,0"/>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
 
             </Grid>

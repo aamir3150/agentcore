@@ -71,15 +71,27 @@ public partial class TrialBalanceViewModel : ObservableObject
     {
         try
         {
-            DateTime to = IsAllDates ? new DateTime(2099, 12, 31) : (IsSingleDate ? SingleDate.Date.AddDays(1).AddSeconds(-1) : ToDate.Date.AddDays(1).AddSeconds(-1));
-            var data = await _reportService.GetDayBookReportAsync(to);
+            DateTime? from = IsAllDates ? null : (IsSingleDate ? SingleDate.Date : FromDate.Date);
+            DateTime? to = IsAllDates ? null : (IsSingleDate ? SingleDate.Date.AddDays(1).AddSeconds(-1) : ToDate.Date.AddDays(1).AddSeconds(-1));
+            decimal minAmount = decimal.TryParse(AmountGreaterThan, out decimal m) ? m : 0;
+            int partiesScope = ExcludeParties ? 1 : (OnlyParties ? 2 : 0);
+
+            var data = await _reportService.GetTrialBalanceReportAsync(
+                from,
+                to,
+                ShowOnlyTransactionAccounts,
+                ShowOnlyAccountsGroup,
+                ExcludeZeroBalance,
+                minAmount,
+                partiesScope,
+                SortByAccountName);
 
             var reportWindow = new ReportWindow(
-                reportPath: "Reports/DayBookReport.rdlc",
-                dataSourceName: "DataSet1",
+                reportPath: "Reports/TrialBalanceReport.rdlc",
+                dataSourceName: "DS_TrialBalance",
                 data: data
             );
-            reportWindow.Title = $"Trial Balance - {(IsAllDates ? "All Dates" : (IsSingleDate ? SingleDate.ToShortDateString() : $"{FromDate.ToShortDateString()} To {ToDate.ToShortDateString()}"))}";
+            reportWindow.Title = $"TRAIL BALANCE - {(IsAllDates ? "All Dates" : (IsSingleDate ? SingleDate.ToString("dd/MM/yyyy") : $"{FromDate:dd/MM/yyyy} To {ToDate:dd/MM/yyyy}"))}";
             reportWindow.ShowDialog();
         }
         catch (Exception ex)

@@ -1141,6 +1141,236 @@
                         </ScrollViewer>
                     </TabItem>
 
+                    <!-- ══════════════════════════════════════════════════════ -->
+                    <!-- TAB 4: DATABASE MAINTENANCE & ATTACH/DETACH/BACKUP     -->
+                    <!-- ══════════════════════════════════════════════════════ -->
+                    <TabItem Style="{StaticResource ModernTabItem}">
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="DatabaseCogOutline" Width="17" Height="17" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Tools &amp; Maintenance (سروس و فائل ٹولز)" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </TabItem.Header>
+
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
+                            <StackPanel>
+                                <!-- Status Banner -->
+                                <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,0,0,14">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <materialDesign:PackIcon Kind="ShieldCheck" Width="24" Height="24" Foreground="#16A34A" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="SQL Server Maintenance &amp; File Attach / Detach Center" FontSize="13.5" FontWeight="Bold" Foreground="#15803D"/>
+                                            <TextBlock Text="{Binding MaintenanceStatusText}" FontSize="12" Foreground="#166534" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- ────────────────────────────────────────── -->
+                                    <!-- LEFT COLUMN: ATTACH & DETACH DATABASES     -->
+                                    <!-- ────────────────────────────────────────── -->
+                                    <StackPanel Grid.Column="0">
+                                        <!-- Attach Database Card -->
+                                        <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,14" Effect="{StaticResource EffectCardShadow}">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                                    <Border Width="32" Height="32" CornerRadius="8" Background="#E0F2FE" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                        <materialDesign:PackIcon Kind="DatabasePlus" Width="18" Height="18" Foreground="#0284C7" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="Attach Database (.mdf فائل جوڑیں)" FontSize="14" FontWeight="Bold" Foreground="#0F172A"/>
+                                                        <TextBlock Text="کسی بھی فولڈر یا USB سے MDF فائل کو سرور میں شامل کریں" 
+                                                                   FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="13" Foreground="#64748B"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <!-- Target Database Name -->
+                                                <TextBlock Text="Database Name (ڈیٹا بیس کا نام):" FontWeight="SemiBold" FontSize="12" Foreground="#475569" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding AttachDbName, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="8,4" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" Margin="0,0,0,10"
+                                                         materialDesign:HintAssist.Hint="مثلاً: MyMandi_2025-26"/>
+
+                                                <!-- Primary MDF File -->
+                                                <TextBlock Text="Primary Data File (.mdf Path):" FontWeight="SemiBold" FontSize="12" Foreground="#475569" Margin="0,0,0,4"/>
+                                                <Grid Margin="0,0,0,10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0" Text="{Binding AttachMdfPath, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="8,4" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1"
+                                                             materialDesign:HintAssist.Hint="Select .mdf file location..."/>
+                                                    <Button Grid.Column="1" Command="{Binding BrowseAttachMdfCommand}" Height="34" Margin="6,0,0,0" Background="#F1F5F9" Foreground="#334155" BorderBrush="#CBD5E1" BorderThickness="1" Cursor="Hand">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="FolderOpenOutline" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                            <TextBlock Text="Browse" FontSize="12" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                </Grid>
+
+                                                <!-- Optional LDF File -->
+                                                <TextBlock Text="Transaction Log File (.ldf Path - Optional):" FontWeight="SemiBold" FontSize="12" Foreground="#475569" Margin="0,0,0,4"/>
+                                                <Grid Margin="0,0,0,14">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0" Text="{Binding AttachLdfPath, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="8,4" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1"
+                                                             materialDesign:HintAssist.Hint="Optional: Auto-rebuilt if empty..."/>
+                                                    <Button Grid.Column="1" Command="{Binding BrowseAttachLdfCommand}" Height="34" Margin="6,0,0,0" Background="#F1F5F9" Foreground="#334155" BorderBrush="#CBD5E1" BorderThickness="1" Cursor="Hand">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="FolderOpenOutline" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                            <TextBlock Text="Browse" FontSize="12" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                </Grid>
+
+                                                <!-- Attach Button -->
+                                                <Button Command="{Binding AttachDatabaseCommand}" Height="38" Background="#0284C7" Foreground="#FFFFFF" BorderThickness="0" Cursor="Hand">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <materialDesign:PackIcon Kind="DatabasePlus" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                        <TextBlock Text="Attach Database (سرور میں اٹیچ کریں)" FontWeight="Bold" FontSize="12.5" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Detach Database Card -->
+                                        <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="18" Effect="{StaticResource EffectCardShadow}">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                    <Border Width="32" Height="32" CornerRadius="8" Background="#FEE2E2" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                        <materialDesign:PackIcon Kind="DatabaseMinus" Width="18" Height="18" Foreground="#DC2626" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="Detach Database (.mdf فائل الگ کریں)" FontSize="14" FontWeight="Bold" Foreground="#0F172A"/>
+                                                        <TextBlock Text="منتخب ڈیٹا بیس کو سرور سے الگ کریں تاکہ فائل کو کاپی یا بیک اپ کیا جا سکے" 
+                                                                   FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="13" Foreground="#64748B"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <TextBlock Text="{Binding SelectedDatabase.DatabaseName, StringFormat='{}Selected Target: [{0}]'}" FontWeight="Bold" FontSize="12.5" Foreground="#0284C7" Margin="0,0,0,8"/>
+                                                
+                                                <Button Command="{Binding DetachDatabaseCommand}" Height="38" Background="#DC2626" Foreground="#FFFFFF" BorderThickness="0" Cursor="Hand">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <materialDesign:PackIcon Kind="DatabaseMinus" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                        <TextBlock Text="Detach Selected Database (ڈی ٹیچ کریں)" FontWeight="Bold" FontSize="12.5" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- ────────────────────────────────────────── -->
+                                    <!-- RIGHT COLUMN: BACKUP, RESTORE & SHRINK     -->
+                                    <!-- ────────────────────────────────────────── -->
+                                    <StackPanel Grid.Column="2">
+                                        <!-- Backup & Restore Card -->
+                                        <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,14" Effect="{StaticResource EffectCardShadow}">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                                    <Border Width="32" Height="32" CornerRadius="8" Background="#DCFCE7" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                        <materialDesign:PackIcon Kind="DatabaseSync" Width="18" Height="18" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="Backup &amp; Restore (.bak فائل)" FontSize="14" FontWeight="Bold" Foreground="#0F172A"/>
+                                                        <TextBlock Text="ڈیٹا بیس کا مکمل کمپریسڈ بیک اپ بنائیں یا پرانا بیک اپ ری اسٹور کریں" 
+                                                                   FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="13" Foreground="#64748B"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <!-- Backup Section -->
+                                                <TextBlock Text="Backup Destination Path (.bak):" FontWeight="SemiBold" FontSize="12" Foreground="#475569" Margin="0,0,0,4"/>
+                                                <Grid Margin="0,0,0,10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0" Text="{Binding BackupFilePath, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="8,4" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1"
+                                                             materialDesign:HintAssist.Hint="Select destination for .bak file..."/>
+                                                    <Button Grid.Column="1" Command="{Binding BrowseBackupFileCommand}" Height="34" Margin="6,0,0,0" Background="#F1F5F9" Foreground="#334155" BorderBrush="#CBD5E1" BorderThickness="1" Cursor="Hand">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="FolderOpenOutline" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                            <TextBlock Text="Browse" FontSize="12" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                </Grid>
+
+                                                <Button Command="{Binding BackupDatabaseCommand}" Height="36" Background="#16A34A" Foreground="#FFFFFF" BorderThickness="0" Cursor="Hand" Margin="0,0,0,18">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <materialDesign:PackIcon Kind="CloudDownload" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                        <TextBlock Text="Create Full Backup (بیک اپ بنائیں)" FontWeight="Bold" FontSize="12.5" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+
+                                                <Separator Background="#E2E8F0" Margin="0,0,0,14"/>
+
+                                                <!-- Restore Section -->
+                                                <TextBlock Text="Restore Backup File (.bak):" FontWeight="SemiBold" FontSize="12" Foreground="#475569" Margin="0,0,0,4"/>
+                                                <Grid Margin="0,0,0,10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0" Text="{Binding RestoreBakPath, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="8,4" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1"
+                                                             materialDesign:HintAssist.Hint="Select .bak file to restore..."/>
+                                                    <Button Grid.Column="1" Command="{Binding BrowseRestoreBakCommand}" Height="34" Margin="6,0,0,0" Background="#F1F5F9" Foreground="#334155" BorderBrush="#CBD5E1" BorderThickness="1" Cursor="Hand">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="FolderOpenOutline" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                            <TextBlock Text="Browse" FontSize="12" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                </Grid>
+
+                                                <TextBlock Text="Target Database Name to Overwrite/Create:" FontWeight="SemiBold" FontSize="12" Foreground="#475569" Margin="0,0,0,4"/>
+                                                <TextBox Text="{Binding RestoreDbName, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="8,4" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" Margin="0,0,0,10"
+                                                         materialDesign:HintAssist.Hint="مثلاً: MyMandi_2025-26"/>
+
+                                                <Button Command="{Binding RestoreDatabaseCommand}" Height="36" Background="#EA580C" Foreground="#FFFFFF" BorderThickness="0" Cursor="Hand">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <materialDesign:PackIcon Kind="CloudUpload" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                        <TextBlock Text="Restore Database (ری اسٹور کریں)" FontWeight="Bold" FontSize="12.5" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Shrink Database Card -->
+                                        <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="18" Effect="{StaticResource EffectCardShadow}">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                    <Border Width="32" Height="32" CornerRadius="8" Background="#F3E8FF" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                        <materialDesign:PackIcon Kind="ArrowCollapseAll" Width="18" Height="18" Foreground="#9333EA" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="Shrink Database &amp; Clean Logs" FontSize="14" FontWeight="Bold" Foreground="#0F172A"/>
+                                                        <TextBlock Text="غیر ضروری جگہ خالی کریں اور ٹرانزیکشن لاگ فائل کا سائز کم کریں" 
+                                                                   FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="13" Foreground="#64748B"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <Button Command="{Binding ShrinkDatabaseCommand}" Height="36" Background="#7C3AED" Foreground="#FFFFFF" BorderThickness="0" Cursor="Hand">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <materialDesign:PackIcon Kind="ArrowCollapseAll" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                        <TextBlock Text="Shrink Selected Database (شرنک کریں)" FontWeight="Bold" FontSize="12.5" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
                 </TabControl>
             </Grid>
         </Grid>

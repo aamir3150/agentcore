@@ -59,7 +59,8 @@ public static class ReportDocumentBuilder
         decimal totalDebit,
         decimal totalCredit,
         int totalRecords,
-        DataGrid? sourceGrid = null)
+        DataGrid? sourceGrid = null,
+        string? netBalanceOverride = null)
     {
         var doc = new FixedDocument();
 
@@ -169,7 +170,7 @@ public static class ReportDocumentBuilder
             // --- Row 3: Totals Summary Card (Only on Last Page) ---
             if (isLastPage)
             {
-                var summaryCard = BuildSummaryCard(totalDebit, totalCredit, totalRecords);
+                var summaryCard = BuildSummaryCard(totalDebit, totalCredit, totalRecords, netBalanceOverride);
                 Grid.SetRow(summaryCard, 3);
                 rootGrid.Children.Add(summaryCard);
             }
@@ -437,34 +438,81 @@ public static class ReportDocumentBuilder
                     PropertyName = propName
                 };
 
-                if (lower.Contains("voucher") || lower.Contains("واؤچر"))
+                if (propName.Equals("AccountNo", StringComparison.OrdinalIgnoreCase) || lower.Contains("a/c #"))
                 {
-                    desc.Weight = 14;
+                    desc.Weight = 9;
+                    desc.Alignment = TextAlignment.Center;
+                    desc.FontWeight = FontWeights.SemiBold;
+                }
+                else if (propName.Equals("ContactNo", StringComparison.OrdinalIgnoreCase) || lower.Contains("contact"))
+                {
+                    desc.Weight = 11;
+                    desc.Alignment = TextAlignment.Center;
+                    desc.FontSize = 9;
+                }
+                else if (propName.Equals("PartyTitle", StringComparison.OrdinalIgnoreCase) || propName.Equals("AccountTitle", StringComparison.OrdinalIgnoreCase))
+                {
+                    desc.Weight = 24;
+                    desc.Alignment = TextAlignment.Left;
+                    desc.IsUrdu = true;
+                    desc.FontSize = 10;
+                }
+                else if (propName.Equals("OpeningBal", StringComparison.OrdinalIgnoreCase))
+                {
+                    desc.Weight = 10.5;
+                    desc.Alignment = TextAlignment.Right;
+                    desc.FontWeight = FontWeights.SemiBold;
+                }
+                else if (propName.Equals("ClosingBal", StringComparison.OrdinalIgnoreCase) || propName.Equals("TodayBal", StringComparison.OrdinalIgnoreCase))
+                {
+                    desc.Weight = 11;
+                    desc.Alignment = TextAlignment.Right;
+                    desc.Foreground = ColorNavy;
+                    desc.FontWeight = FontWeights.Bold;
+                }
+                else if (propName.Equals("OpeningType", StringComparison.OrdinalIgnoreCase) ||
+                         propName.Equals("ClosingType", StringComparison.OrdinalIgnoreCase) ||
+                         propName.Equals("TodayType", StringComparison.OrdinalIgnoreCase) ||
+                         propName.Equals("BalType", StringComparison.OrdinalIgnoreCase))
+                {
+                    desc.Weight = 5;
+                    desc.Alignment = TextAlignment.Center;
+                    desc.FontWeight = FontWeights.Bold;
+                    desc.FontSize = 8.5;
+                }
+                else if (lower.Contains("voucherno") || lower == "voucher #" || lower.Contains("واؤچر"))
+                {
+                    desc.Weight = 12;
                     desc.Alignment = TextAlignment.Center;
                     desc.FontWeight = FontWeights.SemiBold;
                 }
                 else if (lower.Contains("date") || lower.Contains("تاریخ"))
                 {
-                    desc.Weight = 13;
+                    desc.Weight = 11;
+                    desc.Alignment = TextAlignment.Center;
+                }
+                else if (lower.Contains("chequeno") || lower.Contains("cheque") || lower.Contains("چیک"))
+                {
+                    desc.Weight = 9;
                     desc.Alignment = TextAlignment.Center;
                 }
                 else if (lower.Contains("narration") || lower.Contains("تفصیل") || lower.Contains("detail") || lower.Contains("title"))
                 {
-                    desc.Weight = 37;
+                    desc.Weight = 34;
                     desc.Alignment = TextAlignment.Left;
                     desc.IsUrdu = true;
-                    desc.FontSize = 11.5;
+                    desc.FontSize = 10.5;
                 }
                 else if (lower.Contains("debit") || lower.Contains("بنام"))
                 {
-                    desc.Weight = 12;
+                    desc.Weight = 11;
                     desc.Alignment = TextAlignment.Right;
                     desc.Foreground = ColorDebit;
                     desc.FontWeight = FontWeights.Bold;
                 }
                 else if (lower.Contains("credit") || lower.Contains("جمع"))
                 {
-                    desc.Weight = 12;
+                    desc.Weight = 11;
                     desc.Alignment = TextAlignment.Right;
                     desc.Foreground = ColorCredit;
                     desc.FontWeight = FontWeights.Bold;
@@ -476,9 +524,15 @@ public static class ReportDocumentBuilder
                     desc.Foreground = ColorNavy;
                     desc.FontWeight = FontWeights.Bold;
                 }
+                else if (lower.Contains("status") || lower.Contains("dr/cr"))
+                {
+                    desc.Weight = 6;
+                    desc.Alignment = TextAlignment.Center;
+                    desc.FontWeight = FontWeights.Bold;
+                }
                 else
                 {
-                    desc.Weight = 16;
+                    desc.Weight = 14;
                     desc.Alignment = TextAlignment.Left;
                 }
 
@@ -489,12 +543,14 @@ public static class ReportDocumentBuilder
         // Fallback default for standard Ledger
         if (list.Count == 0)
         {
-            list.Add(new ReportColumnDesc { Header = "Voucher # (واؤچر)", PropertyName = "VoucherNo", Weight = 14, Alignment = TextAlignment.Center, FontWeight = FontWeights.SemiBold });
-            list.Add(new ReportColumnDesc { Header = "Date (تاریخ)", PropertyName = "TransactionDate", Weight = 13, Alignment = TextAlignment.Center });
-            list.Add(new ReportColumnDesc { Header = "Narration / Details (تفصیل)", PropertyName = "Narration", Weight = 37, Alignment = TextAlignment.Left, IsUrdu = true, FontSize = 11.5 });
-            list.Add(new ReportColumnDesc { Header = "Debit / بنام", PropertyName = "Debit", Weight = 12, Alignment = TextAlignment.Right, Foreground = ColorDebit, FontWeight = FontWeights.Bold });
-            list.Add(new ReportColumnDesc { Header = "Credit / جمع", PropertyName = "Credit", Weight = 12, Alignment = TextAlignment.Right, Foreground = ColorCredit, FontWeight = FontWeights.Bold });
-            list.Add(new ReportColumnDesc { Header = "Balance (بقایا)", PropertyName = "Balance", Weight = 12, Alignment = TextAlignment.Right, Foreground = ColorNavy, FontWeight = FontWeights.Bold });
+            list.Add(new ReportColumnDesc { Header = "Date", PropertyName = "Date", Weight = 11, Alignment = TextAlignment.Center });
+            list.Add(new ReportColumnDesc { Header = "Voucher #", PropertyName = "VoucherNo", Weight = 12, Alignment = TextAlignment.Center, FontWeight = FontWeights.SemiBold });
+            list.Add(new ReportColumnDesc { Header = "Narration / Description", PropertyName = "Narration", Weight = 34, Alignment = TextAlignment.Left, IsUrdu = true, FontSize = 10.5 });
+            list.Add(new ReportColumnDesc { Header = "Cheque #", PropertyName = "ChequeNo", Weight = 9, Alignment = TextAlignment.Center });
+            list.Add(new ReportColumnDesc { Header = "Debit", PropertyName = "Debit", Weight = 11, Alignment = TextAlignment.Right, Foreground = ColorDebit, FontWeight = FontWeights.Bold });
+            list.Add(new ReportColumnDesc { Header = "Credit", PropertyName = "Credit", Weight = 11, Alignment = TextAlignment.Right, Foreground = ColorCredit, FontWeight = FontWeights.Bold });
+            list.Add(new ReportColumnDesc { Header = "Balance", PropertyName = "Balance", Weight = 12, Alignment = TextAlignment.Right, Foreground = ColorNavy, FontWeight = FontWeights.Bold });
+            list.Add(new ReportColumnDesc { Header = "Dr/Cr", PropertyName = "Status", Weight = 6, Alignment = TextAlignment.Center, FontWeight = FontWeights.Bold });
         }
 
         return list;
@@ -654,8 +710,14 @@ public static class ReportDocumentBuilder
                 return parsedDt.ToString("dd/MM/yyyy");
         }
 
-        // Detect if string is a decimal number (like "50000.00")
-        if (decimal.TryParse(str, out var parsedDec) && (str.Contains('.') || str.Length >= 4))
+        bool isIdentifierText = propName.Contains("No", StringComparison.OrdinalIgnoreCase) ||
+                                propName.Contains("Phone", StringComparison.OrdinalIgnoreCase) ||
+                                propName.Contains("Mobile", StringComparison.OrdinalIgnoreCase) ||
+                                propName.Contains("Contact", StringComparison.OrdinalIgnoreCase) ||
+                                propName.Contains("Account", StringComparison.OrdinalIgnoreCase);
+
+        // Detect if string is a decimal number (like "50000.00"), but never reformat phone/account/contact identifiers
+        if (!isIdentifierText && decimal.TryParse(str, out var parsedDec) && (str.Contains('.') || str.Length >= 4))
         {
             return parsedDec.ToString("N0");
         }
@@ -667,7 +729,7 @@ public static class ReportDocumentBuilder
     //                       5. TOTALS SUMMARY CARD
     // ══════════════════════════════════════════════════════════════════════
 
-    private static UIElement BuildSummaryCard(decimal debit, decimal credit, int count)
+    private static UIElement BuildSummaryCard(decimal debit, decimal credit, int count, string? netBalanceOverride = null)
     {
         var border = new Border
         {
@@ -701,7 +763,9 @@ public static class ReportDocumentBuilder
         var stack = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
 
         decimal diff = debit - credit;
-        string balLabel = diff >= 0 ? $"{diff:N0} (Dr)" : $"{Math.Abs(diff):N0} (Cr)";
+        string balLabel = !string.IsNullOrWhiteSpace(netBalanceOverride)
+            ? netBalanceOverride
+            : (diff >= 0 ? $"{diff:N0} (Dr)" : $"{Math.Abs(diff):N0} (Cr)");
 
         stack.Children.Add(CreateBadge($"Total Debit: Rs. {debit:N0}", ColorDebit));
         stack.Children.Add(CreateBadge($"Total Credit: Rs. {credit:N0}", ColorCredit));

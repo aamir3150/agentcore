@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Enums;
 using MyMandiSystem.Core.Interfaces;
@@ -60,11 +61,12 @@ public partial class ChartOfAccountsViewModel : ObservableObject
     {
         if (SelectedGroup == null)
         {
-            FilteredAccounts = new ObservableCollection<Account>();
+            FilteredAccounts = new ObservableCollection<Account>(Accounts);
         }
         else
         {
-            FilteredAccounts = new ObservableCollection<Account>(Accounts.Where(a => a.AccountGroupId == SelectedGroup.Id));
+            var filtered = Accounts.Where(a => a.AccountGroupId == SelectedGroup.Id || a.AccountGroupId == 0);
+            FilteredAccounts = new ObservableCollection<Account>(filtered.Any() ? filtered : Accounts);
         }
     }
 
@@ -220,24 +222,24 @@ public partial class ChartOfAccountsViewModel : ObservableObject
             else
             {
                 var existing = await _accountService.GetAccountByNoAsync(CurrentAccount.AccountNo);
-                if (existing != null && existing.Id == CurrentAccount.Id)
-                {
-                    existing.Name = CurrentAccount.Name;
-                    existing.UrduName = CurrentAccount.UrduName;
-                    existing.AccountGroupId = CurrentAccount.AccountGroupId;
-                    
-                    var grp = AccountGroups.FirstOrDefault(g => g.Id == CurrentAccount.AccountGroupId);
-                    if (grp != null) existing.AccountType = grp.GroupType;
+                var target = existing ?? CurrentAccount;
+                target.AccountNo = CurrentAccount.AccountNo;
+                target.Name = CurrentAccount.Name;
+                target.UrduName = CurrentAccount.UrduName;
+                target.AccountGroupId = CurrentAccount.AccountGroupId;
+                
+                var grp = AccountGroups.FirstOrDefault(g => g.Id == CurrentAccount.AccountGroupId);
+                if (grp != null) target.AccountType = grp.GroupType;
 
-                    existing.OpeningBalance = CurrentAccount.OpeningBalance;
-                    existing.IsActive = CurrentAccount.IsActive;
+                target.OpeningBalance = CurrentAccount.OpeningBalance;
+                target.IsActive = CurrentAccount.IsActive;
 
-                    await _accountService.UpdateAccountAsync(existing);
-                }
+                await _accountService.UpdateAccountAsync(target);
             }
 
             IsAccountFormVisible = false;
             await LoadDataAsync();
+            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new MyMandiSystem.Core.Messages.RefreshDashboardMessage());
         }
         catch (Exception ex)
         {

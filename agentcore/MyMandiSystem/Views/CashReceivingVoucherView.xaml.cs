@@ -51,8 +51,19 @@ public partial class CashReceivingVoucherView : System.Windows.Controls.UserCont
             return;
         }
 
-        // Ctrl+P: Print Voucher
-        if (e.Key == Key.P && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+        // F4: Delete Voucher
+        if (e.Key == Key.F4)
+        {
+            if (vm.IsExistingVoucher && vm.DeleteVoucherCommand.CanExecute(null))
+            {
+                e.Handled = true;
+                vm.DeleteVoucherCommand.Execute(null);
+                return;
+            }
+        }
+
+        // F5 or Ctrl+P: Print Voucher
+        if (e.Key == Key.F5 || (e.Key == Key.P && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control))
         {
             e.Handled = true;
             vm.PrintCommand.Execute(null);
@@ -181,5 +192,11 @@ public partial class CashReceivingVoucherView : System.Windows.Controls.UserCont
             }
             e.Handled = true;
         }
+    }
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        var win = Window.GetWindow(this);
+        win?.Close();
     }
 }

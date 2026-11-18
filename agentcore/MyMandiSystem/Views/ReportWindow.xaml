@@ -32,8 +32,8 @@
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock x:Name="TxtReportTitle" Text="Report Preview" FontSize="17" FontWeight="Bold" Foreground="#FFFFFF"/>
-                        <TextBlock Text="سٹی کمپیوٹرز مروٹ — جامع رپورٹ پرنٹ و پری ویو" 
-                                   FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="14.5" Foreground="#94A3B8"/>
+                        <TextBlock Text="City Computers Marot — Comprehensive Report Print &amp; Preview" 
+                                   FontSize="12" Foreground="#94A3B8"/>
                     </StackPanel>
                 </StackPanel>
 
@@ -45,7 +45,7 @@
                             Background="#0284C7" Foreground="#FFFFFF" BorderThickness="0">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="EyeOutline" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="Preview (پری ویو)" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock Text="Preview" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -54,7 +54,7 @@
                             Style="{StaticResource ModernPrimaryButton}">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Printer" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="Print (پرنٹ)" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock Text="Print" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -63,7 +63,7 @@
                             Background="#334155" Foreground="#FFFFFF" BorderThickness="0">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="FileExcel" Width="18" Height="18" Foreground="#22C55E" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="Export CSV (ایکسپورٹ)" FontSize="12.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock Text="Export CSV" FontSize="12.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -84,7 +84,7 @@
         <!-- ══════════════════════════════════════════════════════════ -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
                       Background="#CBD5E1" Padding="12,18">
-            <Border x:Name="PrintArea" Width="820" HorizontalAlignment="Center"
+            <Border x:Name="PrintArea" Width="880" HorizontalAlignment="Center"
                     Background="#FFFFFF" CornerRadius="4" BorderBrush="#94A3B8" BorderThickness="1" 
                     Padding="26,22" MinHeight="1050" Effect="{StaticResource EffectCardShadow}">
                 <Grid>
@@ -92,6 +92,7 @@
                         <RowDefinition Height="Auto"/> <!-- Row 0: Business Header -->
                         <RowDefinition Height="Auto"/> <!-- Row 1: Sub-Header -->
                         <RowDefinition Height="*"/>    <!-- Row 2: Main DataGrid -->
+                        <RowDefinition Height="Auto"/> <!-- Row 3: Signatures & Document Footer -->
                     </Grid.RowDefinitions>
 
                     <!-- ═══ FORMAL BUSINESS PRINT HEADER ═══ -->
@@ -108,24 +109,19 @@
                                 <materialDesign:PackIcon Kind="OfficeBuilding" Width="40" Height="40" Foreground="{StaticResource BrushAccentTeal}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
 
-                            <!-- Center: Business Name (Urdu & English) + Address + Phone -->
+                            <!-- Center: Business Name + Address + Phone -->
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <!-- Firm Name (Urdu) -->
-                                <TextBlock x:Name="TxtHeaderBusinessUrdu" Text="سٹی کمپیوٹرز مروٹ" 
-                                           FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="26" FontWeight="Bold" 
-                                           Foreground="#0F172A" HorizontalAlignment="Center" FlowDirection="RightToLeft" Margin="0,0,0,2"/>
-
                                 <!-- Firm Name (English) -->
                                 <TextBlock x:Name="TxtHeaderBusinessName" Text="City Computers Marot" 
-                                           FontSize="16.5" FontWeight="Bold" Foreground="#1E293B" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                           FontSize="19" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,0,0,3"/>
 
                                 <!-- Address / Mandi Location -->
-                                <TextBlock x:Name="TxtHeaderAddress" Text="Grain Market, Marot (غلہ منڈی مروٹ)" 
+                                <TextBlock x:Name="TxtHeaderAddress" Text="Grain Market, Marot" 
                                            FontSize="12.5" Foreground="#475569" HorizontalAlignment="Center"/>
 
                                 <!-- Phone Numbers & Malik / Proprietor -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3,0,0">
-                                    <TextBlock x:Name="TxtHeaderPhone" Text="📞 0344-7436314" FontSize="12.5" FontWeight="Bold" Foreground="#0F766E"/>
+                                    <TextBlock x:Name="TxtHeaderPhone" Text="Phone: 0344-7436314" FontSize="12.5" FontWeight="Bold" Foreground="#0F766E"/>
                                     <TextBlock x:Name="TxtHeaderProprietor" Text="" FontSize="12.5" Foreground="#334155" Margin="10,0,0,0"/>
                                 </StackPanel>
                             </StackPanel>
@@ -151,11 +147,11 @@
 
                             <StackPanel Grid.Column="0">
                                 <TextBlock x:Name="TxtAccountHeader" Text="Account: General Ledger" FontSize="14" FontWeight="Bold" Foreground="#0F172A"/>
-                                <TextBlock x:Name="TxtPeriodHeader" Text="Period: All Dates (تمام تاریخیں)" FontSize="12" Foreground="#475569" Margin="0,2,0,0"/>
+                                <TextBlock x:Name="TxtPeriodHeader" Text="Period: All Dates" FontSize="12" Foreground="#475569" Margin="0,2,0,0"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Currency: PKR (روپے)" FontSize="11.5" FontWeight="SemiBold" Foreground="#64748B" HorizontalAlignment="Right"/>
+                                <TextBlock Text="Currency: PKR" FontSize="11.5" FontWeight="SemiBold" Foreground="#64748B" HorizontalAlignment="Right"/>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -176,6 +172,35 @@
                               ColumnHeaderHeight="38"
                               Background="#FFFFFF"
                               HorizontalAlignment="Stretch"/>
+
+                    <!-- ═══ SIGNATURES & OFFICIAL STAMP FOOTER ═══ -->
+                    <Border Grid.Row="3" Margin="0,32,0,0" Padding="0,16,0,0" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Prepared By -->
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                <Border BorderBrush="#94A3B8" BorderThickness="0,0,0,1" Width="150" Margin="0,0,0,6"/>
+                                <TextBlock Text="Prepared By" FontSize="11" FontWeight="SemiBold" Foreground="#475569" HorizontalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Checked By -->
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <Border BorderBrush="#94A3B8" BorderThickness="0,0,0,1" Width="150" Margin="0,0,0,6"/>
+                                <TextBlock Text="Checked By" FontSize="11" FontWeight="SemiBold" Foreground="#475569" HorizontalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Customer / Signature -->
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                <Border BorderBrush="#94A3B8" BorderThickness="0,0,0,1" Width="150" Margin="0,0,0,6"/>
+                                <TextBlock Text="Authorized / Signature" FontSize="11" FontWeight="SemiBold" Foreground="#475569" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
                 </Grid>
             </Border>

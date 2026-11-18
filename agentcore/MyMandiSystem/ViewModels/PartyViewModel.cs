@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
+using MyMandiSystem.Core.Messages;
 using MyMandiSystem.Helpers;
 using System;
 using System.Collections.ObjectModel;
@@ -35,6 +37,11 @@ public partial class PartyViewModel : ObservableObject
     [ObservableProperty] private Salesman? _selectedSalesman;
     [ObservableProperty] private bool _isSalesmanFormVisible;
 
+    // Party Groups State
+    [ObservableProperty] private PartyGroup _currentPartyGroup = new();
+    [ObservableProperty] private PartyGroup? _selectedPartyGroup;
+    [ObservableProperty] private bool _isPartyGroupFormVisible;
+
     public Array PartyTypes => Enum.GetValues(typeof(PartyType));
 
     public PartyViewModel(IPartyService partyService, ICatalogService catalogService)
@@ -52,22 +59,29 @@ public partial class PartyViewModel : ObservableObject
     [RelayCommand]
     private async Task LoadDataAsync()
     {
-        var parties = await _partyService.GetAllPartiesAsync();
-        AllParties = new ObservableCollection<Party>(parties);
+        try
+        {
+            var parties = await _partyService.GetAllPartiesAsync();
+            AllParties = new ObservableCollection<Party>(parties);
 
-        var groups = await _partyService.GetPartyGroupsAsync();
-        PartyGroups = new ObservableCollection<PartyGroup>(groups);
+            var groups = await _partyService.GetPartyGroupsAsync();
+            PartyGroups = new ObservableCollection<PartyGroup>(groups);
 
-        var towns = await _catalogService.GetTownsAsync();
-        Towns = new ObservableCollection<Town>(towns);
+            var towns = await _catalogService.GetTownsAsync();
+            Towns = new ObservableCollection<Town>(towns);
 
-        var sectors = await _catalogService.GetSectorsAsync();
-        Sectors = new ObservableCollection<Sector>(sectors);
+            var sectors = await _catalogService.GetSectorsAsync();
+            Sectors = new ObservableCollection<Sector>(sectors);
 
-        var salesmen = await _partyService.GetAllSalesmenAsync();
-        Salesmen = new ObservableCollection<Salesman>(salesmen);
+            var salesmen = await _partyService.GetAllSalesmenAsync();
+            Salesmen = new ObservableCollection<Salesman>(salesmen);
 
-        FilterParties();
+            FilterParties();
+        }
+        catch (Exception ex)
+        {
+            FriendlyErrorHandler.ShowError(ex, "Party Load Data");
+        }
     }
 
     partial void OnSelectedTabIndexChanged(int value)
@@ -75,6 +89,7 @@ public partial class PartyViewModel : ObservableObject
         FilterParties();
         IsFormVisible = false;
         IsSalesmanFormVisible = false;
+        IsPartyGroupFormVisible = false;
     }
 
     private void FilterParties()
@@ -163,9 +178,7 @@ public partial class PartyViewModel : ObservableObject
             if (CurrentParty.Id == 0)
             {
                 if (string.IsNullOrWhiteSpace(CurrentParty.PartyNo) || 
-                    CurrentParty.PartyNo.StartsWith("P-", StringComparison.OrdinalIgnoreCase) || 
-                    CurrentParty.PartyNo.Length != 7 || 
-                    !CurrentParty.PartyNo.All(char.IsDigit))
+                    CurrentParty.PartyNo.StartsWith("P-", StringComparison.OrdinalIgnoreCase))
                 {
                     CurrentParty.PartyNo = await _partyService.GetNextPartyNoAsync(CurrentParty.PartyType);
                 }
@@ -198,6 +211,7 @@ public partial class PartyViewModel : ObservableObject
 
             IsFormVisible = false;
             await LoadDataAsync();
+            WeakReferenceMessenger.Default.Send(new RefreshDashboardMessage());
         }
         catch (Exception ex)
         {
@@ -289,6 +303,81 @@ public partial class PartyViewModel : ObservableObject
         {
             await _partyService.DeleteSalesmanAsync(salesman.Id);
             await LoadDataAsync();
+        }
+    }
+
+    // --- PARTY GROUPS CRUD ---
+
+    [RelayCommand]
+    private void AddPartyGroup()
+    {
+        CurrentPartyGroup = new PartyGroup();
+        IsPartyGroupFormVisible = true;
+    }
+
+    [RelayCommand]
+    private void EditPartyGroup(PartyGroup group)
+    {
+        if (group == null) return;
+        CurrentPartyGroup = new PartyGroup
+        {
+            Id = group.Id,
+            Name = group.Name
+        };
+        IsPartyGroupFormVisible = true;
+    }
+
+    [RelayCommand]
+    private async Task SavePartyGroup()
+    {
+        if (string.IsNullOrWhiteSpace(CurrentPartyGroup.Name))
+        {
+            System.Windows.MessageBox.Show("Please specify a Party Group name / برائے مہربانی گروپ کا نام درج کریں۔", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            if (CurrentPartyGroup.Id == 0)
+            {
+                await _partyService.AddPartyGroupAsync(CurrentPartyGroup);
+            }
+            else
+            {
+                var existing = PartyGroups.FirstOrDefault(g => g.Id == CurrentPartyGroup.Id);
+                if (existing != null)
+                {
+                    existing.Name = CurrentPartyGroup.Name;
+                    await _partyService.UpdatePartyGroupAsync(existing);
+                }
+            }
+            IsPartyGroupFormVisible = false;
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            FriendlyErrorHandler.ShowError(ex, "Party Group Save");
+        }
+    }
+
+    [RelayCommand]
+    private void CancelPartyGroup() => IsPartyGroupFormVisible = false;
+
+    [RelayCommand]
+    private async Task DeletePartyGroup(PartyGroup group)
+    {
+        if (group == null) return;
+        if (System.Windows.MessageBox.Show($"Are you sure to remove party group '{group.Name}'? / کیا آپ واقعی یہ گروپ حذف کرنا چاہتے ہیں؟", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+        {
+            try
+            {
+                await _partyService.DeletePartyGroupAsync(group.Id);
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                FriendlyErrorHandler.ShowError(ex, "Party Group Delete");
+            }
         }
     }
 }

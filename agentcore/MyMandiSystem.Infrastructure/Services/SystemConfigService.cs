@@ -86,6 +86,11 @@ public class SystemConfigService : ISystemConfigService
     {
         string connTemplate = _configuration.GetConnectionString("DefaultConnection") 
             ?? "Server=.\\SQLEXPRESS;Database={0};Trusted_Connection=True;TrustServerCertificate=True;";
+        
+        if (!connTemplate.Contains("{0}"))
+        {
+            return connTemplate;
+        }
         return string.Format(connTemplate, dbName);
     }
 

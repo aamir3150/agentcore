@@ -1,0 +1,316 @@
+<Window x:Class="MyMandiSystem.Views.BrokerageReportsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:viewmodels="clr-namespace:MyMandiSystem.ViewModels"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}"
+        Height="820" Width="1280"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Normal"
+        FontFamily="Segoe UI"
+        Background="#F8FAFC">
+
+    <Window.Resources>
+        <!-- Card Style -->
+        <Style x:Key="ModernCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="14"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="1" Opacity="0.08" Color="#000000"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="Auto"/> <!-- Filter Panel -->
+            <RowDefinition Height="Auto"/> <!-- Metric KPI Cards -->
+            <RowDefinition Height="*"/>    <!-- Data Grid -->
+            <RowDefinition Height="Auto"/> <!-- Footer / Summary -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. Header Banner -->
+        <Border Grid.Row="0" Background="#0F172A" Padding="20,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="#1E293B" CornerRadius="8" Width="44" Height="44" Margin="0,0,15,0">
+                    <materialDesign:PackIcon Kind="Handshake" Width="26" Height="26" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding HeaderTitle}" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                        <Border Background="#0284C7" CornerRadius="4" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Mode}" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding HeaderSubtitle}" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Command="{Binding ExportCsvCommand}" Style="{StaticResource MaterialDesignOutlinedButton}" Foreground="White" BorderBrush="#475569" Margin="0,0,8,0" Height="36">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="FileExcel" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="#22C55E"/>
+                            <TextBlock Text="Export CSV" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding PrintReportCommand}" Style="{StaticResource MaterialDesignOutlinedButton}" Foreground="White" BorderBrush="#475569" Margin="0,0,8,0" Height="36">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Printer" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="#38BDF8"/>
+                            <TextBlock Text="Print Report" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding CloseCommand}" Style="{StaticResource MaterialDesignIconButton}" Foreground="#EF4444" Width="36" Height="36" ToolTip="Close">
+                        <materialDesign:PackIcon Kind="Close" Width="20" Height="20"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 2. Dynamic Filter Bar -->
+        <Border Grid.Row="1" Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="0,0,0,1" Padding="16,10">
+            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <!-- Date Filters -->
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsDateFilterVisible, Converter={StaticResource BoolToVis}}" Margin="0,0,16,6">
+                    <CheckBox Content="All Dates" IsChecked="{Binding IsAllDates}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    
+                    <TextBlock Text="From:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold" Foreground="#475569"/>
+                    <DatePicker SelectedDate="{Binding FromDate}" Width="115" Height="34" Margin="0,0,12,0" Background="White"/>
+
+                    <TextBlock Text="To:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold" Foreground="#475569"/>
+                    <DatePicker SelectedDate="{Binding ToDate}" Width="115" Height="34" Margin="0,0,12,0" Background="White"/>
+                </StackPanel>
+
+                <!-- Party Filter -->
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsPartyFilterVisible, Converter={StaticResource BoolToVis}}" Margin="0,0,16,6">
+                    <TextBlock Text="Party:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold" Foreground="#475569"/>
+                    <ComboBox ItemsSource="{Binding Parties}" SelectedItem="{Binding SelectedParty}" DisplayMemberPath="Name" Width="200" Height="34" Background="White">
+                        <ComboBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel />
+                            </ItemsPanelTemplate>
+                        </ComboBox.ItemsPanel>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Product Filter -->
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsProductFilterVisible, Converter={StaticResource BoolToVis}}" Margin="0,0,16,6">
+                    <TextBlock Text="Product:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold" Foreground="#475569"/>
+                    <ComboBox ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}" DisplayMemberPath="Name" Width="180" Height="34" Background="White"/>
+                </StackPanel>
+
+                <!-- Vehicle Filter -->
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsVehicleFilterVisible, Converter={StaticResource BoolToVis}}" Margin="0,0,16,6">
+                    <TextBlock Text="Vehicle No:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold" Foreground="#475569"/>
+                    <TextBox Text="{Binding VehicleFilter, UpdateSourceTrigger=PropertyChanged}" Width="130" Height="34" Background="White" Style="{StaticResource MaterialDesignOutlinedTextBox}" Padding="6,4"/>
+                </StackPanel>
+
+                <!-- Type Filter -->
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsTypeFilterVisible, Converter={StaticResource BoolToVis}}" Margin="0,0,16,6">
+                    <TextBlock Text="Type:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold" Foreground="#475569"/>
+                    <ComboBox ItemsSource="{Binding TypeOptions}" SelectedItem="{Binding SelectedTypeOption}" Width="110" Height="34" Background="White"/>
+                </StackPanel>
+
+                <!-- Commission Status Filter -->
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsCommissionStatusFilterVisible, Converter={StaticResource BoolToVis}}" Margin="0,0,16,6">
+                    <TextBlock Text="Commission Status:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold" Foreground="#475569"/>
+                    <ComboBox ItemsSource="{Binding CommissionStatusOptions}" SelectedItem="{Binding SelectedCommissionStatusOption}" Width="150" Height="34" Background="White"/>
+                </StackPanel>
+
+                <!-- Refresh / Load Button -->
+                <Button Command="{Binding LoadDataCommand}" Style="{StaticResource MaterialDesignRaisedButton}" Background="#0284C7" Margin="8,0,0,6" Height="34">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Refresh" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Load Data" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <!-- 3. Metric Summary Cards -->
+        <Border Grid.Row="2" Background="#F8FAFC" Padding="12,8">
+            <UniformGrid Columns="6">
+                <!-- Card 1: Records -->
+                <Border Style="{StaticResource ModernCard}" BorderThickness="4,0,0,0" BorderBrush="#0284C7">
+                    <StackPanel>
+                        <TextBlock Text="TOTAL RECORDS" FontSize="10" FontWeight="Bold" Foreground="#64748B"/>
+                        <TextBlock Text="{Binding TotalRecords}" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,2,0,0"/>
+                        <TextBlock Text="Total Entries" FontSize="10" Foreground="#94A3B8"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 2: Bags -->
+                <Border Style="{StaticResource ModernCard}" BorderThickness="4,0,0,0" BorderBrush="#8B5CF6">
+                    <StackPanel>
+                        <TextBlock Text="TOTAL BAGS / PACKS" FontSize="10" FontWeight="Bold" Foreground="#64748B"/>
+                        <TextBlock Text="{Binding TotalBags, StringFormat='{}{0:N0}'}" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,2,0,0"/>
+                        <TextBlock Text="Total Bags" FontSize="10" Foreground="#94A3B8"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 3: Weight / Mounds -->
+                <Border Style="{StaticResource ModernCard}" BorderThickness="4,0,0,0" BorderBrush="#EC4899">
+                    <StackPanel>
+                        <TextBlock Text="NET WEIGHT (MNDS / KGS)" FontSize="10" FontWeight="Bold" Foreground="#64748B"/>
+                        <TextBlock Text="{Binding TotalMounds, StringFormat='{}{0:N2} Mnd'}" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding TotalNetWeight, StringFormat='{}{0:N0} Kgs'}" FontSize="10" Foreground="#64748B"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 4: Gross Amount -->
+                <Border Style="{StaticResource ModernCard}" BorderThickness="4,0,0,0" BorderBrush="#F59E0B">
+                    <StackPanel>
+                        <TextBlock Text="GROSS AMOUNT (RS)" FontSize="10" FontWeight="Bold" Foreground="#64748B"/>
+                        <TextBlock Text="{Binding TotalGrossAmount, StringFormat='{}{0:N0}'}" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,2,0,0"/>
+                        <TextBlock Text="Total Value (Buy/Sell)" FontSize="10" Foreground="#94A3B8"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 5: Commission & Dynamic Mode -->
+                <Border Style="{StaticResource ModernCard}" BorderThickness="4,0,0,0" BorderBrush="#10B981">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Card5Title}" FontSize="10" FontWeight="Bold" Foreground="#64748B"/>
+                        <TextBlock Text="{Binding Card5Value}" FontSize="18" FontWeight="Bold" Foreground="#10B981" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding Card5Urdu}" FontSize="10" Foreground="#94A3B8"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 6: Net Amount & Dynamic Mode -->
+                <Border Style="{StaticResource ModernCard}" BorderThickness="4,0,0,0" BorderBrush="#059669">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Card6Title}" FontSize="10" FontWeight="Bold" Foreground="#64748B"/>
+                        <TextBlock Text="{Binding Card6Value}" FontSize="18" FontWeight="Bold" Foreground="#059669" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding Card6Urdu}" FontSize="10" Foreground="#94A3B8"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+        </Border>
+
+        <!-- 4. DataGrid -->
+        <Border Grid.Row="3" Margin="16,4,16,10" Background="White" CornerRadius="8" BorderBrush="#E2E8F0" BorderThickness="1">
+            <DataGrid x:Name="ReportDataGrid" ItemsSource="{Binding ReportRows}" AutoGenerateColumns="False" 
+                      IsReadOnly="True" CanUserSortColumns="True"
+                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9"
+                      RowHeight="32" HeadersVisibility="Column"
+                      BorderThickness="0" Background="Transparent"
+                      AlternatingRowBackground="#F8FAFC">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F1F5F9"/>
+                        <Setter Property="Foreground" Value="#334155"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Padding" Value="8,6"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                        <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="#" Binding="{Binding Id}" Width="45"/>
+                    <DataGridTextColumn Header="Doc / Inv #" Binding="{Binding DocNo}" Width="100"/>
+                    <DataGridTextColumn Header="Date" Binding="{Binding Date}" Width="85"/>
+                    <DataGridTextColumn Header="Type" Binding="{Binding DocType}" Width="80"/>
+                    <DataGridTextColumn Header="Party Name" Binding="{Binding PartyName}" Width="180"/>
+                    <DataGridTextColumn Header="Product / Item" Binding="{Binding ProductName}" Width="150"/>
+                    <DataGridTextColumn Header="Vehicle #" Binding="{Binding VehicleNo}" Width="95"/>
+                    
+                    <DataGridTextColumn Header="Bags" Binding="{Binding Bags, StringFormat='{}{0:N0}'}" Width="65">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right"/></Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Net Wt (Kg)" Binding="{Binding NetWeight, StringFormat='{}{0:N0}'}" Width="90">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right"/></Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Mounds" Binding="{Binding Mounds, StringFormat='{}{0:N2}'}" Width="90">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat='{}{0:N2}'}" Width="80">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right"/></Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Gross Amount" Binding="{Binding GrossAmount, StringFormat='{}{0:N0}'}" Width="110">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right"/></Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Commission" Binding="{Binding CommissionAmount, StringFormat='{}{0:N0}'}" Width="95">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right"/><Setter Property="Foreground" Value="#10B981"/></Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="W.H.T" Binding="{Binding WHT_Amount, StringFormat='{}{0:N0}'}" Width="80">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right"/><Setter Property="Foreground" Value="#EF4444"/></Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Net Amount" Binding="{Binding NetAmount, StringFormat='{}{0:N0}'}" Width="110">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right"/><Setter Property="FontWeight" Value="Bold"/></Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- 5. Footer -->
+        <Border Grid.Row="4" Background="#0F172A" Padding="16,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="agentcore ERP" Foreground="#38BDF8" FontWeight="Bold" FontSize="11"/>
+                    <TextBlock Text=" • Brokerage Reports Engine" Foreground="#94A3B8" FontSize="11" Margin="6,0,0,0"/>
+                </StackPanel>
+
+                <TextBlock Grid.Column="1" Text="City Computers Marot — 0344-7436314" Foreground="#64748B" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Shortcuts: F5 = Refresh | Esc = Close" Foreground="#94A3B8" FontSize="11"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

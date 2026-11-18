@@ -96,7 +96,8 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
                                     <DataGridTextColumn Header="UNIT NAME" Binding="{Binding Name}" Width="*"/>
-                                    <DataGridTextColumn Header="SYMBOL / SHORT" Binding="{Binding ShortName}" Width="120"/>
+                                    <DataGridTextColumn Header="SYMBOL / SHORT" Binding="{Binding ShortName}" Width="100"/>
+                                    <DataGridTextColumn Header="MULTIPLIER / ضربی قدر" Binding="{Binding Multiplier, StringFormat=N2}" Width="110"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
@@ -111,7 +112,8 @@
                                 <StackPanel>
                                     <TextBlock Text="Measurement Unit" FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" Margin="0,0,0,12"/>
                                     <TextBox materialDesign:HintAssist.Hint="Unit Name (e.g. Kilogram, Maund, Bag)" Text="{Binding CurrentUnit.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
-                                    <TextBox materialDesign:HintAssist.Hint="Symbol (e.g. KG, MD, BG)" Text="{Binding CurrentUnit.ShortName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,14"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Symbol (e.g. KG, MD, BG)" Text="{Binding CurrentUnit.ShortName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                                    <TextBox materialDesign:HintAssist.Hint="Multiplier / ضربی قدر (e.g. 1.0, 40.0, 50.0)" Text="{Binding CurrentUnit.Multiplier, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,14"/>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                         <Button Content="Cancel" Command="{Binding CancelUnitCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,8,0"/>
                                         <Button Content="Save Unit" Command="{Binding SaveUnitCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34"/>

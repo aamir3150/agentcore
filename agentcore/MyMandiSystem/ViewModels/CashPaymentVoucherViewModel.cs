@@ -30,7 +30,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
     private string _cropSeason = string.Empty;
 
     [ObservableProperty]
-    private string _branchName = "Main Branch / ہیڈ آفس";
+    private string _branchName = "Main Branch";
 
     [ObservableProperty]
     private string _searchVoucherNo = string.Empty;
@@ -98,6 +98,111 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
     [ObservableProperty]
     private decimal _totalAmount;
 
+    // ═══ WHT & Special Deduction Mode (AgenSOFT FrmCashWHT Exact Logic) ═══
+    [ObservableProperty] private bool _isWhtMode;
+    [ObservableProperty] private string _creditVoucherNo = string.Empty;
+    [ObservableProperty] private decimal _whtRatio;
+    [ObservableProperty] private decimal _whtAmount;
+    [ObservableProperty] private bool _isWhtMinus = true;
+    [ObservableProperty] private bool _isWhtPlus = false;
+    [ObservableProperty] private decimal _freight;
+    [ObservableProperty] private bool _isFreightMinus = false;
+    [ObservableProperty] private bool _isFreightPlus = true;
+    [ObservableProperty] private decimal _netCashPaid;
+
+    partial void OnAmountChanged(decimal value) => RecalculateWht();
+    partial void OnWhtRatioChanged(decimal value) => RecalculateWht();
+    partial void OnWhtAmountChanged(decimal value) => RecalculateNetCash();
+    partial void OnIsWhtMinusChanged(bool value)
+    {
+        if (value && IsWhtPlus) IsWhtPlus = false;
+        RecalculateNetCash();
+    }
+    partial void OnIsWhtPlusChanged(bool value)
+    {
+        if (value && IsWhtMinus) IsWhtMinus = false;
+        RecalculateNetCash();
+    }
+    partial void OnFreightChanged(decimal value) => RecalculateNetCash();
+    partial void OnIsFreightMinusChanged(bool value)
+    {
+        if (value && IsFreightPlus) IsFreightPlus = false;
+        RecalculateNetCash();
+    }
+    partial void OnIsFreightPlusChanged(bool value)
+    {
+        if (value && IsFreightMinus) IsFreightMinus = false;
+        RecalculateNetCash();
+    }
+    public string FormTitle => IsWhtMode ? "Cash Payment Voucher (Withholding Tax)" : "Debit Voucher (Cash Payment)";
+    public string FormSubtitle => IsWhtMode ? "Record party payments subject to Withholding Tax and auto-generate linked Credit Voucher (Account 2303)" : "Record and disburse cash payments to vendor and expense accounts";
+
+    partial void OnIsWhtModeChanged(bool value)
+    {
+        OnPropertyChanged(nameof(FormTitle));
+        OnPropertyChanged(nameof(FormSubtitle));
+        if (value && string.IsNullOrEmpty(CreditVoucherNo))
+        {
+            _ = LoadCreditVoucherNoAsync();
+        }
+        RecalculateNetCash();
+    }
+
+    private async Task LoadCreditVoucherNoAsync()
+    {
+        try
+        {
+            var year = await _systemService.GetCurrentYearAsync();
+            if (year != null)
+            {
+                CreditVoucherNo = await _voucherService.GetNextVoucherNoAsync(Core.Enums.VoucherType.CashReceiving, year.Id);
+            }
+        }
+        catch
+        {
+            CreditVoucherNo = "1";
+        }
+    }
+
+    private void RecalculateWht()
+    {
+        if (IsWhtMode && WhtRatio > 0 && Amount > 0)
+        {
+            WhtAmount = Math.Round((Amount * WhtRatio) / 100m, 2);
+        }
+        RecalculateNetCash();
+    }
+
+    private void RecalculateNetCash()
+    {
+        if (!IsWhtMode)
+        {
+            NetCashPaid = TotalAmount > 0 ? TotalAmount : Amount;
+            return;
+        }
+
+        decimal baseAmt = Amount > 0 ? Amount : TotalAmount;
+        decimal net = baseAmt;
+
+        if (WhtAmount > 0)
+        {
+            if (IsWhtMinus)
+                net -= WhtAmount;
+            else
+                net += WhtAmount;
+        }
+
+        if (Freight > 0)
+        {
+            if (IsFreightMinus)
+                net -= Freight;
+            else
+                net += Freight;
+        }
+
+        NetCashPaid = Math.Max(0, net);
+    }
+
     // Denominations (نوٹ شماری)
     [ObservableProperty] private int _count5000;
     [ObservableProperty] private int _count1000;
@@ -141,7 +246,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
     {
         if (!Details.Any())
         {
-            System.Windows.MessageBox.Show("واؤچر پرنٹ کرنے کے لیے کم از کم ایک انٹری شامل ہونی چاہیے!", "اطلاع", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("Please add at least one line item before printing.", "Information", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
             return;
         }
 
@@ -215,6 +320,10 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         if (year != null)
         {
             VoucherNo = await _voucherService.GetNextVoucherNoAsync(Core.Enums.VoucherType.CashPayment, year.Id);
+            if (IsWhtMode)
+            {
+                CreditVoucherNo = await _voucherService.GetNextVoucherNoAsync(Core.Enums.VoucherType.CashReceiving, year.Id);
+            }
         }
 
         try
@@ -300,7 +409,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
     {
         if (IsCashAccount(no))
         {
-            AccountName = "⚠️ نقد / روکڑ کھاتہ ادائیگی کے لیے منتخب نہیں ہو سکتا";
+            AccountName = "⚠️ Cash in Hand cannot be selected as party";
             ResetSelectedAccountInfo();
             return;
         }
@@ -310,7 +419,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         {
             if (IsCashAccount(account))
             {
-                AccountName = "⚠️ نقد / روکڑ کھاتہ ادائیگی کے لیے منتخب نہیں ہو سکتا";
+                AccountName = "⚠️ Cash in Hand cannot be selected as party";
                 ResetSelectedAccountInfo();
                 return;
             }
@@ -332,17 +441,17 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
             if (bal > 0)
             {
                 AccountBalance = $"{bal:N0} Dr";
-                AccountBalanceStatus = "واجب الوصول (لینا ہے)";
+                AccountBalanceStatus = "Debit (Dr)";
             }
             else if (bal < 0)
             {
                 AccountBalance = $"{Math.Abs(bal):N0} Cr";
-                AccountBalanceStatus = "واجب الادا (دینا ہے)";
+                AccountBalanceStatus = "Credit (Cr)";
             }
             else
             {
                 AccountBalance = "0 Nil";
-                AccountBalanceStatus = "حساب برابر ہے";
+                AccountBalanceStatus = "Balanced (Nil)";
             }
             HasSelectedAccount = true;
             SelectedAccountUrduName = account.UrduName ?? string.Empty;
@@ -371,15 +480,15 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(AccountNo))
         {
-            System.Windows.MessageBox.Show("براہ کرم پہلے اکاؤنٹ کوڈ (A/c Code) درج کریں۔", "اکاؤنٹ درکار ہے", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show("Please enter an account code (A/c Code) first.", "Account Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
         if (IsCashAccount(AccountNo))
         {
             System.Windows.MessageBox.Show(
-                "کیش ان ہینڈ (1001 - Cash in Hand) میں نقد ادائیگی کا اندراج نہیں ہو سکتا!\nکیونکہ رقم خود بخود روکڑ سے ادا ہو رہی ہے، یہاں صرف وصول کنندہ پارٹی یا اخراجات کا کھاتہ درج کریں۔", 
-                "ناقابلِ قبول کھاتہ", 
+                "Cash in Hand (1001) cannot be used as destination account in Payment Voucher.\nPlease select payee or expense account.", 
+                "Invalid Account", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Warning);
             return;
@@ -387,22 +496,22 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
 
         if (Amount <= 0)
         {
-            System.Windows.MessageBox.Show("براہ کرم رقم (Amount) درج کریں۔ رقم 0 سے زیادہ ہونی چاہیے۔", "رقم درکار ہے", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show("Please enter amount greater than zero.", "Amount Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
         var account = await _accountService.GetAccountByNoAsync(AccountNo.Trim());
         if (account == null)
         {
-            System.Windows.MessageBox.Show($"اکاؤنٹ کوڈ '{AccountNo}' سسٹم میں موجود نہیں ہے!", "اکاؤنٹ نہیں ملا", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            System.Windows.MessageBox.Show($"Account code '{AccountNo}' was not found in the system.", "Account Not Found", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             return;
         }
 
         if (IsCashAccount(account))
         {
             System.Windows.MessageBox.Show(
-                "کیش ان ہینڈ (1001 - Cash in Hand) میں نقد ادائیگی کا اندراج نہیں ہو سکتا!\nیہاں صرف وصول کنندہ پارٹی یا اخراجات کا کھاتہ درج کریں۔", 
-                "ناقابلِ قبول کھاتہ", 
+                "Cash in Hand (1001) cannot be used as destination account in Payment Voucher.\nPlease select payee or expense account.", 
+                "Invalid Account", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Warning);
             return;
@@ -413,9 +522,42 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
             AccountId = account.Id,
             AccountNo = account.AccountNo,
             AccountName = account.Name,
-            Narration = Narration,
+            Narration = IsWhtMode && WhtAmount > 0 
+                ? $"{Narration} (Gross: Rs. {Amount:N0}, WHT: Rs. {WhtAmount:N0}, Net: Rs. {NetCashPaid:N0})".Trim() 
+                : Narration,
             Debit = Amount // Payments DEBIT the target account
         });
+
+        if (IsWhtMode)
+        {
+            if (WhtAmount > 0)
+            {
+                var whtAccount = await GetOrCreateWhtAccountAsync();
+                Details.Add(new VoucherDetailViewModel
+                {
+                    AccountId = whtAccount.Id,
+                    AccountNo = whtAccount.AccountNo,
+                    AccountName = whtAccount.Name,
+                    Narration = $"WHT @ {WhtRatio}% on {account.Name} (CPV #{VoucherNo})",
+                    Credit = IsWhtMinus ? WhtAmount : 0,
+                    Debit = IsWhtMinus ? 0 : WhtAmount
+                });
+            }
+
+            if (Freight > 0)
+            {
+                var freightAccount = await GetOrCreateFreightAccountAsync();
+                Details.Add(new VoucherDetailViewModel
+                {
+                    AccountId = freightAccount.Id,
+                    AccountNo = freightAccount.AccountNo,
+                    AccountName = freightAccount.Name,
+                    Narration = $"Freight on {account.Name} (CPV #{VoucherNo})",
+                    Credit = IsFreightMinus ? Freight : 0,
+                    Debit = IsFreightMinus ? 0 : Freight
+                });
+            }
+        }
 
         CalculateTotal();
         
@@ -424,6 +566,59 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         AccountName = string.Empty;
         Narration = string.Empty;
         Amount = 0;
+        WhtRatio = 0;
+        WhtAmount = 0;
+        Freight = 0;
+    }
+
+    private async Task<Account> GetOrCreateWhtAccountAsync()
+    {
+        var wht = await _accountService.GetAccountByNoAsync("2303");
+        if (wht != null) return wht;
+
+        var all = await _accountService.GetAllAccountsAsync();
+        var existing = all.FirstOrDefault(a => a.Name.Contains("WH-Tax") || a.Name.Contains("WHT") || a.Name.Contains("Withholding"));
+        if (existing != null) return existing;
+
+        var groups = await _accountService.GetAccountGroupsAsync();
+        var group = groups.FirstOrDefault(g => g.Name.Contains("Liability") || g.Name.Contains("Payable")) ?? groups.FirstOrDefault();
+
+        var newAcc = new Account
+        {
+            AccountNo = "2303",
+            Name = "WH-Tax on Cash Payments",
+            UrduName = "ودہولڈنگ ٹیکس برائے نقد ادائیگی",
+            AccountType = AccountType.Liability,
+            AccountGroupId = group?.Id ?? 1,
+            IsSystemAccount = true
+        };
+        await _accountService.AddAccountAsync(newAcc);
+        return newAcc;
+    }
+
+    private async Task<Account> GetOrCreateFreightAccountAsync()
+    {
+        var fr = await _accountService.GetAccountByNoAsync("5004");
+        if (fr != null) return fr;
+
+        var all = await _accountService.GetAllAccountsAsync();
+        var existing = all.FirstOrDefault(a => a.Name.Contains("Freight") || a.Name.Contains("کرایہ"));
+        if (existing != null) return existing;
+
+        var groups = await _accountService.GetAccountGroupsAsync();
+        var group = groups.FirstOrDefault(g => g.Name.Contains("Expense")) ?? groups.FirstOrDefault();
+
+        var newAcc = new Account
+        {
+            AccountNo = "5004",
+            Name = "Freight Charges",
+            UrduName = "کرایہ برائے مال / باربرداری",
+            AccountType = AccountType.Expense,
+            AccountGroupId = group?.Id ?? 1,
+            IsSystemAccount = true
+        };
+        await _accountService.AddAccountAsync(newAcc);
+        return newAcc;
     }
 
     [RelayCommand]
@@ -438,7 +633,9 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
 
     private void CalculateTotal()
     {
-        TotalAmount = Details.Sum(d => d.Debit);
+        TotalAmount = Details.Where(d => d.Debit > 0).Sum(d => d.Debit);
+        decimal credits = Details.Where(d => d.Credit > 0).Sum(d => d.Credit);
+        NetCashPaid = Math.Max(0, TotalAmount - credits);
     }
 
     [RelayCommand]
@@ -467,8 +664,8 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
             if (IsCashAccount(target))
             {
                 System.Windows.MessageBox.Show(
-                    "کیش ان ہینڈ (1001 - Cash in Hand) اکاؤنٹ ادائیگی میں منتخب نہیں کیا جا سکتا۔", 
-                    "ناقابلِ قبول کھاتہ", 
+                    "Cash in Hand (1001) cannot be selected for cash payment.", 
+                    "Invalid Account", 
                     System.Windows.MessageBoxButton.OK, 
                     System.Windows.MessageBoxImage.Warning);
                 return;
@@ -492,7 +689,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         var targetNo = !string.IsNullOrWhiteSpace(SearchVoucherNo) ? SearchVoucherNo : VoucherNo;
         if (string.IsNullOrWhiteSpace(targetNo))
         {
-            System.Windows.MessageBox.Show("براہ کرم تلاش کرنے کے لیے واؤچر نمبر درج کریں!", "واؤچر نمبر درکار ہے", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show("Please enter a voucher number to search.", "Voucher Number Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
@@ -504,7 +701,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         }
         else
         {
-            System.Windows.MessageBox.Show($"واؤچر نمبر '{targetNo}' سسٹم میں نہیں ملا!", "واؤچر نہیں ملا", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            System.Windows.MessageBox.Show($"Voucher #{targetNo} not found in the system.", "Voucher Not Found", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
     }
 
@@ -519,7 +716,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         }
         else
         {
-            System.Windows.MessageBox.Show("پچھلا کوئی واؤچر موجود نہیں ہے!", "اطلاع", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("No previous voucher found.", "Information", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
     }
 
@@ -534,7 +731,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         }
         else
         {
-            System.Windows.MessageBox.Show("اگلا کوئی واؤچر موجود نہیں ہے!", "اطلاع", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("No next voucher found.", "Information", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
     }
 
@@ -543,13 +740,13 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
     {
         if (!IsExistingVoucher || CurrentVoucherId <= 0)
         {
-            System.Windows.MessageBox.Show("حذف کرنے کے لیے پہلے کوئی محفوظ شدہ واؤچر لوڈ کریں۔", "اطلاع", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show("Please load a saved voucher first to delete.", "Information", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
         var confirm = System.Windows.MessageBox.Show(
-            $"کیا آپ واقعی واؤچر نمبر '{VoucherNo}' کو سسٹم اور لیجر سے حذف (Delete) کرنا چاہتے ہیں؟",
-            "واؤچر حذف کی تصدیق",
+            $"Are you sure you want to delete Voucher #{VoucherNo}?\nThis will remove it from the system and ledger.",
+            "Confirm Delete",
             System.Windows.MessageBoxButton.YesNo,
             System.Windows.MessageBoxImage.Warning);
 
@@ -557,7 +754,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         {
             await _voucherService.DeleteVoucherAsync(CurrentVoucherId);
             WeakReferenceMessenger.Default.Send(new MyMandiSystem.Core.Messages.RefreshDashboardMessage());
-            System.Windows.MessageBox.Show("واؤچر کامیابی سے حذف کر دیا گیا ہے۔", "کامیابی", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("Voucher deleted successfully.", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
             Clear();
         }
     }
@@ -621,11 +818,11 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
 
         if (IsCashAccount(AccountNo))
         {
-            AccountName = "⚠️ نقد / روکڑ کھاتہ ادائیگی کے لیے منتخب نہیں ہو سکتا";
+            AccountName = "⚠️ Cash in Hand cannot be selected as party";
             ResetSelectedAccountInfo();
             System.Windows.MessageBox.Show(
-                "کیش ان ہینڈ (1001 - Cash in Hand) میں نقد ادائیگی کا اندراج نہیں ہو سکتا!\nبراہ کرم وصول کنندہ پارٹی یا اخراجات کا کھاتہ درج کریں۔", 
-                "ناقابلِ قبول کھاتہ", 
+                "Cash in Hand (1001) cannot be used as destination account in Payment Voucher.\nPlease select payee or expense account.", 
+                "Invalid Account", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Warning);
             return;
@@ -636,11 +833,11 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         {
             if (IsCashAccount(account))
             {
-                AccountName = "⚠️ نقد / روکڑ کھاتہ ادائیگی کے لیے منتخب نہیں ہو سکتا";
+                AccountName = "⚠️ Cash in Hand cannot be selected as party";
                 ResetSelectedAccountInfo();
                 System.Windows.MessageBox.Show(
-                    "کیش ان ہینڈ (1001 - Cash in Hand) میں نقد ادائیگی کا اندراج نہیں ہو سکتا!\nبراہ کرم وصول کنندہ پارٹی یا اخراجات کا کھاتہ درج کریں۔", 
-                    "ناقابلِ قبول کھاتہ", 
+                    "Cash in Hand (1001) cannot be used as destination account in Payment Voucher.\nPlease select payee or expense account.", 
+                    "Invalid Account", 
                     System.Windows.MessageBoxButton.OK, 
                     System.Windows.MessageBoxImage.Warning);
                 return;
@@ -667,8 +864,8 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         if (Details.Any(d => d.AccountNo == "1001" || (d.AccountName != null && d.AccountName.Contains("Cash in Hand", StringComparison.OrdinalIgnoreCase))))
         {
             System.Windows.MessageBox.Show(
-                "واؤچر میں کیش ان ہینڈ (1001) اکاؤنٹ کی انٹری شامل ہے جو کہ درست نہیں ہے۔ براہ کرم اسے گرڈ سے ڈیلیٹ کریں۔", 
-                "غلط اندراج", 
+                "Voucher contains Cash in Hand (1001) account which is not valid. Please delete it from the grid.", 
+                "Invalid Entry", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Error);
             return;
@@ -677,8 +874,8 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         if (Details.Count == 0)
         {
             System.Windows.MessageBox.Show(
-                "واؤچر محفوظ کرنے سے پہلے کم از کم ایک انٹری شامل کریں۔ آپ اوپر رقم اور اکاؤنٹ لکھ کر '+ Add' کا بٹن دبا سکتے ہیں یا Enter پریس کر سکتے ہیں۔", 
-                "انٹری درکار ہے", 
+                "Please add at least one line item before saving.", 
+                "Line Entry Required", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Warning);
             return;
@@ -689,7 +886,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
             var year = await _systemService.GetCurrentYearAsync();
             if (year == null)
             {
-                System.Windows.MessageBox.Show("مالی سال (Financial Year) نہیں مل سکا!", "خرابی", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                System.Windows.MessageBox.Show("Financial year not found.", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                 return;
             }
 
@@ -702,6 +899,7 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
                 VoucherDate = VoucherDate,
                 FinancialYearId = year.Id,
                 CropSeasonId = selectedSeason?.Id,
+                CropSeason = selectedSeason,
                 TotalDebit = TotalAmount,
                 TotalCredit = TotalAmount,
                 VoucherType = Core.Enums.VoucherType.CashPayment,
@@ -723,40 +921,50 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
                 voucher.Details.Add(new VoucherDetail
                 {
                     AccountId = detail.AccountId,
+                    AccountNo = detail.AccountNo,
                     Narration = detail.Narration,
-                    Debit = detail.Debit
+                    Debit = detail.Debit,
+                    Credit = detail.Credit,
+                    Account = new Account
+                    {
+                        AccountNo = detail.AccountNo,
+                        Name = detail.AccountName
+                    }
                 });
             }
 
             await _voucherService.SaveVoucherAsync(voucher);
+            VoucherNo = voucher.VoucherNo;
             
             // Auto-post to Ledger
             await _voucherService.PostVoucherAsync(voucher.Id);
 
             if (AutoPrint)
             {
-                var slip = _printModelFactory.BuildVoucherSlip(voucher.Id);
+                var slip = _printModelFactory.BuildVoucherSlip(voucher);
                 _printService.Preview(slip);
             }
             else
             {
                 var printPrompt = System.Windows.MessageBox.Show(
-                    "Cash Payment Voucher کامیابی سے محفوظ ہو گیا ہے۔\nکیا آپ اس کا پرنٹ نکالنا چاہتے ہیں؟", 
-                    "واؤچر محفوظ ہو گیا", 
+                    "Cash Payment Voucher saved successfully.\nDo you want to print the voucher slip?", 
+                    "Voucher Saved", 
                     System.Windows.MessageBoxButton.YesNo, 
                     System.Windows.MessageBoxImage.Question);
                 if (printPrompt == System.Windows.MessageBoxResult.Yes)
                 {
-                    var slip = _printModelFactory.BuildVoucherSlip(voucher.Id);
+                    var slip = _printModelFactory.BuildVoucherSlip(voucher);
                     _printService.Preview(slip);
                 }
             }
 
             WeakReferenceMessenger.Default.Send(new MyMandiSystem.Core.Messages.RefreshDashboardMessage());
 
+            var whtMsg = IsWhtMode && WhtAmount > 0 ? $"\n(WHT Deduction: Rs. {WhtAmount:N0}, Linked CRV #{CreditVoucherNo})" : "";
+            var displayPaid = NetCashPaid > 0 ? NetCashPaid : TotalAmount;
             System.Windows.MessageBox.Show(
-                $"Cash Payment Voucher #{voucher.VoucherNo} باکامیابی محفوظ اور جنرل لیجر میں پوسٹ ہو گیا ہے!\nروکڑ (Cash in Hand) سے کل رقم Rs. {TotalAmount:N0} ادا ہو گئی ہے۔", 
-                "کامیابی", 
+                $"Cash Payment Voucher #{voucher.VoucherNo} saved and posted to General Ledger successfully!\nNet amount of Rs. {displayPaid:N0} disbursed from Cash in Hand.{whtMsg}", 
+                "Success", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Information);
 
@@ -789,6 +997,11 @@ public partial class CashPaymentVoucherViewModel : ObservableObject
         AccountName = string.Empty;
         Narration = string.Empty;
         Amount = 0;
+        WhtRatio = 0;
+        WhtAmount = 0;
+        Freight = 0;
+        NetCashPaid = 0;
+        CreditVoucherNo = string.Empty;
         SearchVoucherNo = string.Empty;
         IsExistingVoucher = false;
         CurrentVoucherId = 0;

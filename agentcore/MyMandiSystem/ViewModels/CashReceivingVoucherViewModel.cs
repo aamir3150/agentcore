@@ -15,7 +15,7 @@ namespace MyMandiSystem.ViewModels;
 public partial class CashReceivingVoucherViewModel : ObservableObject
 {
     [ObservableProperty]
-    private string _voucherNo = "164";
+    private string _voucherNo = "1";
 
     [ObservableProperty]
     private DateTime _voucherDate = DateTime.Today;
@@ -27,7 +27,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
     private string _cropSeason = string.Empty;
 
     [ObservableProperty]
-    private string _branchName = "Main Branch / ہیڈ آفس";
+    private string _branchName = "Main Branch";
 
     [ObservableProperty]
     private string _searchVoucherNo = string.Empty;
@@ -138,7 +138,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
     {
         if (!Details.Any())
         {
-            System.Windows.MessageBox.Show("واؤچر پرنٹ کرنے کے لیے کم از کم ایک انٹری شامل ہونی چاہیے!", "اطلاع", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("Please add at least one line item before printing.", "Information", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
             return;
         }
 
@@ -297,7 +297,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
     {
         if (IsCashAccount(no))
         {
-            AccountName = "⚠️ نقد / روکڑ کھاتہ وصولی کے لیے منتخب نہیں ہو سکتا";
+            AccountName = "⚠️ Cash in Hand cannot be selected as party";
             ResetSelectedAccountInfo();
             return;
         }
@@ -307,7 +307,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         {
             if (IsCashAccount(account))
             {
-                AccountName = "⚠️ نقد / روکڑ کھاتہ وصولی کے لیے منتخب نہیں ہو سکتا";
+                AccountName = "⚠️ Cash in Hand cannot be selected as party";
                 ResetSelectedAccountInfo();
                 return;
             }
@@ -329,17 +329,17 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
             if (bal > 0)
             {
                 AccountBalance = $"{bal:N0} Dr";
-                AccountBalanceStatus = "واجب الوصول (لینا ہے)";
+                AccountBalanceStatus = "Debit (Dr)";
             }
             else if (bal < 0)
             {
                 AccountBalance = $"{Math.Abs(bal):N0} Cr";
-                AccountBalanceStatus = "واجب الادا (دینا ہے)";
+                AccountBalanceStatus = "Credit (Cr)";
             }
             else
             {
                 AccountBalance = "0 Nil";
-                AccountBalanceStatus = "حساب برابر ہے";
+                AccountBalanceStatus = "Balanced (Nil)";
             }
             HasSelectedAccount = true;
             SelectedAccountUrduName = account.UrduName ?? string.Empty;
@@ -368,15 +368,15 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(AccountNo))
         {
-            System.Windows.MessageBox.Show("براہ کرم پہلے اکاؤنٹ کوڈ (A/c Code) درج کریں۔", "اکاؤنٹ درکار ہے", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show("Please enter an account code (A/c Code) first.", "Account Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
         if (IsCashAccount(AccountNo))
         {
             System.Windows.MessageBox.Show(
-                "کیش ان ہینڈ (1001 - Cash in Hand) سے کیش ان ہینڈ میں وصولی کا اندراج نہیں ہو سکتا!\nکیونکہ رقم خود بخود روکڑ میں جمع ہو رہی ہے، یہاں صرف ادائیگی کرنے والے گاہک یا پارٹی کا کھاتہ درج کریں۔", 
-                "ناقابلِ قبول کھاتہ", 
+                "Cash in Hand (1001) cannot be selected as receiving party!\nCash is automatically debited to Cash in Hand. Please select customer or income account.", 
+                "Invalid Account", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Warning);
             return;
@@ -384,22 +384,22 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
 
         if (Amount <= 0)
         {
-            System.Windows.MessageBox.Show("براہ کرم رقم (Amount) درج کریں۔ رقم 0 سے زیادہ ہونی چاہیے۔", "رقم درکار ہے", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show("Please enter amount greater than zero.", "Amount Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
         var account = await _accountService.GetAccountByNoAsync(AccountNo.Trim());
         if (account == null)
         {
-            System.Windows.MessageBox.Show($"اکاؤنٹ کوڈ '{AccountNo}' سسٹم میں موجود نہیں ہے!", "اکاؤنٹ نہیں ملا", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            System.Windows.MessageBox.Show($"Account code '{AccountNo}' was not found in the system.", "Account Not Found", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             return;
         }
 
         if (IsCashAccount(account))
         {
             System.Windows.MessageBox.Show(
-                "کیش ان ہینڈ (1001 - Cash in Hand) سے کیش ان ہینڈ میں وصولی کا اندراج نہیں ہو سکتا!\nیہاں صرف ادائیگی کرنے والے گاہک یا پارٹی کا کھاتہ درج کریں۔", 
-                "ناقابلِ قبول کھاتہ", 
+                "Cash in Hand (1001) cannot be selected as source party in Receiving Voucher.\nPlease select customer or party account.", 
+                "Invalid Account", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Warning);
             return;
@@ -464,8 +464,8 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
             if (IsCashAccount(target))
             {
                 System.Windows.MessageBox.Show(
-                    "کیش ان ہینڈ (1001 - Cash in Hand) اکاؤنٹ وصولی میں منتخب نہیں کیا جا سکتا۔", 
-                    "ناقابلِ قبول کھاتہ", 
+                    "Cash in Hand (1001) cannot be selected for cash receiving.", 
+                    "Invalid Account", 
                     System.Windows.MessageBoxButton.OK, 
                     System.Windows.MessageBoxImage.Warning);
                 return;
@@ -489,7 +489,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         var targetNo = !string.IsNullOrWhiteSpace(SearchVoucherNo) ? SearchVoucherNo : VoucherNo;
         if (string.IsNullOrWhiteSpace(targetNo))
         {
-            System.Windows.MessageBox.Show("براہ کرم تلاش کرنے کے لیے واؤچر نمبر درج کریں!", "واؤچر نمبر درکار ہے", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show("Please enter a voucher number to search.", "Voucher Number Required", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
@@ -501,7 +501,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         }
         else
         {
-            System.Windows.MessageBox.Show($"واؤچر نمبر '{targetNo}' سسٹم میں نہیں ملا!", "واؤچر نہیں ملا", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            System.Windows.MessageBox.Show($"Voucher #{targetNo} not found in the system.", "Voucher Not Found", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
     }
 
@@ -516,7 +516,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         }
         else
         {
-            System.Windows.MessageBox.Show("پچھلا کوئی واؤچر موجود نہیں ہے!", "اطلاع", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("No previous voucher found.", "Information", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
     }
 
@@ -531,7 +531,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         }
         else
         {
-            System.Windows.MessageBox.Show("اگلا کوئی واؤچر موجود نہیں ہے!", "اطلاع", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("No next voucher found.", "Information", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
     }
 
@@ -540,13 +540,13 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
     {
         if (!IsExistingVoucher || CurrentVoucherId <= 0)
         {
-            System.Windows.MessageBox.Show("حذف کرنے کے لیے پہلے کوئی محفوظ شدہ واؤچر لوڈ کریں۔", "اطلاع", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            System.Windows.MessageBox.Show("Please load a saved voucher first to delete.", "Information", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
         var confirm = System.Windows.MessageBox.Show(
-            $"کیا آپ واقعی واؤچر نمبر '{VoucherNo}' کو سسٹم اور لیجر سے حذف (Delete) کرنا چاہتے ہیں؟",
-            "واؤچر حذف کی تصدیق",
+            $"Are you sure you want to delete Voucher #{VoucherNo}?\nThis will remove it from the system and ledger.",
+            "Confirm Delete",
             System.Windows.MessageBoxButton.YesNo,
             System.Windows.MessageBoxImage.Warning);
 
@@ -554,7 +554,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         {
             await _voucherService.DeleteVoucherAsync(CurrentVoucherId);
             WeakReferenceMessenger.Default.Send(new MyMandiSystem.Core.Messages.RefreshDashboardMessage());
-            System.Windows.MessageBox.Show("واؤچر کامیابی سے حذف کر دیا گیا ہے۔", "کامیابی", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("Voucher deleted successfully.", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
             Clear();
         }
     }
@@ -587,11 +587,13 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         Details.Clear();
         foreach (var d in voucher.Details)
         {
+            var accNo = !string.IsNullOrWhiteSpace(d.Account?.AccountNo) ? d.Account.AccountNo : (d.AccountNo ?? string.Empty);
+            var accName = !string.IsNullOrWhiteSpace(d.Account?.Name) ? d.Account.Name : accNo;
             Details.Add(new VoucherDetailViewModel
             {
                 AccountId = d.AccountId,
-                AccountNo = d.Account?.AccountNo ?? string.Empty,
-                AccountName = d.Account?.Name ?? string.Empty,
+                AccountNo = accNo,
+                AccountName = accName,
                 Narration = d.Narration ?? string.Empty,
                 Credit = d.Credit
             });
@@ -618,11 +620,11 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
 
         if (IsCashAccount(AccountNo))
         {
-            AccountName = "⚠️ نقد / روکڑ کھاتہ وصولی کے لیے منتخب نہیں ہو سکتا";
+            AccountName = "⚠️ Cash in Hand cannot be selected as party";
             ResetSelectedAccountInfo();
             System.Windows.MessageBox.Show(
-                "کیش ان ہینڈ (1001 - Cash in Hand) سے کیش ان ہینڈ میں وصولی نہیں ہو سکتی!\nبراہ کرم ادائیگی کرنے والی پارٹی یا گاہک کا کھاتہ درج کریں۔", 
-                "ناقابلِ قبول کھاتہ", 
+                "Cash in Hand (1001) cannot be selected as receiving party!\nPlease select customer or income account.", 
+                "Invalid Account", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Warning);
             return;
@@ -633,11 +635,11 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         {
             if (IsCashAccount(account))
             {
-                AccountName = "⚠️ نقد / روکڑ کھاتہ وصولی کے لیے منتخب نہیں ہو سکتا";
+                AccountName = "⚠️ Cash in Hand cannot be selected as party";
                 ResetSelectedAccountInfo();
                 System.Windows.MessageBox.Show(
-                    "کیش ان ہینڈ (1001 - Cash in Hand) سے کیش ان ہینڈ میں وصولی نہیں ہو سکتی!\nبراہ کرم ادائیگی کرنے والی پارٹی یا گاہک کا کھاتہ درج کریں۔", 
-                    "ناقابلِ قبول کھاتہ", 
+                    "Cash in Hand (1001) cannot be selected as receiving party!\nPlease select customer or income account.", 
+                    "Invalid Account", 
                     System.Windows.MessageBoxButton.OK, 
                     System.Windows.MessageBoxImage.Warning);
                 return;
@@ -664,8 +666,8 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         if (Details.Any(d => d.AccountNo == "1001" || (d.AccountName != null && d.AccountName.Contains("Cash in Hand", StringComparison.OrdinalIgnoreCase))))
         {
             System.Windows.MessageBox.Show(
-                "واؤچر میں کیش ان ہینڈ (1001) اکاؤنٹ کی انٹری شامل ہے جو کہ درست نہیں ہے۔ براہ کرم اسے گرڈ سے ڈیلیٹ کریں۔", 
-                "غلط اندراج", 
+                "Voucher contains Cash in Hand (1001) account which is not valid. Please delete it from the grid.", 
+                "Invalid Entry", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Error);
             return;
@@ -674,8 +676,8 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
         if (Details.Count == 0)
         {
             System.Windows.MessageBox.Show(
-                "واؤچر محفوظ کرنے سے پہلے کم از کم ایک انٹری شامل کریں۔ آپ اوپر رقم اور اکاؤنٹ لکھ کر '+ Add' کا بٹن دبا سکتے ہیں یا Enter پریس کر سکتے ہیں۔", 
-                "انٹری درکار ہے", 
+                "Please add at least one line item before saving.", 
+                "Line Entry Required", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Warning);
             return;
@@ -686,7 +688,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
             var year = await _systemService.GetCurrentYearAsync();
             if (year == null)
             {
-                System.Windows.MessageBox.Show("مالی سال (Financial Year) نہیں مل سکا!", "خرابی", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                System.Windows.MessageBox.Show("Financial year not found.", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                 return;
             }
 
@@ -699,6 +701,7 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
                 VoucherDate = VoucherDate,
                 FinancialYearId = year.Id,
                 CropSeasonId = selectedSeason?.Id,
+                CropSeason = selectedSeason,
                 TotalCredit = TotalAmount,
                 TotalDebit = TotalAmount,
                 VoucherType = Core.Enums.VoucherType.CashReceiving,
@@ -720,37 +723,51 @@ public partial class CashReceivingVoucherViewModel : ObservableObject
                 voucher.Details.Add(new VoucherDetail
                 {
                     AccountId = detail.AccountId,
+                    AccountNo = detail.AccountNo,
                     Narration = detail.Narration,
-                    Credit = detail.Credit
+                    Debit = 0,
+                    Credit = detail.Credit,
+                    Account = new Account
+                    {
+                        AccountNo = detail.AccountNo,
+                        Name = detail.AccountName
+                    }
                 });
             }
 
             await _voucherService.SaveVoucherAsync(voucher);
+            VoucherNo = voucher.VoucherNo;
             
             // Auto-post to Ledger
             await _voucherService.PostVoucherAsync(voucher.Id);
 
             if (AutoPrint)
             {
-                var slip = _printModelFactory.BuildVoucherSlip(voucher.Id);
+                var slip = _printModelFactory.BuildVoucherSlip(voucher);
                 _printService.Preview(slip);
             }
             else
             {
                 var printPrompt = System.Windows.MessageBox.Show(
-                    "Cash Receiving Voucher کامیابی سے محفوظ ہو گیا ہے۔\nکیا آپ اس کا پرنٹ نکالنا چاہتے ہیں؟", 
-                    "واؤچر محفوظ ہو گیا", 
+                    "Cash Receiving Voucher saved successfully.\nDo you want to print the voucher slip?", 
+                    "Voucher Saved", 
                     System.Windows.MessageBoxButton.YesNo, 
                     System.Windows.MessageBoxImage.Question);
                 if (printPrompt == System.Windows.MessageBoxResult.Yes)
                 {
-                    var slip = _printModelFactory.BuildVoucherSlip(voucher.Id);
+                    var slip = _printModelFactory.BuildVoucherSlip(voucher);
                     _printService.Preview(slip);
                 }
             }
 
             // Notify Dashboard to refresh metrics live
             WeakReferenceMessenger.Default.Send(new MyMandiSystem.Core.Messages.RefreshDashboardMessage());
+
+            System.Windows.MessageBox.Show(
+                $"Cash Receiving Voucher #{voucher.VoucherNo} saved and posted to General Ledger successfully!\nNet amount of Rs. {TotalAmount:N0} received in Cash in Hand.", 
+                "Success", 
+                System.Windows.MessageBoxButton.OK, 
+                System.Windows.MessageBoxImage.Information);
 
             // Reset form
             Clear();

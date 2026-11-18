@@ -1,0 +1,337 @@
+AccountNo
+ID
+AccountName
+Name
+Narration
+Debit
+Credit
+This record has been posted. You are not authorized to perform any modifications to this record
+You are not authorized to modify a posted record
+This voucher already exists. A new voucher No. has been generated. Please try again
+The Total Debit must be equal to Total Credit
+,'INSERTED BANK VOUCHER #
+The Account is duplicated. Please update this entry or remove this row.
+Select * From BankVouchers Where VoucherNo =
+Select * From BankVouchersBody where VoucherNo =
+Delete from BankVouchersbody where voucherno =
+voucherno
+,'UPUDATED/MODIFIED BANK VOUCHER #
+UserNo
+officeid
+lastupdatedate
+isuploaded
+narration
+ChangeDateBankVoucher
+ChangeVIDBankVoucher
+Name
+Are you sure to save this invoice?
+Select isnull(max(voucherno),0) from BankVouchers
+Text
+debit
+Please provide an Account No.
+Please provide either debit or credit amount.
+Please provide either debit or credit amount
+j^
+The Debit amount must be less than 10,00,000.00
+The Credit amount must be less than 10,00,000.00
+Select AccountName FROM ChartOfAccounts Where isdetailed=1 and AccountNo = '
+''
+AND AccountName Like '%
+%'
+OpeningDebit
+OpeningCredit
+CropSeason
+CropID
+CreditVouchersModification
+Select ChartOfAccounts.*, CROPS.ProductName FROM ChartOfAccounts LEFT OUTER JOIN (SELECT        ProductID, ProductName FROM            Products WHERE (IsCrop = 1 OR IsBroker = 1)) CROPS ON CROPS.ProductID = ChartOfAccounts.CropSeason Where IsDetailed=1 AND AccountType = '
+SELECT        ProductID, ProductName FROM            Products WHERE (IsCrop = 1 OR IsBroker = 1)
+ProductName
+ProductId
+Opening Balances successfully saved.
+Please provide Crop Season
+AccountNo = '
+sELECT * FROM Project_Registry where registrykey = 'EnableCropSeason' and Value = 1
+Select Distinct AccountType from ChartofAccounts Where isnull(AccountDepth,0) = 0
+AccountType
+Please provide the balance in either Debit or Credit
+Cannot Locate Record for updation. Please Try again
+CreditVouchers
+Select * FROM ChartOfAccounts Where AccountType = '
+ExpFlag
+Setting
+Select Distinct AccountType from ChartofAccounts Where len(AccountNo) = 1
+setting
+Invalid Destination Cash Account!!!
+You are not allowed to change / edit or delete this voucher
+Security Alert!
+Update CreditVouchers Set IsPosted=0 Where voucherno =
+And VoucherDate='
+Delete from CashNoteDetail where VoucherType = 'CV' and voucherno =
+Delete from CreditVouchersBody where VoucherNo =
+Delete from CreditVouchers WHere voucherno =
+,'REMOVED CASH RECEIVING VOUCHER #
+Select * from CreditVouchers where voucherno =
+Select Creditvouchersbody.*,accountname from Creditvouchersbody inner join chartofaccounts on chartofaccounts.accountno = Creditvouchersbody.accountno where Creditvouchersbody.voucherno =
+And Creditvouchersbody.VoucherDate='
+NarrationUrdu
+BranchID
+IDBranch
+VoucherTime
+FPData
+C:\thumb.bmp
+Select * from CashNoteDetail where VoucherType = 'CV' and voucherno =
+R5000
+R1000
+R500
+R100
+R50
+R20
+R10
+R5
+R2
+R1
+SELECT CreditVouchers.VoucherNo, CreditVouchers.VoucherDate, CreditVouchersBody.AccountNo, ChartOfAccounts.AccountName, isnull(CreditVouchersBody.Narration,'.') as Narration, CreditVouchersBody.Credit
+,NarrationUrdu, CreditVouchers.FPData,CreditVouchers.VoucherTime,ISNULL(CreditVouchers.IDBranch,0) IDBranch FROM CreditVouchers INNER JOIN CreditVouchersBody ON CreditVouchers.VoucherNo = CreditVouchersBody.VoucherNo AND CreditVouchers.VoucherDate = CreditVouchersBody.VoucherDate
+Inner Join ChartOfAccounts ON CreditVouchersBody.AccountNo = ChartOfAccounts.AccountNo
+WHERE CreditVouchers.VoucherNo =
+And CreditVouchers.VoucherDate = '
+Cash Receiving Voucher
+SELECT * FROM Branch WHERE BranchID =
+CompanyName
+CompanyAddress
+CompanyPhone1
+CompanyPhone2
+Email:
+CompanyEMail
+SELECT     UserName FROM         Users where UserID = (SELECT     UserNo FROM         CreditVouchers WHERE VoucherNo =
+And VoucherDate = '
+')
+SelText
+SELECT        BranchID ImageID, ImageData FROM            Branch WHERE        (BranchID =
+Select * from CompanyLogos
+EPSON300
+EPSON
+LPT1
+Select *, R5000 * 5000 AS R5000Amount, R1000 * 1000 AS R1000Amount, R500 * 500 AS R500Amuont, R100 * 100 AS R100Amount, R50 * 50 AS R50Amount, R20 * 20 AS R20Amount, R10 * 10 AS R10Amount, R5 * 5 AS R5Amount, R2 * 2 AS R2Amount, R1 * 1 AS R1Amount from CashNoteDetail where VoucherType = 'CV' and voucherno =
+select * from Project_Registry where RegistryKey = 'ShowPrintDialogVoucher' AND VALUE = 1
+' And day(voucherdate)='
+Select Crop Season & try again
+select * from Project_Registry where RegistryKey = 'DirectPrintVoucher' AND VALUE = 1
+Yearly
+Select * from Creditvouchers where voucherno =
+Monthly
+And year(voucherdate)='
+' And month(voucherdate)='
+Daily
+Visible
+Select Branch & try again
+Enter some data to save.
+Select * From CreditVouchers Where VoucherNo =
+Select * From CreditVouchersBody where VoucherNo =
+Delete from Creditvouchersbody where voucherno =
+ChangeVIDAccVoucher
+Enabled
+,'INSERTED CASH RECEIVING VOUCHER #
+,'UPDATED/MODIFIED CASH RECEIVING VOUCHER #
+INSERT INTO CashNoteDetail VALUES ('CV' ,
+, '
+',
+AGSVB
+SeasonID
+Are you sure do you want to print?
+ChangeDateAccVoucher
+sELECT * FROM Project_Registry where registrykey = 'EnableBrancheWise' and Value = 1
+sELECT * FROM Project_Registry where registrykey = 'ShowUrduNarration' and Value = 1
+Select isnull(max(voucherno),0)+1 from Creditvouchers
+select * from Project_Registry Where RegistryKey = 'EnableThumbOnForms' and Value = 1
+select Value from Project_Registry Where  RegistryKey = 'EnableSms'
+Value
+VoucherNo
+VoucherDate
+EXECUTE SPAccAccountsBalancesFinal '
+Select isnull(max(voucherno),0)+1 from Creditvouchers where year(voucherdate)='
+Please provide an Account No.,Narration and Amount
+The amount must be greater than zero
+CR
+DR
+CLOSINGBAL
+The amount must be less than 10 billion
+Select AccountName FROM ChartOfAccounts Where islocked=0 and isdetailed=1 and AccountNo = '
+EXECUTE SPAgenTechCashBook '
+MM/dd/yyyy
+', '
+SELECT DBO.FunPhrCurrentDebit ('
+CLOSINGBALTYPE
+select [name] as TblName from dbo.sysobjects where id = object_id(N'[dbo].[ComRecords]') and OBJECTPROPERTY(id, N'IsUserTable') = 1
+SELECT TOP 1 ControlNo From ComSettings
+ControlNo
+SELECT PartyName, replace(isnull(Mobile,''),'-','') as MobileNo From Parties Where PartyID='
+MobileNo
+partyname
+Dear
+, you paid Rs.
+on
+dd-MM-yy
+new balance:
+Thanks.
+INSERT INTO ComRecords (FromNo, ToNo, Body, SourceType, ComTime, IsSMS, IsProcessed, UnitID) VALUES('
+', 'TERMINAL', GETDATE(), 1, 0, '
+paid  Rs.
+c:\\Thumb.jpg
+C:\Thumb.jpg
+DebitVouchers
+DebitVouchersModification
+,'REMOVED CASH PAYMENT VOUCHER #
+Update DebitVouchers Set IsPosted=0 Where voucherno =
+Delete from CashNoteDetail where VoucherType = 'DV' and voucherno =
+Delete from DebitVouchersBody where VoucherNo =
+Delete from DebitVouchers WHere voucherno =
+Select * from DebitVouchers where voucherno =
+Select Debitvouchersbody.*,accountname from debitvouchersbody inner join chartofaccounts on chartofaccounts.accountno = debitvouchersbody.accountno where voucherno =
+Select * from CashNoteDetail where VoucherType = 'DV' and voucherno =
+Inner Join ChartOfAccounts ON DebitVouchersBody.AccountNo = ChartOfAccounts.AccountNo
+WHERE DebitVouchers.VoucherNo =
+And DebitVouchers.VoucherDate = '
+SELECT DebitVouchers.VoucherNo, DebitVouchers.VoucherDate, DebitVouchersBody.AccountNo, ChartOfAccounts.AccountName, isnull(DebitVouchersBody.Narration,'.') as Narration, DebitVouchersBody.Debit
+,NarrationUrdu , DebitVouchers.FPData,DebitVouchers.VoucherTime,ISNULL(DebitVouchers.IDBranch,0) IDBranch FROM DebitVouchers INNER JOIN DebitVouchersBody ON DebitVouchers.VoucherNo = DebitVouchersBody.VoucherNo AND DebitVouchers.VoucherDate = DebitVouchersBody.VoucherDate
+Cash Payment Voucher
+SELECT     UserName FROM         Users where UserID = (SELECT     UserNo FROM         DebitVouchers WHERE VoucherNo =
+Select * from CompanyLogos
+Select * from debitvouchers where voucherno =
+IsDetailed
+Select *, R5000 * 5000 AS R5000Amount, R1000 * 1000 AS R1000Amount, R500 * 500 AS R500Amuont, R100 * 100 AS R100Amount, R50 * 50 AS R50Amount, R20 * 20 AS R20Amount, R10 * 10 AS R10Amount, R5 * 5 AS R5Amount, R2 * 2 AS R2Amount, R1 * 1 AS R1Amount from CashNoteDetail where VoucherType = 'DV' and voucherno =
+Select * From DebitVouchers Where VoucherNo =
+Select * From DebitVouchersBody where VoucherNo =
+Delete from debitvouchersbody where voucherno =
+,'INSERTED CASH PAYMENT VOUCHER #
+,'UPDATED/MODIFIED CASH PAYMENT VOUCHER #
+INSERT INTO CashNoteDetail VALUES ('DV' ,
+Select isnull(max(voucherno),0)+1 from Debitvouchers
+Select isnull(max(voucherno),0)+1 from Debitvouchers where year(voucherdate)='
+,We Paid Rs.
+(Powered by BizNet)
+receive  Rs.
+(Powered by Biznet)
+UserID
+Select AccountDepth+1 From ChartOfAccounts where Accountno = '
+AccountDepth
+ParentAccountNo
+IsLocked
+IsEditable
+balflag
+plflag
+AccountNameUrdu
+Bank
+IsHidden
+Please specify a Account No.
+Select * From ChartofAccounts where Accountno = '
+Select cast(left(isnull(max(AccountNo),
+),len(
+All Crops
+This account No. already exists. A new Account No. has been generated automatically
+Select isnull(max(AccountNo),
+000
+)+1 From ChartOfAccounts Where AccountNo Like '
+%' And ParentAccountNo='
+' And IsDetailed=1
+', Narration ='
+)) as varchar) + cast(right(isnull(max(AccountNo),
+),len(isnull(max(AccountNo),
+))-len(left(isnull(max(AccountNo),
+))))+1 as varchar) From ChartOfAccounts Where AccountNo Like '
+' And IsDetailed=0
+, Depositedby ='
+The Account No. must contain Numeric characters only.
+Please specify the Account name
+TXT*
+Select dbo.RegistryValue('ShowNameInUrdu')
+Select * FROM ChartOfAccounts Where AccountNo = '
+JournalVouchers
+JournalVouchersModification
+Update JournalVouchers Set IsPosted=0 Where voucherno =
+,'INSERTED JOURNAL VOUCHER #
+Delete from JournalVouchersBody where VoucherNo =
+Delete from JournalVouchers WHere voucherno =
+,'REMOVED JOURNAL VOUCHER #
+Select * from JournalVouchers where voucherno =
+, userno =
+Select JournalVouchersbody.*,accountname from JournalVouchersbody inner join chartofaccounts on chartofaccounts.accountno = JournalVouchersbody.accountno where voucherno =
+Journal Voucher
+Delete from JournalVouchersbody where voucherno =
+SELECT JournalVouchers.VoucherNo, JournalVouchers.VoucherDate, JournalVouchersBody.AccountNo, ChartOfAccounts.AccountName, isnull(JournalVouchersBody.Narration,'.') as Narration, JournalVouchersBody.Debit, JournalVouchersBody.Credit
+', Amount =
+,NarrationUrdu , JournalVouchers.FPData,JournalVouchers.VoucherTime,ISNULL(JournalVouchers.IDBranch,0) IDBranch FROM JournalVouchers INNER JOIN JournalVouchersBody ON JournalVouchers.VoucherNo = JournalVouchersBody.VoucherNo AND JournalVouchers.VoucherDate = JournalVouchersBody.VoucherDate
+Inner Join ChartOfAccounts ON JournalVouchersBody.AccountNo = ChartOfAccounts.AccountNo
+WHERE JournalVouchers.VoucherNo =
+And JournalVouchers.VoucherDate = '
+SELECT     UserName FROM         Users where UserID = (SELECT     UserNo FROM         JournalVouchers WHERE VoucherNo =
+Select * From JournalVouchers Where VoucherNo =
+Select * From JournalVouchersBody where VoucherNo =
+IsFullFilled
+,'UPDATED/MODIFIED JOURNAL VOUCHER #
+IsPromise
+PromiseDate
+select max(isnull(PromiseNo,0) )+ 1  from Promises
+Select Promises.*  FROM Promises WHERE PromiseNo =
+PromiseNo
+CurrentDate
+PartyNo
+Amount
+IsPayment
+Select isnull(max(voucherno),0)+1 from Journalvouchers
+Select isnull(max(voucherno),0)+1 from Journalvouchers where year(voucherdate)='
+The debit amount must be less than 100 trillion
+Where CreditVouchers.Voucherdate between '
+The credit amount must be less than 100 trillion
+YES
+, we paid Rs.
+,is paid Rs.
+Where BankVouchers.Voucherdate between '
+' AND '
+, BankAccountno ='
+Ninety
+Select BankVouchers.VoucherNo,Users.UserName,Convert(varchar(10),Voucherdate,3) as Date,SUm(Debit) as Amount
+Group by BankVouchers.VoucherNo,Users.UserName,Convert(varchar(10),Voucherdate,3) order by Users.UserName
+Date
+UserName
+from BankVouchers inner join users on BankVouchers.userno = users.userid inner join BankVouchersbody on BankVouchers.voucherno = BankVouchersbody.voucherno
+Entered By
+d>
+AND CreditVouchers.VoucherNo =
+AND ISNULL(CreditVouchers.CropSeason,'') = '
+AND ISNULL(CreditVouchers.BranchID,0) =
+FROM ChartOfAccounts INNER JOIN CreditVouchersBody ON ChartOfAccounts.AccountNo = CreditVouchersBody.AccountNo
+DepositedDate
+Select CreditVouchers.VoucherNo,Convert(varchar(10),creditvouchers.Voucherdate,3) as Date, creditvouchers.Voucherdate as Date2,creditvouchers.Voucherdate,SUm(Credit) as Amount
+SELECT ChartOfAccounts.AccountName
+BankAccountName
+,ISNULL(CreditVouchers.IDBranch,0) IDBranch from Creditvouchers inner join Creditvouchersbody on Creditvouchers.voucherno = Creditvouchersbody.voucherno And Creditvouchers.Voucherdate=CreditvouchersBody.Voucherdate
+', ReconcileDate =
+Nine
+Group by Creditvouchers.Voucherdate, CreditVouchers.VoucherNo,Convert(varchar(10),Creditvouchers.Voucherdate,3),CreditVouchers.IDBranch order by Creditvouchers.Voucherdate desc, CreditVouchers.VoucherNo desc
+IDB
+Date2
+DepositedBy
+WHERE CreditVouchersBody.VoucherNo =
+AND CreditVouchersBody.VoucherDate = '
+Where Debitvouchers.voucherdate between '
+AND DebitVouchers.VoucherNo =
+AND ISNULL(DebitVouchers.CropSeason,'') = '
+and ischeque=0
+AND ISNULL(DebitVouchers.BranchID,0) =
+Select DebitVouchers.VoucherNo,Convert(varchar(10),Debitvouchers.Voucherdate,3) as Date,Debitvouchers.Voucherdate as Date2,DebitVouchers.VoucherDate,SUm(Debit) as Amount
+,ISNULL(DebitVouchers.IDBranch,0) IDBranch  from debitvouchers inner join debitvouchersbody on debitvouchers.voucherno = debitvouchersbody.voucherno And Debitvouchers.Voucherdate=DebitvouchersBody.Voucherdate
+Group by DebitVouchers.VoucherDate, DebitVouchers.VoucherNo,DebitVouchers.IDBranch,Convert(varchar(10),Debitvouchers.Voucherdate,3)  order by DebitVouchers.VoucherDate desc, DebitVouchers.VoucherNo desc
+AND JournalVouchers.VoucherNo =
+FROM ChartOfAccounts INNER JOIN DebitVouchersBody ON ChartOfAccounts.AccountNo = DebitVouchersBody.AccountNo
+Where DebitVouchersBody.VoucherNo =
+And DebitVouchersBody.VoucherDate ='
+Where JournalVouchers.Voucherdate between '
+AND ISNULL(JournalVouchers.CropSeason,'') = '
+AND ISNULL(JournalVouchers.BranchID,0) =
+FROM ChartOfAccounts INNER JOIN JournalVouchersBody ON ChartOfAccounts.AccountNo = JournalVouchersBody.AccountNo
+AND AccountName like '%
+Select JournalVouchers.VoucherNo,Convert(varchar(10),JournalVouchers.Voucherdate,3) as Date,JournalVouchers.Voucherdate as Date2,JournalVouchers.VoucherDate,SUm(Debit) as Amount
+And JournalVouchersBody.VoucherDate ='
+And AccountType = '
+,JournalVouchers.IDBranch from JournalVouchers inner join JournalVouchersbody on JournalVouchers.voucherno = JournalVouchersbody.voucherno And Journalvouchers.Voucherdate=JournalvouchersBody.Vou

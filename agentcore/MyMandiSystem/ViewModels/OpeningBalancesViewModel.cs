@@ -1,9 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using MyMandiSystem.Core.Entities;
 using MyMandiSystem.Core.Interfaces;
 using MyMandiSystem.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,13 +19,31 @@ public partial class OpeningBalancesViewModel : ObservableObject
     private readonly IProductService _productService;
     private readonly IStockService _stockService;
 
-    [ObservableProperty] private int _selectedTabIndex; // 0: Financial, 1: Inventory
-    
-    // Financial Opening Balances
-    [ObservableProperty] private ObservableCollection<AccountOpeningModel> _accountBalances = new();
-    
+    [ObservableProperty] private int _selectedTabIndex; // 0: Financial (Accounts), 1: Inventory (Stock)
+
+    // Filter controls (AgenSoft exact parity: CmbFilter & txtAccNameFilter)
+    [ObservableProperty] private ObservableCollection<string> _accountTypes = new();
+    [ObservableProperty] private string _selectedAccountType = "All";
+    [ObservableProperty] private string _accountNameFilter = string.Empty;
+
+    // Available Crop Seasons dropdown (Products where IsCrop=1 or IsBroker=1)
+    [ObservableProperty] private ObservableCollection<CropSeasonItemDto> _cropSeasons = new();
+
+    // Master list and filtered list for data grid
+    private List<AccountOpeningModel> _allAccountBalances = new();
+    [ObservableProperty] private ObservableCollection<AccountOpeningModel> _filteredAccountBalances = new();
+
     // Stock Opening Balances
     [ObservableProperty] private ObservableCollection<ProductOpeningModel> _productStocks = new();
+
+    // Summary totals
+    [ObservableProperty] private decimal _totalDebit;
+    [ObservableProperty] private decimal _totalCredit;
+    [ObservableProperty] private decimal _difference;
+    [ObservableProperty] private int _totalAccountsCount;
+
+    // Window action to close from VM
+    public Action? RequestClose { get; set; }
 
     public OpeningBalancesViewModel(
         IAccountService accountService, 
@@ -34,52 +54,178 @@ public partial class OpeningBalancesViewModel : ObservableObject
         _productService = productService;
         _stockService = stockService;
         
+        _ = InitializeAsync();
+    }
+
+    public async Task InitializeAsync()
+    {
+        await LoadAccountTypesAsync();
+        await LoadCropsAsync();
+        await LoadDataAsync();
+    }
+
+    private async Task LoadAccountTypesAsync()
+    {
+        try
+        {
+            var types = await _accountService.GetOpeningBalanceAccountTypesAsync();
+            AccountTypes = new ObservableCollection<string>(types);
+            if (!AccountTypes.Contains(SelectedAccountType))
+            {
+                SelectedAccountType = AccountTypes.FirstOrDefault() ?? "All";
+            }
+        }
+        catch
+        {
+            AccountTypes = new ObservableCollection<string> { "All" };
+            SelectedAccountType = "All";
+        }
+    }
+
+    private async Task LoadCropsAsync()
+    {
+        try
+        {
+            var crops = await _accountService.GetOpeningCropSeasonsAsync();
+            var list = new List<CropSeasonItemDto>
+            {
+                new() { ProductId = string.Empty, ProductName = "-- None / کوئی نہیں --" }
+            };
+            list.AddRange(crops);
+            CropSeasons = new ObservableCollection<CropSeasonItemDto>(list);
+        }
+        catch
+        {
+            CropSeasons = new ObservableCollection<CropSeasonItemDto>();
+        }
+    }
+
+    partial void OnSelectedAccountTypeChanged(string value)
+    {
+        _ = LoadDataAsync();
+    }
+
+    partial void OnAccountNameFilterChanged(string value)
+    {
+        ApplyFilter();
+    }
+
+    [RelayCommand]
+    public async Task LoadDataAsync()
+    {
+        try
+        {
+            // Load accounts for selected account type (AgenSoft query)
+            var dtos = await _accountService.GetAccountsOpeningBalancesAsync(SelectedAccountType);
+            var models = new List<AccountOpeningModel>();
+
+            foreach (var d in dtos)
+            {
+                var m = new AccountOpeningModel
+                {
+                    AccountId = d.AccountId,
+                    AccountNo = d.AccountNo,
+                    Name = d.AccountName,
+                    AccountType = d.AccountType,
+                    OpeningDebit = d.OpeningDebit,
+                    OpeningCredit = d.OpeningCredit,
+                    CropSeason = d.CropSeason ?? string.Empty,
+                    CropName = d.CropName ?? string.Empty
+                };
+                m.PropertyChanged += (s, e) => RecalculateTotals();
+                models.Add(m);
+            }
+
+            _allAccountBalances = models;
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            FriendlyErrorHandler.ShowError(ex, "Accounts Opening Balances Load");
+        }
+    }
+
+    private void ApplyFilter()
+    {
+        IEnumerable<AccountOpeningModel> query = _allAccountBalances;
+
+        if (!string.IsNullOrWhiteSpace(AccountNameFilter))
+        {
+            var filter = AccountNameFilter.Trim().ToLower();
+            query = query.Where(a => 
+                (!string.IsNullOrEmpty(a.Name) && a.Name.ToLower().Contains(filter)) ||
+                (!string.IsNullOrEmpty(a.AccountNo) && a.AccountNo.ToLower().Contains(filter)));
+        }
+
+        FilteredAccountBalances = new ObservableCollection<AccountOpeningModel>(query);
+        TotalAccountsCount = FilteredAccountBalances.Count;
+        RecalculateTotals();
+    }
+
+    public void RecalculateTotals()
+    {
+        TotalDebit = _allAccountBalances.Sum(a => a.OpeningDebit);
+        TotalCredit = _allAccountBalances.Sum(a => a.OpeningCredit);
+        Difference = TotalDebit - TotalCredit;
+    }
+
+    [RelayCommand]
+    public async Task SaveFinancial()
+    {
+        try
+        {
+            // AgenSoft Validation: "Please provide the balance in either Debit or Credit"
+            var invalidRow = _allAccountBalances.FirstOrDefault(a => a.OpeningDebit > 0 && a.OpeningCredit > 0);
+            if (invalidRow != null)
+            {
+                MessageBox.Show(
+                    $"Account '{invalidRow.AccountNo} - {invalidRow.Name}':\nPlease provide the balance in either Debit or Credit.\nبراہ کرم ڈیبٹ یا کریڈٹ میں سے کسی ایک میں رقم درج کریں۔",
+                    "Alert / انتباہ",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            var dtos = _allAccountBalances.Select(a => new AccountOpeningBalanceDto
+            {
+                AccountId = a.AccountId,
+                AccountNo = a.AccountNo,
+                AccountName = a.Name,
+                AccountType = a.AccountType,
+                OpeningDebit = a.OpeningDebit,
+                OpeningCredit = a.OpeningCredit,
+                CropSeason = a.CropSeason,
+                CropName = a.CropName
+            }).ToList();
+
+            await _accountService.SaveAccountsOpeningBalancesAsync(dtos);
+
+            MessageBox.Show(
+                "Opening Balances successfully saved.\nابتدائی بیلنس کامیابی سے محفوظ ہو گئے ہیں۔", 
+                "Success / کامیابی", 
+                MessageBoxButton.OK, 
+                MessageBoxImage.Information);
+
+            await LoadDataAsync();
+            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new MyMandiSystem.Core.Messages.RefreshDashboardMessage());
+        }
+        catch (Exception ex)
+        {
+            FriendlyErrorHandler.ShowError(ex, "Opening Balances Save");
+        }
+    }
+
+    [RelayCommand]
+    public void Clear()
+    {
+        AccountNameFilter = string.Empty;
         _ = LoadDataAsync();
     }
 
     [RelayCommand]
-    private async Task LoadDataAsync()
+    public void Close()
     {
-        // Load Financial Balances
-        var accounts = await _accountService.GetAllAccountsAsync();
-        AccountBalances = new ObservableCollection<AccountOpeningModel>(
-            accounts.Where(a => !a.IsDeleted && a.AccountGroupId != 0)
-                   .Select(a => new AccountOpeningModel { AccountId = a.Id, Name = a.Name, AccountNo = a.AccountNo, Balance = a.OpeningBalance })
-        );
-
-        // Load Product Stocks
-        var products = await _productService.GetAllProductsAsync();
-        var models = new ObservableCollection<ProductOpeningModel>();
-        foreach (var p in products.Where(p => !p.IsDeleted))
-        {
-            // Find existing opening transaction
-            // Note: Optimally we'd have a specific service method for this, but we can query stock transactions
-            // For now, we'll assume the stock service handles it, but the UI needs to show current opening
-            // Let's assume we need to fetch the opening transaction specifically
-            // Implementation of SetOpeningStockAsync already handles finding/updating.
-            // For UI display, we might need a GetOpeningStockAsync.
-            // For now, I'll just load the products and let the user enter.
-            
-            models.Add(new ProductOpeningModel { ProductId = p.Id, Name = p.Name, Code = p.ProductCode, Qty = 0, Rate = p.PurchasePrice });
-        }
-        ProductStocks = models;
-    }
-
-    [RelayCommand]
-    private async Task SaveFinancial()
-    {
-        try
-        {
-            foreach (var item in AccountBalances)
-            {
-                await _accountService.SetOpeningBalanceAsync(item.AccountId, item.Balance);
-            }
-            System.Windows.MessageBox.Show("Financial Opening Balances saved successfully.");
-        }
-        catch (Exception ex)
-        {
-            FriendlyErrorHandler.ShowError(ex, "Financial Opening Balances Save");
-        }
+        RequestClose?.Invoke();
     }
 
     [RelayCommand]
@@ -89,12 +235,9 @@ public partial class OpeningBalancesViewModel : ObservableObject
         {
             foreach (var item in ProductStocks)
             {
-                if (item.Qty != 0)
-                {
-                    await _stockService.SetOpeningStockAsync(item.ProductId, item.Qty, item.Rate);
-                }
+                await _stockService.SetOpeningStockAsync(item.ProductId, item.Qty, item.Rate);
             }
-            System.Windows.MessageBox.Show("Inventory Opening Balances saved successfully.", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Inventory Opening Balances saved successfully.\nابتدائی اسٹاک کامیابی سے محفوظ ہو گیا ہے۔", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
@@ -111,13 +254,49 @@ public class AccountOpeningModel : ObservableObject
     public int AccountId { get; set; }
     public string AccountNo { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public string AccountType { get; set; } = string.Empty;
     
-    private decimal _balance;
-    public decimal Balance
+    private decimal _openingDebit;
+    public decimal OpeningDebit
     {
-        get => _balance;
-        set => SetProperty(ref _balance, value);
+        get => _openingDebit;
+        set
+        {
+            if (SetProperty(ref _openingDebit, value))
+            {
+                OnPropertyChanged(nameof(NetBalance));
+            }
+        }
     }
+
+    private decimal _openingCredit;
+    public decimal OpeningCredit
+    {
+        get => _openingCredit;
+        set
+        {
+            if (SetProperty(ref _openingCredit, value))
+            {
+                OnPropertyChanged(nameof(NetBalance));
+            }
+        }
+    }
+
+    private string? _cropSeason;
+    public string? CropSeason
+    {
+        get => _cropSeason;
+        set => SetProperty(ref _cropSeason, value);
+    }
+
+    private string? _cropName;
+    public string? CropName
+    {
+        get => _cropName;
+        set => SetProperty(ref _cropName, value);
+    }
+
+    public decimal NetBalance => OpeningDebit - OpeningCredit;
 }
 
 public class ProductOpeningModel : ObservableObject
@@ -130,13 +309,27 @@ public class ProductOpeningModel : ObservableObject
     public decimal Qty
     {
         get => _qty;
-        set => SetProperty(ref _qty, value);
+        set
+        {
+            if (SetProperty(ref _qty, value))
+            {
+                OnPropertyChanged(nameof(TotalValue));
+            }
+        }
     }
 
     private decimal _rate;
     public decimal Rate
     {
         get => _rate;
-        set => SetProperty(ref _rate, value);
+        set
+        {
+            if (SetProperty(ref _rate, value))
+            {
+                OnPropertyChanged(nameof(TotalValue));
+            }
+        }
     }
+
+    public decimal TotalValue => Qty * Rate;
 }

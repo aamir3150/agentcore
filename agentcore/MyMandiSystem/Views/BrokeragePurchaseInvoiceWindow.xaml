@@ -6,37 +6,41 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:helpers="clr-namespace:MyMandiSystem.Helpers"
         mc:Ignorable="d"
-        Title="Purchase Invoice" 
-        Height="680" Width="1040"
-        MinHeight="500" MinWidth="850"
+        Title="Brokerage Purchase Invoice" 
+        Height="760" Width="1120"
+        MinHeight="560" MinWidth="900"
         WindowStartupLocation="CenterScreen"
-        Background="#EAEAEA"
-        FontFamily="Segoe UI" FontSize="11.5">
+        Background="#F1F5F9"
+        FontFamily="Segoe UI" FontSize="12">
 
     <Window.Resources>
-        <!-- Classic Button Style -->
         <Style x:Key="ClassicButton" TargetType="Button">
             <Setter Property="Height" Value="28"/>
-            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="MinWidth" Value="85"/>
             <Setter Property="Margin" Value="4,0"/>
-            <Setter Property="Background" Value="#F2F2F2"/>
-            <Setter Property="BorderBrush" Value="#707070"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11.5"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="btnBorder" CornerRadius="3" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="6,2">
+                        <Border x:Name="btnBorder" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="10,2">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#E0EEF8"/>
-                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#0078D7"/>
+                                <Setter TargetName="btnBorder" Property="Background" Value="#E2E8F0"/>
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#64748B"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#CCE4F7"/>
+                                <Setter TargetName="btnBorder" Property="Background" Value="#CBD5E1"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.55"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -44,115 +48,171 @@
             </Setter>
         </Style>
 
-        <!-- Standard Input Style -->
+        <Style x:Key="PrimarySaveButton" TargetType="Button" BasedOn="{StaticResource ClassicButton}">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#1D4ED8"/>
+            <Setter Property="MinWidth" Value="110"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="14,2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#1D4ED8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#1E40AF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DangerDeleteButton" TargetType="Button" BasedOn="{StaticResource ClassicButton}">
+            <Setter Property="Background" Value="#DC2626"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#B91C1C"/>
+            <Setter Property="MinWidth" Value="90"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="12,2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#B91C1C"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#991B1B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="TextBox">
-            <Setter Property="Height" Value="23"/>
+            <Setter Property="Height" Value="26"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="3,1"/>
-            <Setter Property="BorderBrush" Value="#7A7A7A"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="FontSize" Value="11.5"/>
         </Style>
 
-        <!-- Standard ComboBox Style -->
         <Style TargetType="ComboBox">
-            <Setter Property="Height" Value="23"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="11.5"/>
+        </Style>
+
+        <Style TargetType="DatePicker">
+            <Setter Property="Height" Value="26"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="4,1"/>
-            <Setter Property="BorderBrush" Value="#7A7A7A"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
             <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-
-        <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#111111"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="11.5"/>
         </Style>
     </Window.Resources>
 
-    <Grid Margin="10,6">
+    <Grid Margin="12">
         <DockPanel LastChildFill="True">
 
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!--                       TOP HEADER                           -->
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                <!-- Centered Title -->
-                <TextBlock Text="Purchase Invoice" FontSize="26" FontWeight="ExtraBold" FontFamily="Georgia" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#111111"/>
+            <!-- ═══ 0. TOP HEADER CARD ═══ -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <!-- Right Crop Season -->
-                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Width="200">
-                    <TextBlock Text="Crop Season" Margin="0,0,0,2"/>
-                    <ComboBox ItemsSource="{Binding CropSeasons}" SelectedItem="{Binding SelectedCropSeason}" Height="24"/>
-                </StackPanel>
-            </Grid>
+                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#1E3A8A" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="FileDocument" Width="20" Height="20" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
 
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!--                     BOTTOM BUTTONS BAR                     -->
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <Border DockPanel.Dock="Bottom" Background="#DCDCDC" BorderBrush="#B8B8B8" BorderThickness="0,1,0,0" Padding="8,8" Margin="0,6,0,0">
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Brokerage Purchase Invoice" FontSize="16" FontWeight="Bold" Foreground="#1E3A8A"/>
+                        <TextBlock Text="Create and manage commodity procurement purchase invoices" FontSize="11" Foreground="#64748B" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Crop Season:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold" Foreground="#475569"/>
+                        <ComboBox ItemsSource="{Binding CropSeasons}" SelectedItem="{Binding SelectedCropSeason}" Width="160" Height="26"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ═══ 4. BOTTOM ACTION FOOTER CARD ═══ -->
+            <Border DockPanel.Dock="Bottom" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,8,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Style="{StaticResource ClassicButton}" Command="{Binding SaveCommand}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource PrimarySaveButton}" Command="{Binding SaveCommand}" Margin="0,0,6,0">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="ContentSaveOutline" Width="15" Height="15" Foreground="#005A9E" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Save" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="ContentSaveOutline" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Save (F2)" VerticalAlignment="Center" FontWeight="Bold"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource ClassicButton}" Command="{Binding ClearCommand}">
+                        <Button Style="{StaticResource ClassicButton}" Command="{Binding ClearCommand}" Margin="0,0,6,0">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Refresh" Width="15" Height="15" Foreground="#005A9E" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Clear" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="Refresh" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Clear (F3)" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource ClassicButton}" Command="{Binding PrintCommand}">
+                        <Button Style="{StaticResource ClassicButton}" Command="{Binding PrintCommand}" Margin="0,0,6,0">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Printer" Width="15" Height="15" Foreground="#333333" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Print" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="PrinterOutline" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Print (Ctrl+P)" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource ClassicButton}" Command="{Binding OpenCommand}">
+                        <Button Style="{StaticResource ClassicButton}" Command="{Binding OpenCommand}" Margin="0,0,6,0">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="FolderOpenOutline" Width="15" Height="15" Foreground="#005A9E" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Open" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="FolderOpenOutline" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Open (Ctrl+O)" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource ClassicButton}" Command="{Binding RemoveCommand}">
+                        <Button Style="{StaticResource DangerDeleteButton}" Command="{Binding RemoveCommand}" Margin="0,0,6,0">
                             <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="TrashCanOutline" Width="15" Height="15" Foreground="#107C41" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                <materialDesign:PackIcon Kind="DeleteOutline" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"/>
                                 <TextBlock Text="Remove" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
                         <Button Style="{StaticResource ClassicButton}" Command="{Binding CloseCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="CloseCircle" Width="15" Height="15" Foreground="#D13438" Margin="0,0,4,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Close" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <TextBlock Text="Close (Esc)" VerticalAlignment="Center"/>
                         </Button>
                     </StackPanel>
 
                     <!-- Send SMS Checkbox -->
-                    <CheckBox Grid.Column="1" Content="Send SMS" IsChecked="{Binding SendSMS}" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                    <CheckBox Grid.Column="1" Content="Send SMS" IsChecked="{Binding SendSMS}" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold" Foreground="#334155"/>
                 </Grid>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════════ -->
-            <!--                   MAIN INVOICE CONTAINER                   -->
-            <!-- ══════════════════════════════════════════════════════════ -->
+            <!-- ═══ MAIN INVOICE CONTAINER ═══ -->
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
 
                     <!-- 1. HEADER DETAILS FORM BOX -->
-                    <Border BorderBrush="#A0A0A0" BorderThickness="1" Background="#ECECEC" Padding="8,6" Margin="0,0,0,6">
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,8">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -161,65 +221,65 @@
                             </Grid.RowDefinitions>
 
                             <!-- Row 1: Purchase IDs, Contract ID, Party ID, Date, Customer ID, Customer Name -->
-                            <Grid Grid.Row="0" Margin="0,0,0,5">
+                            <Grid Grid.Row="0" Margin="0,0,0,6">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="6"/>
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="105"/>
+                                    <ColumnDefinition Width="110"/>
                                     <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="6"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Purchase ID"/>
-                                    <TextBox Text="{Binding PurchaseId1}" FontWeight="Bold"/>
+                                    <TextBlock Text="Purchase ID" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
+                                    <TextBox Text="{Binding PurchaseId1}" FontWeight="Bold" Background="#F8FAFC" BorderBrush="#CBD5E1"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Purchase ID"/>
+                                    <TextBlock Text="Purchase ID 2" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding PurchaseId2}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="4">
-                                    <TextBlock Text="Contract ID"/>
+                                    <TextBlock Text="Contract ID" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding ContractId}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="6">
-                                    <TextBlock Text="Party ID"/>
+                                    <TextBlock Text="Party ID" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding PartyId}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="8">
-                                    <TextBlock Text="Date"/>
-                                    <DatePicker SelectedDate="{Binding InvoiceDate}" Height="23"/>
+                                    <TextBlock Text="Date" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
+                                    <DatePicker SelectedDate="{Binding InvoiceDate}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="10">
-                                    <TextBlock Text="Customer ID"/>
+                                    <TextBlock Text="Customer ID" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding CustomerId}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="12">
-                                    <TextBlock Text="Customer Name"/>
-                                    <TextBox Text="{Binding CustomerName}"/>
+                                    <TextBlock Text="Customer Name" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
+                                    <TextBox Text="{Binding CustomerName}" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Grid>
 
                             <!-- Row 2: Party Name, Sector, Refree ID, Refree Name, Bag VendorID, Bag Vendor Name -->
-                            <Grid Grid.Row="1" Margin="0,0,0,5">
+                            <Grid Grid.Row="1" Margin="0,0,0,6">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="220"/>
                                     <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="120"/>
                                     <ColumnDefinition Width="6"/>
                                     <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="6"/>
@@ -231,32 +291,32 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Party Name"/>
-                                    <TextBox Text="{Binding PartyName}"/>
+                                    <TextBlock Text="Party Name" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
+                                    <TextBox Text="{Binding PartyName}" FontWeight="Bold"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Sector"/>
+                                    <TextBlock Text="Sector" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding Sector}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="4">
-                                    <TextBlock Text="Refree ID"/>
+                                    <TextBlock Text="Refree ID" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding RefreeId}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="6">
-                                    <TextBlock Text="Refree Name"/>
+                                    <TextBlock Text="Refree Name" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding RefreeName}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="8">
-                                    <TextBlock Text="Bag VendorID"/>
+                                    <TextBlock Text="Bag Vendor ID" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding BagVendorId}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="10">
-                                    <TextBlock Text="Bag Vendor Name"/>
+                                    <TextBlock Text="Bag Vendor Name" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding BagVendorName}"/>
                                 </StackPanel>
                             </Grid>
@@ -264,53 +324,53 @@
                             <!-- Row 3: Vehicle No., Town, Address, Phone, Mounds, Gate Pass No., Bill No. -->
                             <Grid Grid.Row="2">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="6"/>
                                     <ColumnDefinition Width="110"/>
                                     <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="230"/>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="220"/>
                                     <ColumnDefinition Width="6"/>
                                     <ColumnDefinition Width="130"/>
                                     <ColumnDefinition Width="6"/>
                                     <ColumnDefinition Width="100"/>
                                     <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="95"/>
                                     <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="95"/>
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Vehicle No."/>
+                                    <TextBlock Text="Vehicle No." FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding VehicleNo}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Town"/>
+                                    <TextBlock Text="Town" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding Town}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="4">
-                                    <TextBlock Text="Address"/>
+                                    <TextBlock Text="Address" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding Address}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="6">
-                                    <TextBlock Text="Phone"/>
+                                    <TextBlock Text="Phone" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding Phone}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="8">
-                                    <TextBlock Text="Mounds"/>
-                                    <TextBox Text="{Binding Mounds}" FontWeight="Bold" HorizontalContentAlignment="Center"/>
+                                    <TextBlock Text="Mounds" FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
+                                    <TextBox Text="{Binding Mounds}" FontWeight="Bold" HorizontalContentAlignment="Center" Background="#FEF3C7" BorderBrush="#FDE68A" Foreground="#92400E"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="10">
-                                    <TextBlock Text="Gate Pass No."/>
+                                    <TextBlock Text="Gate Pass No." FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding GatePassNo}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="12">
-                                    <TextBlock Text="Bill No."/>
+                                    <TextBlock Text="Bill No." FontSize="10.5" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,2"/>
                                     <TextBox Text="{Binding BillNo}"/>
                                 </StackPanel>
                             </Grid>
@@ -318,198 +378,215 @@
                     </Border>
 
                     <!-- 2. PRODUCT LINE ITEMS ENTRY & GRID -->
-                    <Border BorderBrush="#A0A0A0" BorderThickness="1" Background="#ECECEC" Padding="6" Margin="0,0,0,6">
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,8">
                         <StackPanel>
                             <!-- Upper Checkboxes -->
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
-                                <CheckBox Content="With Shortage" IsChecked="{Binding WithShortage}" Margin="0,0,24,0"/>
-                                <CheckBox Content="Contract With Delivery" IsChecked="{Binding ContractWithDelivery}"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,6">
+                                <CheckBox Content="With Shortage" IsChecked="{Binding WithShortage}" Margin="0,0,24,0" FontWeight="SemiBold" Foreground="#334155"/>
+                                <CheckBox Content="Contract With Delivery" IsChecked="{Binding ContractWithDelivery}" FontWeight="SemiBold" Foreground="#334155"/>
                             </StackPanel>
 
                             <!-- Single Row Input Fields -->
-                            <Grid Margin="0,0,0,4">
+                            <Grid Margin="0,0,0,6">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="65"/>  <!-- Product ID -->
-                                    <ColumnDefinition Width="120"/> <!-- Product Name -->
-                                    <ColumnDefinition Width="40"/>  <!-- T.Qty -->
-                                    <ColumnDefinition Width="40"/>  <!-- B.Qty -->
-                                    <ColumnDefinition Width="40"/>  <!-- P.Qty -->
-                                    <ColumnDefinition Width="46"/>  <!-- Bharti Kgs -->
-                                    <ColumnDefinition Width="48"/>  <!-- Loose Weight -->
-                                    <ColumnDefinition Width="54"/>  <!-- Short Type Combo -->
-                                    <ColumnDefinition Width="45"/>  <!-- Shortage/Ded -->
-                                    <ColumnDefinition Width="54"/>  <!-- TTL Kgs -->
-                                    <ColumnDefinition Width="48"/>  <!-- Mnd Std -->
-                                    <ColumnDefinition Width="80"/>  <!-- Rate Type -->
-                                    <ColumnDefinition Width="54"/>  <!-- Rate -->
-                                    <ColumnDefinition Width="54"/>  <!-- Rate Bardana -->
+                                    <ColumnDefinition Width="70"/>  <!-- Product ID -->
+                                    <ColumnDefinition Width="130"/> <!-- Product Name -->
+                                    <ColumnDefinition Width="45"/>  <!-- T.Qty -->
+                                    <ColumnDefinition Width="45"/>  <!-- B.Qty -->
+                                    <ColumnDefinition Width="45"/>  <!-- P.Qty -->
+                                    <ColumnDefinition Width="50"/>  <!-- Bharti Kgs -->
+                                    <ColumnDefinition Width="55"/>  <!-- Loose Weight -->
+                                    <ColumnDefinition Width="65"/>  <!-- Short Type Combo -->
+                                    <ColumnDefinition Width="50"/>  <!-- Shortage/Ded -->
+                                    <ColumnDefinition Width="60"/>  <!-- TTL Kgs -->
+                                    <ColumnDefinition Width="55"/>  <!-- Mnd Std -->
+                                    <ColumnDefinition Width="85"/>  <!-- Rate Type -->
+                                    <ColumnDefinition Width="60"/>  <!-- Rate -->
+                                    <ColumnDefinition Width="60"/>  <!-- Rate Bardana -->
                                     <ColumnDefinition Width="*"/>   <!-- Total Value -->
                                     <ColumnDefinition Width="Auto"/> <!-- Add btn -->
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0"><TextBlock Text="Product ID"/><TextBox Text="{Binding CurrentProductId}"/></StackPanel>
-                                <StackPanel Grid.Column="1"><TextBlock Text="Product Name"/><TextBox Text="{Binding CurrentProductName}"/></StackPanel>
-                                <StackPanel Grid.Column="2"><TextBlock Text="T.Qty"/><TextBox Text="{Binding CurrentTQty}"/></StackPanel>
-                                <StackPanel Grid.Column="3"><TextBlock Text="B.Qty"/><TextBox Text="{Binding CurrentBQty}"/></StackPanel>
-                                <StackPanel Grid.Column="4"><TextBlock Text="P.Qty"/><TextBox Text="{Binding CurrentPQty}"/></StackPanel>
-                                <StackPanel Grid.Column="5"><TextBlock Text="Bharti"/><TextBox Text="{Binding CurrentBhartiKgs}"/></StackPanel>
-                                <StackPanel Grid.Column="6"><TextBlock Text="Loose Wt"/><TextBox Text="{Binding CurrentLooseWeight}"/></StackPanel>
-                                <StackPanel Grid.Column="7"><TextBlock Text="Short"/><ComboBox ItemsSource="{Binding ShortTypes}" SelectedItem="{Binding SelectedShortType}"/></StackPanel>
-                                <StackPanel Grid.Column="8"><TextBlock Text="Short/Ded"/><TextBox Text="{Binding CurrentShortageDed}"/></StackPanel>
-                                <StackPanel Grid.Column="9"><TextBlock Text="TTL Kgs"/><TextBox Text="{Binding CurrentTotalWeight}"/></StackPanel>
-                                <StackPanel Grid.Column="10"><TextBlock Text="Mnd Std"/><ComboBox ItemsSource="{Binding MoundStandards}" SelectedItem="{Binding SelectedMoundStandard}"/></StackPanel>
-                                <StackPanel Grid.Column="11"><TextBlock Text="Rate Type"/><ComboBox ItemsSource="{Binding RateTypes}" SelectedItem="{Binding SelectedRateType}"/></StackPanel>
-                                <StackPanel Grid.Column="12"><TextBlock Text="Rate"/><TextBox Text="{Binding CurrentRate}"/></StackPanel>
-                                <StackPanel Grid.Column="13"><TextBlock Text="Br.Dana"/><TextBox Text="{Binding CurrentRateBardana}"/></StackPanel>
-                                <StackPanel Grid.Column="14"><TextBlock Text="Total Value"/><TextBox Text="{Binding CurrentTotalValue}" FontWeight="Bold"/></StackPanel>
-                                <Button Grid.Column="15" Content="+" Command="{Binding AddItemCommand}" Width="24" Height="23" Margin="3,14,0,0" ToolTip="Add Row"/>
+                                <StackPanel Grid.Column="0" Margin="0,0,3,0"><TextBlock Text="Product ID" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentProductId}"/></StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,3,0"><TextBlock Text="Product Name" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentProductName}" FontWeight="SemiBold"/></StackPanel>
+                                <StackPanel Grid.Column="2" Margin="0,0,3,0"><TextBlock Text="T.Qty" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentTQty}"/></StackPanel>
+                                <StackPanel Grid.Column="3" Margin="0,0,3,0"><TextBlock Text="B.Qty" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentBQty}"/></StackPanel>
+                                <StackPanel Grid.Column="4" Margin="0,0,3,0"><TextBlock Text="P.Qty" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentPQty}"/></StackPanel>
+                                <StackPanel Grid.Column="5" Margin="0,0,3,0"><TextBlock Text="Bharti" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentBhartiKgs}"/></StackPanel>
+                                <StackPanel Grid.Column="6" Margin="0,0,3,0"><TextBlock Text="Loose Wt" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentLooseWeight}"/></StackPanel>
+                                <StackPanel Grid.Column="7" Margin="0,0,3,0"><TextBlock Text="Short" FontSize="10" Foreground="#475569"/><ComboBox ItemsSource="{Binding ShortTypes}" SelectedItem="{Binding SelectedShortType}"/></StackPanel>
+                                <StackPanel Grid.Column="8" Margin="0,0,3,0"><TextBlock Text="Short/Ded" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentShortageDed}"/></StackPanel>
+                                <StackPanel Grid.Column="9" Margin="0,0,3,0"><TextBlock Text="TTL Kgs" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentTotalWeight}"/></StackPanel>
+                                <StackPanel Grid.Column="10" Margin="0,0,3,0"><TextBlock Text="Mnd Std" FontSize="10" Foreground="#475569"/><ComboBox ItemsSource="{Binding MoundStandards}" SelectedItem="{Binding SelectedMoundStandard}"/></StackPanel>
+                                <StackPanel Grid.Column="11" Margin="0,0,3,0"><TextBlock Text="Rate Type" FontSize="10" Foreground="#475569"/><ComboBox ItemsSource="{Binding RateTypes}" SelectedItem="{Binding SelectedRateType}"/></StackPanel>
+                                <StackPanel Grid.Column="12" Margin="0,0,3,0"><TextBlock Text="Rate" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentRate}"/></StackPanel>
+                                <StackPanel Grid.Column="13" Margin="0,0,3,0"><TextBlock Text="Br.Dana" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentRateBardana}"/></StackPanel>
+                                <StackPanel Grid.Column="14" Margin="0,0,4,0"><TextBlock Text="Total Value" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding CurrentTotalValue}" FontWeight="Bold" Background="#F0FDF4" BorderBrush="#A7F3D0" Foreground="#047857"/></StackPanel>
+                                <Button Grid.Column="15" Style="{StaticResource PrimarySaveButton}" Command="{Binding AddItemCommand}" MinWidth="32" Width="32" Height="26" VerticalAlignment="Bottom" ToolTip="Add Row">
+                                    <materialDesign:PackIcon Kind="Plus" Width="14" Height="14"/>
+                                </Button>
                             </Grid>
 
                             <!-- Line Items DataGrid -->
-                            <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}" AutoGenerateColumns="False"
-                                      Height="110" Background="White" HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="22">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="P. ID" Binding="{Binding ProductId}" Width="60"/>
-                                    <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="140"/>
-                                    <DataGridTextColumn Header="T.Qty" Binding="{Binding TQty}" Width="50"/>
-                                    <DataGridTextColumn Header="B.Qty" Binding="{Binding BQty}" Width="50"/>
-                                    <DataGridTextColumn Header="P.Qty" Binding="{Binding PQty}" Width="50"/>
-                                    <DataGridTextColumn Header="WT/Bag" Binding="{Binding WtPerBag}" Width="55"/>
-                                    <DataGridTextColumn Header="Ext.WT" Binding="{Binding ExtWt}" Width="55"/>
-                                    <DataGridTextColumn Header="Shortage" Binding="{Binding Shortage}" Width="60"/>
-                                    <DataGridTextColumn Header="Ded." Binding="{Binding Deduction}" Width="50"/>
-                                    <DataGridTextColumn Header="TTL Kgs" Binding="{Binding TotalKgs}" Width="65"/>
-                                    <DataGridTextColumn Header="Mnd-Std" Binding="{Binding MoundStandard}" Width="60"/>
-                                    <DataGridTextColumn Header="Rate Type" Binding="{Binding RateType}" Width="85"/>
-                                    <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=N2}" Width="70"/>
-                                    <DataGridTextColumn Header="Br.Dana" Binding="{Binding RateBardana, StringFormat=N2}" Width="65"/>
-                                    <DataGridTextColumn Header="TotalValue" Binding="{Binding TotalValue, StringFormat=N2}" Width="*"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4">
+                                <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}" AutoGenerateColumns="False"
+                                          Height="120" Background="White" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9" RowHeight="24">
+                                    <DataGrid.ColumnHeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#1E293B"/>
+                                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Height" Value="26"/>
+                                            <Setter Property="Padding" Value="6,0"/>
+                                            <Setter Property="BorderBrush" Value="#334155"/>
+                                            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                                        </Style>
+                                    </DataGrid.ColumnHeaderStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="P. ID" Binding="{Binding ProductId}" Width="60"/>
+                                        <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="140"/>
+                                        <DataGridTextColumn Header="T.Qty" Binding="{Binding TQty}" Width="50"/>
+                                        <DataGridTextColumn Header="B.Qty" Binding="{Binding BQty}" Width="50"/>
+                                        <DataGridTextColumn Header="P.Qty" Binding="{Binding PQty}" Width="50"/>
+                                        <DataGridTextColumn Header="WT/Bag" Binding="{Binding WtPerBag}" Width="55"/>
+                                        <DataGridTextColumn Header="Ext.WT" Binding="{Binding ExtWt}" Width="55"/>
+                                        <DataGridTextColumn Header="Shortage" Binding="{Binding Shortage}" Width="60"/>
+                                        <DataGridTextColumn Header="Ded." Binding="{Binding Deduction}" Width="50"/>
+                                        <DataGridTextColumn Header="TTL Kgs" Binding="{Binding TotalKgs}" Width="65"/>
+                                        <DataGridTextColumn Header="Mnd-Std" Binding="{Binding MoundStandard}" Width="60"/>
+                                        <DataGridTextColumn Header="Rate Type" Binding="{Binding RateType}" Width="85"/>
+                                        <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=N2}" Width="70"/>
+                                        <DataGridTextColumn Header="Br.Dana" Binding="{Binding RateBardana, StringFormat=N2}" Width="65"/>
+                                        <DataGridTextColumn Header="TotalValue" Binding="{Binding TotalValue, StringFormat=N2}" Width="*"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Border>
                         </StackPanel>
                     </Border>
 
                     <!-- 3. EXPENSES TABS & FINANCIAL TOTALS -->
-                    <Grid Margin="0,0,0,6">
+                    <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="230"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- Left: TabControl for Expenses -->
-                        <TabControl Grid.Column="0" Height="150" Background="#ECECEC" BorderBrush="#A0A0A0">
-                            <!-- TAB 1: General Expenses -->
-                            <TabItem Header="General Expenses" FontWeight="SemiBold">
-                                <Grid Margin="6,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="10"/>
-                                        <ColumnDefinition Width="180"/>
-                                        <ColumnDefinition Width="10"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- Dami & WHT Box -->
-                                    <Border Grid.Column="0" BorderBrush="#A0A0A0" BorderThickness="1" Background="#F4F4F4" Padding="6,4">
-                                        <StackPanel>
-                                            <TextBlock Text="Dami" FontWeight="Bold" Margin="0,0,0,2"/>
-                                            <Grid Margin="0,0,0,4">
-                                                <Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition Width="45"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                <StackPanel Grid.Column="0"><TextBlock Text="Type"/><ComboBox ItemsSource="{Binding DamiTypes}" SelectedItem="{Binding SelectedDamiType}"/></StackPanel>
-                                                <StackPanel Grid.Column="1" Margin="3,0"><TextBlock Text="%Age"/><TextBox Text="{Binding DamiPercentage}"/></StackPanel>
-                                                <StackPanel Grid.Column="2"><TextBlock Text="Value"/><TextBox Text="{Binding DamiValue}"/></StackPanel>
-                                            </Grid>
-                                            <CheckBox Content="Commission Minus From Balance" IsChecked="{Binding CommissionMinusFromBalance}" Margin="0,0,0,4" FontSize="10"/>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions><ColumnDefinition Width="75"/><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0" Text="WithHolding Tax" VerticalAlignment="Center" FontSize="10.5"/>
-                                                <TextBox Grid.Column="1" Text="{Binding WhtPercentage}" Margin="2,0"/>
-                                                <TextBox Grid.Column="2" Text="{Binding WhtValue}"/>
-                                            </Grid>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <!-- Summary Numbers -->
-                                    <Grid Grid.Column="2">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
+                        <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="6">
+                            <TabControl Height="150" Background="Transparent" BorderThickness="0">
+                                <!-- TAB 1: General Expenses -->
+                                <TabItem Header="General Expenses" FontWeight="SemiBold">
+                                    <Grid Margin="4,6">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="210"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="8"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Gross total" VerticalAlignment="Center"/>
-                                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding GrossTotal, StringFormat=N2}" Margin="0,1" FontWeight="Bold"/>
+                                        <!-- Dami & WHT Box -->
+                                        <Border Grid.Column="0" BorderBrush="#CBD5E1" BorderThickness="1" Background="#F8FAFC" CornerRadius="4" Padding="8,6">
+                                            <StackPanel>
+                                                <TextBlock Text="Dami" FontWeight="Bold" Foreground="#1E3A8A" Margin="0,0,0,3"/>
+                                                <Grid Margin="0,0,0,4">
+                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition Width="45"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0"><TextBlock Text="Type" FontSize="10" Foreground="#475569"/><ComboBox ItemsSource="{Binding DamiTypes}" SelectedItem="{Binding SelectedDamiType}"/></StackPanel>
+                                                    <StackPanel Grid.Column="1" Margin="3,0"><TextBlock Text="%Age" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding DamiPercentage}"/></StackPanel>
+                                                    <StackPanel Grid.Column="2"><TextBlock Text="Value" FontSize="10" Foreground="#475569"/><TextBox Text="{Binding DamiValue}"/></StackPanel>
+                                                </Grid>
+                                                <CheckBox Content="Commission Minus From Balance" IsChecked="{Binding CommissionMinusFromBalance}" Margin="0,0,0,4" FontSize="10"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="75"/><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="WHT Tax" VerticalAlignment="Center" FontSize="10.5" Foreground="#475569"/>
+                                                    <TextBox Grid.Column="1" Text="{Binding WhtPercentage}" Margin="2,0"/>
+                                                    <TextBox Grid.Column="2" Text="{Binding WhtValue}"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
 
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Discount" VerticalAlignment="Center"/>
-                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Discount, StringFormat=N2}" Margin="0,1"/>
+                                        <!-- Summary Numbers -->
+                                        <Grid Grid.Column="2">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="85"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Bardana" VerticalAlignment="Center"/>
-                                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Bardana, StringFormat=N2}" Margin="0,1"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Gross Total:" VerticalAlignment="Center" FontSize="11" Foreground="#475569"/>
+                                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding GrossTotal, StringFormat=N2}" Margin="0,1" FontWeight="Bold"/>
 
-                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Advance" VerticalAlignment="Center"/>
-                                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Advance, StringFormat=N2}" Margin="0,1"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Discount:" VerticalAlignment="Center" FontSize="11" Foreground="#475569"/>
+                                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Discount, StringFormat=N2}" Margin="0,1"/>
 
-                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Invoice Value" VerticalAlignment="Center" FontWeight="Bold"/>
-                                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding InvoiceValue, StringFormat=N2}" Margin="0,1" FontWeight="Bold"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Bardana:" VerticalAlignment="Center" FontSize="11" Foreground="#475569"/>
+                                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Bardana, StringFormat=N2}" Margin="0,1"/>
+
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Advance:" VerticalAlignment="Center" FontSize="11" Foreground="#475569"/>
+                                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Advance, StringFormat=N2}" Margin="0,1"/>
+
+                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Invoice Value:" VerticalAlignment="Center" FontWeight="Bold" FontSize="11" Foreground="#1E3A8A"/>
+                                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding InvoiceValue, StringFormat=N2}" Margin="0,1" FontWeight="Bold" Background="#F0FDF4" BorderBrush="#A7F3D0" Foreground="#047857"/>
+                                        </Grid>
+
+                                        <!-- Ref. Commission & Vehicle Charges -->
+                                        <Border Grid.Column="4" BorderBrush="#CBD5E1" BorderThickness="1" Background="#F8FAFC" CornerRadius="4" Padding="8,6">
+                                            <StackPanel>
+                                                <!-- Ref. Commission -->
+                                                <TextBlock Text="Ref. Commission" FontWeight="Bold" Foreground="#1E3A8A" Margin="0,0,0,3"/>
+                                                <Grid Margin="0,0,0,4">
+                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                    <ComboBox Grid.Column="0" ItemsSource="{Binding RefCommissionTypes}" SelectedItem="{Binding SelectedRefCommissionType}"/>
+                                                    <TextBox Grid.Column="1" Text="{Binding RefCommissionPercentage}" Margin="3,0"/>
+                                                    <TextBox Grid.Column="2" Text="{Binding RefCommissionValue}"/>
+                                                </Grid>
+
+                                                <!-- Vehicle Charges -->
+                                                <TextBlock Text="Vehicle Charges" FontSize="10.5" Foreground="#475569" Margin="0,0,0,2"/>
+                                                <Grid Margin="0,0,0,4">
+                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0" Text="{Binding VehicleCharges1}" Margin="0,0,2,0"/>
+                                                    <TextBox Grid.Column="1" Text="{Binding VehicleCharges2}" Margin="2,0"/>
+                                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                                        <RadioButton Content="/B" IsChecked="{Binding IsVehiclePerBag}" Margin="4,0,2,0"/>
+                                                        <RadioButton Content="/M" IsChecked="{Binding IsVehiclePerMound}"/>
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="65"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="Account No" VerticalAlignment="Center" FontSize="10.5" Foreground="#475569"/>
+                                                    <TextBox Grid.Column="1" Text="{Binding VehicleAccountNo}"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
                                     </Grid>
+                                </TabItem>
 
-                                    <!-- Ref. Commission & Vehicle Charges -->
-                                    <Border Grid.Column="4" BorderBrush="#A0A0A0" BorderThickness="1" Background="#F4F4F4" Padding="6,4">
-                                        <StackPanel>
-                                            <!-- Ref. Commission -->
-                                            <TextBlock Text="Ref.Commission" FontWeight="Bold" Margin="0,0,0,2"/>
-                                            <Grid Margin="0,0,0,4">
-                                                <Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                <ComboBox Grid.Column="0" ItemsSource="{Binding RefCommissionTypes}" SelectedItem="{Binding SelectedRefCommissionType}"/>
-                                                <TextBox Grid.Column="1" Text="{Binding RefCommissionPercentage}" Margin="3,0"/>
-                                                <TextBox Grid.Column="2" Text="{Binding RefCommissionValue}"/>
-                                            </Grid>
+                                <!-- TAB 2: Multiple Expenses -->
+                                <TabItem Header="Multiple Expenses" FontWeight="SemiBold">
+                                    <Grid Margin="10">
+                                        <TextBlock Text="Additional Multiple Expenses Configuration" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#64748B"/>
+                                    </Grid>
+                                </TabItem>
 
-                                            <!-- Vehicle Charges -->
-                                            <TextBlock Text="Vehicle Charges" Margin="0,0,0,2"/>
-                                            <Grid Margin="0,0,0,4">
-                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                                <TextBox Grid.Column="0" Text="{Binding VehicleCharges1}" Margin="0,0,2,0"/>
-                                                <TextBox Grid.Column="1" Text="{Binding VehicleCharges2}" Margin="2,0"/>
-                                                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                                    <RadioButton Content="/B" IsChecked="{Binding IsVehiclePerBag}" Margin="4,0,2,0"/>
-                                                    <RadioButton Content="/M" IsChecked="{Binding IsVehiclePerMound}"/>
-                                                </StackPanel>
-                                            </Grid>
-
-                                            <Grid>
-                                                <Grid.ColumnDefinitions><ColumnDefinition Width="65"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0" Text="Account No" VerticalAlignment="Center"/>
-                                                <TextBox Grid.Column="1" Text="{Binding VehicleAccountNo}"/>
-                                            </Grid>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-                            </TabItem>
-
-                            <!-- TAB 2: Multiple Expenses -->
-                            <TabItem Header="Multiple Expenses" FontWeight="SemiBold">
-                                <Grid Margin="10">
-                                    <TextBlock Text="Additional Multiple Expenses Configuration" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Grid>
-                            </TabItem>
-
-                            <!-- TAB 3: Other Expenses -->
-                            <TabItem Header="Other Expenses" FontWeight="SemiBold">
-                                <Grid Margin="10">
-                                    <TextBlock Text="Other Mandi &amp; Trade Expenses" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Grid>
-                            </TabItem>
-                        </TabControl>
+                                <!-- TAB 3: Other Expenses -->
+                                <TabItem Header="Other Expenses" FontWeight="SemiBold">
+                                    <Grid Margin="10">
+                                        <TextBlock Text="Other Mandi &amp; Trade Expenses" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#64748B"/>
+                                    </Grid>
+                                </TabItem>
+                            </TabControl>
+                        </Border>
 
                         <!-- Right: Financial Totals Box -->
-                        <Border Grid.Column="1" BorderBrush="#A0A0A0" BorderThickness="1" Background="#ECECEC" Padding="8" Margin="8,0,0,0">
+                        <Border Grid.Column="1" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="8,0,0,0">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -522,64 +599,64 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Paid" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Paid" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569"/>
                                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Paid, StringFormat=N2}" Margin="0,2"/>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Net Value" VerticalAlignment="Center" FontWeight="Bold"/>
-                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding NetValue, StringFormat=N2}" Margin="0,2" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Net Value" VerticalAlignment="Center" FontWeight="Bold" Foreground="#047857"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding NetValue, StringFormat=N2}" Margin="0,2" FontWeight="Bold" Background="#F0FDF4" BorderBrush="#A7F3D0" Foreground="#047857"/>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Previous Balance" VerticalAlignment="Center"/>
-                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PreviousBalance, StringFormat=N2}" Margin="0,2"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Previous Balance" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PreviousBalance, StringFormat=N2}" Margin="0,2" Background="#F8FAFC" BorderBrush="#CBD5E1"/>
 
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Final Balance" VerticalAlignment="Center" FontWeight="Bold"/>
-                                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding FinalBalance, StringFormat=N2}" Margin="0,2" FontWeight="Bold" Foreground="#1E3A8A"/>
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Final Balance" VerticalAlignment="Center" FontWeight="Bold" Foreground="#1E3A8A"/>
+                                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding FinalBalance, StringFormat=N2}" Margin="0,2" FontWeight="Bold" Foreground="#1E3A8A" Background="#EFF6FF" BorderBrush="#BFDBFE"/>
                             </Grid>
                         </Border>
                     </Grid>
 
                     <!-- 4. NARRATIONS & EXPENSE TYPE -->
-                    <Border BorderBrush="#A0A0A0" BorderThickness="1" Background="#ECECEC" Padding="8,6">
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="6"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <!-- Row 1: Narration & Expense Type & Markup Invoice -->
-                            <Grid Grid.Row="0" Margin="0,0,0,4">
+                            <Grid Grid.Row="0">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="65"/>
+                                    <ColumnDefinition Width="70"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="85"/>
                                     <ColumnDefinition Width="160"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0" Text="Narration:" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="Narration:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569"/>
                                 <TextBox Grid.Column="1" Text="{Binding Narration}" Margin="0,0,10,0"/>
 
-                                <TextBlock Grid.Column="2" Text="Expense Type:" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="Expense Type:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569"/>
                                 <ComboBox Grid.Column="3" ItemsSource="{Binding ExpenseTypes}" SelectedItem="{Binding SelectedExpenseType}" Margin="0,0,10,0"/>
 
-                                <CheckBox Grid.Column="4" Content="Markup Invoice" IsChecked="{Binding MarkupInvoice}" VerticalAlignment="Center"/>
+                                <CheckBox Grid.Column="4" Content="Markup Invoice" IsChecked="{Binding MarkupInvoice}" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#334155"/>
                             </Grid>
 
                             <!-- Row 2: Narration In Urdu -->
-                            <Grid Grid.Row="1">
+                            <Grid Grid.Row="2">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="105"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0" Text="Narration In Urdu:" VerticalAlignment="Center"/>
-                                <TextBox Grid.Column="1" Text="{Binding NarrationInUrdu}" Style="{StaticResource ModernUrduStandardTextBox}" helpers:UrduHelper.IsUrduOnly="True" Height="38"/>
+                                <TextBlock Grid.Column="0" Text="Narration In Urdu:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#475569"/>
+                                <TextBox Grid.Column="1" Text="{Binding NarrationInUrdu}" helpers:UrduHelper.IsUrduOnly="True" Height="36" FontSize="15" Padding="4,2"/>
                             </Grid>
                         </Grid>
                     </Border>
 
                 </StackPanel>
             </ScrollViewer>
-
         </DockPanel>
     </Grid>
 </Window>

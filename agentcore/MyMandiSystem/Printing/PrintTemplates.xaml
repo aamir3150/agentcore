@@ -4,5 +4,6 @@
         <ResourceDictionary Source="Templates/CreditVoucherSlip.xaml" />
         <ResourceDictionary Source="Templates/CashLoanSlip.xaml" />
         <ResourceDictionary Source="Templates/VoucherSlip.xaml" />
+        <ResourceDictionary Source="Templates/ChequeDepositSlip.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

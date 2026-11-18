@@ -84,6 +84,12 @@ public class StockService : IStockService
     {
         using var context = await _contextFactory.CreateDbContextAsync();
         
+        var product = await context.Products.FindAsync(productId);
+        if (product != null)
+        {
+            product.OpeningStock = qty;
+        }
+
         // Remove existing opening transaction for this product if any
         var existingOpening = await context.StockTransactions
             .FirstOrDefaultAsync(s => s.ProductId == productId && s.TransactionType == StockTransactionType.Opening);
@@ -117,6 +123,46 @@ public class StockService : IStockService
         }
 
         await context.SaveChangesAsync();
+
+        if (product != null)
+        {
+            var netStock = await context.StockTransactions
+                .Where(s => s.ProductId == productId)
+                .SumAsync(s => (decimal?)(s.QtyIn - s.QtyOut)) ?? 0m;
+            product.CurrentStock = netStock;
+            await context.SaveChangesAsync();
+
+            try
+            {
+                var sql = @"
+                    IF OBJECT_ID('OpeningStock', 'U') IS NOT NULL
+                    BEGIN
+                        IF EXISTS (SELECT 1 FROM OpeningStock WHERE ProductID = {0})
+                        BEGIN
+                            UPDATE OpeningStock 
+                            SET Qty = {1}, Price = {2}, Cost = {2}, TTLValue = {3}, IsDeleted = 0
+                            WHERE ProductID = {0};
+                        END
+                        ELSE
+                        BEGIN
+                            INSERT INTO OpeningStock (
+                                ProductID, Multiplier, Qty, Bonus, Price, DiscRatio, DiscValue, 
+                                STRatio, STValue, TTLValue, TTLSalesTax, Cost, IsDeleted
+                            )
+                            VALUES (
+                                {0}, 1.0, {1}, 0, {2}, 0, 0, 
+                                0, 0, {3}, 0, {2}, 0
+                            );
+                        END
+                    END";
+                decimal ttl = qty * rate;
+                await context.Database.ExecuteSqlRawAsync(sql, product.ProductCode, qty, rate, ttl);
+            }
+            catch
+            {
+                // Resilient failover
+            }
+        }
     }
     public async Task RecalculateStockAsync(int? productId)
     {

@@ -1,0 +1,149 @@
+<Window x:Class="MyMandiSystem.Views.InsuranceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}" Height="720" Width="1150"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BrushSurfaceBg}"
+        FontFamily="{DynamicResource MaterialDesignFont}">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
+
+    <Border Margin="16" Background="#FFFFFF" CornerRadius="16" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" Effect="{StaticResource EffectCardShadow}">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 1. Header Banner -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Width="44" Height="44" CornerRadius="12" Background="{StaticResource BrushGradientIndigo}" Margin="0,0,14,0" VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="ShieldCheck" Width="26" Height="26" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Insurance Policies Management" FontSize="20" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}"/>
+                    <TextBlock Text="Manage stock, warehouse, and crop insurance policies and coverage / انشورنس پالیسی ریکارڈ" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                </StackPanel>
+
+                <!-- Top Right Search & Filter -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#F8FAFC" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" CornerRadius="8" Padding="8,2" Width="260" Margin="0,0,10,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18" Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox Grid.Column="1" 
+                                     materialDesign:HintAssist.Hint="Search policy, company... / تلاش کریں" 
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                     BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
+                                     FontSize="12"/>
+                        </Grid>
+                    </Border>
+
+                    <Button Content="+ Add Policy" Command="{Binding AddPolicyCommand}" Style="{StaticResource ModernPrimaryButton}" Height="36" Margin="0,0,6,0"/>
+                    <Button Content="Edit" Command="{Binding EditPolicyCommand}" CommandParameter="{Binding SelectedPolicy}" Style="{StaticResource ModernSecondaryButton}" Height="36" Margin="0,0,6,0"/>
+                    <Button Content="Delete" Command="{Binding DeletePolicyCommand}" CommandParameter="{Binding SelectedPolicy}" Style="{StaticResource ModernDangerButton}" Height="36"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- 2. Main Content (Grid + Drawer) -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Policies Table with Filter Tabs -->
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Filter Tabs -->
+                    <Border Grid.Row="0" Background="#F1F5F9" CornerRadius="8" Padding="4" HorizontalAlignment="Left" Margin="0,0,0,12">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Content="All Policies (تمام)" IsChecked="{Binding IsFilterAll}" Style="{StaticResource MaterialDesignTabRadioButton}" Margin="2,0"/>
+                            <RadioButton Content="Active (فعال)" IsChecked="{Binding IsFilterActive}" Style="{StaticResource MaterialDesignTabRadioButton}" Margin="2,0"/>
+                            <RadioButton Content="Expiring Soon (5 دن میں ختم)" IsChecked="{Binding IsFilterExpiringSoon}" Style="{StaticResource MaterialDesignTabRadioButton}" Margin="2,0"/>
+                            <RadioButton Content="Expired (ختم شدہ)" IsChecked="{Binding IsFilterExpired}" Style="{StaticResource MaterialDesignTabRadioButton}" Margin="2,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Table -->
+                    <Border Grid.Row="1" CornerRadius="12" BorderBrush="{StaticResource BrushSurfaceBorder}" BorderThickness="1" ClipToBounds="True">
+                        <DataGrid ItemsSource="{Binding FilteredPolicies}" SelectedItem="{Binding SelectedPolicy}"
+                                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" SelectionMode="Single"
+                                  Style="{StaticResource ModernDataGrid}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="SR #" Binding="{Binding SrNo}" Width="60"/>
+                                <DataGridTextColumn Header="INSURANCE COMPANY" Binding="{Binding InsuranceCompanyName}" Width="*"/>
+                                <DataGridTextColumn Header="COVER NOTE" Binding="{Binding CoverNote}" Width="110"/>
+                                <DataGridTextColumn Header="POLICY NO" Binding="{Binding PolicyNo}" Width="110"/>
+                                <DataGridTextColumn Header="INSURED VAL (₨)" Binding="{Binding InsuredValue, StringFormat=N0}" Width="120"/>
+                                <DataGridTextColumn Header="PREMIUM (₨)" Binding="{Binding NetPremium, StringFormat=N0}" Width="110"/>
+                                <DataGridTextColumn Header="FROM" Binding="{Binding FromDate, StringFormat=dd/MM/yyyy}" Width="95"/>
+                                <DataGridTextColumn Header="TO" Binding="{Binding ToDate, StringFormat=dd/MM/yyyy}" Width="95"/>
+                                <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="110"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </Grid>
+
+                <!-- Right: Side Form Drawer -->
+                <Border Grid.Column="1" Width="360" Margin="16,0,0,0" CornerRadius="14" BorderBrush="{StaticResource BrushSurfaceBorder}" 
+                        BorderThickness="1" Background="#F8FAFC" Padding="18"
+                        Visibility="{Binding IsFormVisible, Converter={StaticResource BoolToVis}}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Policy Details / انشورنس پالیسی" FontSize="15" FontWeight="Bold" Foreground="{StaticResource BrushPrimaryNavy}" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Command="{Binding CancelPolicyCommand}" Style="{StaticResource MaterialDesignIconButton}" Width="28" Height="28">
+                                    <materialDesign:PackIcon Kind="Close" Width="18" Height="18" Foreground="{StaticResource BrushTextSecondary}"/>
+                                </Button>
+                            </Grid>
+
+                            <TextBox materialDesign:HintAssist.Hint="Insurance Company Name (کمپنی کا نام)" Text="{Binding CurrentPolicy.InsuranceCompanyName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                            <TextBox materialDesign:HintAssist.Hint="Cover Note (کور نوٹ)" Text="{Binding CurrentPolicy.CoverNote, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                            <TextBox materialDesign:HintAssist.Hint="Policy Number (پالیسی نمبر)" Text="{Binding CurrentPolicy.PolicyNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                            <TextBox materialDesign:HintAssist.Hint="Category / نوعیت (e.g. Stock, Crop, Warehouse)" Text="{Binding CurrentPolicy.Category, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+
+                            <TextBox materialDesign:HintAssist.Hint="Insured Value (₨ / انشورڈ رقم)" Text="{Binding CurrentPolicy.InsuredValue, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,10"/>
+                            <TextBox materialDesign:HintAssist.Hint="Net Premium (₨ / نیٹ پریمیئم)" Text="{Binding CurrentPolicy.NetPremium, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,0,0,12"/>
+
+                            <TextBlock Text="From Date (تاریخ آغاز)" FontSize="11" Foreground="{StaticResource BrushTextSecondary}" Margin="0,2,0,2"/>
+                            <DatePicker SelectedDate="{Binding CurrentPolicy.FromDate}" Margin="0,0,0,10" Background="White"/>
+
+                            <TextBlock Text="To Date (تاریخ اختتام)" FontSize="11" Foreground="{StaticResource BrushTextSecondary}" Margin="0,2,0,2"/>
+                            <DatePicker SelectedDate="{Binding CurrentPolicy.ToDate}" Margin="0,0,0,16" Background="White"/>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="Cancel" Command="{Binding CancelPolicyCommand}" Style="{StaticResource ModernSecondaryButton}" Height="34" Margin="0,0,8,0"/>
+                                <Button Content="Save Policy" Command="{Binding SavePolicyCommand}" Style="{StaticResource ModernPrimaryButton}" Height="34"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

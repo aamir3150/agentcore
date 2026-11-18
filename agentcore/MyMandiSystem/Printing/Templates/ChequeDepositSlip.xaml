@@ -1,0 +1,221 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:m="clr-namespace:MyMandiSystem.Core.PrintModels;assembly=MyMandiSystem.Core"
+    xmlns:pc="clr-namespace:MyMandiSystem.Printing.Controls"
+    xmlns:cv="clr-namespace:MyMandiSystem.Printing.Converters">
+
+    <cv:PrintDateConverter x:Key="PrintDateConverter"/>
+    <cv:BytesToImageConverter x:Key="BytesToImage"/>
+    <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+    <Style x:Key="HideWhenFalse" TargetType="FrameworkElement">
+        <Setter Property="Visibility" Value="Visible"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsMultiMode}" Value="True">
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <DataTemplate DataType="{x:Type m:ChequeDepositSlip}">
+        <Border Background="White" Padding="24,20" BorderBrush="#0F172A" BorderThickness="1.5">
+            <StackPanel>
+                <!-- Header (100% English) -->
+                <pc:PrintHeader Title="CHEQUE DEPOSIT" ShowUrduCompany="False">
+                    <pc:PrintHeader.Style>
+                        <Style TargetType="pc:PrintHeader">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasBranchOverride}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </pc:PrintHeader.Style>
+                </pc:PrintHeader>
+
+                <!-- Branch Override Header (when Branch row exists in AgenSoft DB) -->
+                <Border Margin="0,0,0,8" Visibility="{Binding HasBranchOverride, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding CompanyName}" FontSize="20" FontWeight="Bold" Foreground="#0F172A"/>
+                        <TextBlock Text="{Binding CompanyAddress}" FontSize="11" Foreground="#475569"/>
+                        <TextBlock Text="{Binding CompanyPhone}" FontSize="11" Foreground="#475569"/>
+                        <TextBlock Text="{Binding CompanyEmail}" FontSize="10.5" Foreground="#64748B"/>
+                        <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="3" Padding="8,4" Margin="0,6,0,0">
+                            <TextBlock Text="CHEQUE DEPOSIT" FontSize="13" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- SINGLE VOUCHER VIEW (CrpChequeDepost) -->
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMultiMode}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <!-- Voucher Header Bar -->
+                    <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,4,0,10" Background="#F8FAFC">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock FontSize="13.5" FontWeight="Bold" Foreground="#0F172A">
+                                    <Run Text="Received From: "/>
+                                    <Run Text="{Binding PayToName, Mode=OneWay}"/>
+                                </TextBlock>
+                                <TextBlock Text="{Binding AccountNo, StringFormat='Account No: {0}'}" FontSize="11" Foreground="#475569" Margin="0,2,0,0"/>
+                                <TextBlock Text="{Binding DepositedBy, StringFormat='Deposited By: {0}'}" FontSize="11" Foreground="#475569" Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                <Border Background="#0F172A" CornerRadius="3" Padding="8,3" HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding DisplayVoucherNo, StringFormat='Voucher # {0}'}" FontWeight="Bold" Foreground="White" FontSize="11.5"/>
+                                </Border>
+                                <TextBlock Text="{Binding VoucherDate, StringFormat='Date: {0:dd-MMM-yyyy}'}" FontSize="11" Foreground="#334155" Margin="0,4,0,0" HorizontalAlignment="Right"/>
+                                <TextBlock Text="{Binding VoucherTime, StringFormat='Time: {0:hh:mm tt}'}" FontSize="10.5" Foreground="#64748B" HorizontalAlignment="Right"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Cheque & Bank Details Grid -->
+                    <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="12,10" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="115"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="115"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Bank A/C No:" FontWeight="SemiBold" Foreground="#475569" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding BankAccountNo}" FontWeight="Bold" Foreground="#0F172A" FontSize="11" Margin="0,2,10,2"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Bank Name:" FontWeight="SemiBold" Foreground="#475569" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding BankName}" FontWeight="Bold" Foreground="#0F172A" FontSize="11" Margin="0,2" TextWrapping="Wrap"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Cheque No:" FontWeight="SemiBold" Foreground="#475569" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ChequeNo}" FontWeight="SemiBold" Foreground="#0F172A" FontSize="11" Margin="0,4,10,4"/>
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Cheque Date:" FontWeight="SemiBold" Foreground="#475569" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding ChequeDate, StringFormat='{}{0:dd-MMM-yyyy}'}" Foreground="#0F172A" FontSize="11" Margin="0,4"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Slip No:" FontWeight="SemiBold" Foreground="#475569" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SlipNo}" Foreground="#0F172A" FontSize="11" Margin="0,4,10,4"/>
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="Deposited Date:" FontWeight="SemiBold" Foreground="#475569" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding DepositedDate, StringFormat='{}{0:dd-MMM-yyyy}', TargetNullValue='Pending Confirmation'}" Foreground="#0F172A" FontSize="11" Margin="0,4"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Reconcile Date:" FontWeight="SemiBold" Foreground="#475569" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ReconcileDate, StringFormat='{}{0:dd-MMM-yyyy}', TargetNullValue='Not Reconciled'}" Foreground="#0F172A" FontSize="11" Margin="0,4,10,4"/>
+                            <TextBlock Grid.Row="3" Grid.Column="2" Text="Crop Season:" FontWeight="SemiBold" Foreground="#475569" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding CropSeason}" Foreground="#0F172A" FontSize="11" Margin="0,4"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Amount & Narration + Optional Thumb -->
+                    <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Text="{Binding Narration, StringFormat='Narration: {0}'}" FontSize="11.5" Foreground="#334155" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding AmountInWords}" FontStyle="Italic" FontWeight="SemiBold" FontSize="11.5" Foreground="#0F766E" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <Border Grid.Column="1" BorderBrush="#94A3B8" BorderThickness="1" Background="White" Margin="0,0,10,0" Padding="3"
+                                    Visibility="{Binding HasThumb, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <Image Source="{Binding FPData, Converter={StaticResource BytesToImage}}" Width="58" Height="58" Stretch="Uniform"/>
+                                    <TextBlock Text="Thumb" FontSize="9" HorizontalAlignment="Center" Foreground="#475569"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2" Background="#0F172A" CornerRadius="4" Padding="14,6" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Amount, StringFormat='Amount: Rs. {0:#,##0.##}'}" FontWeight="Bold" FontSize="15" Foreground="White"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- MULTI DEPOSIT VIEW (CrpChequeDepositMulti) -->
+                <StackPanel Visibility="{Binding IsMultiMode, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{Binding VoucherDate, StringFormat='Cheque Deposits For Date: {0:dd-MMM-yyyy}'}"
+                               FontWeight="Bold" FontSize="12" Foreground="#0F172A" Margin="0,4,0,6"/>
+
+                    <Border Background="#1E293B" CornerRadius="4,4,0,0" Padding="8,6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="48"/>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="95"/>
+                                <ColumnDefinition Width="85"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="V.No" FontWeight="Bold" Foreground="White" FontSize="10.5"/>
+                            <TextBlock Grid.Column="1" Text="Cheque No" FontWeight="Bold" Foreground="White" FontSize="10.5"/>
+                            <TextBlock Grid.Column="2" Text="Slip No" FontWeight="Bold" Foreground="White" FontSize="10.5"/>
+                            <TextBlock Grid.Column="3" Text="Bank" FontWeight="Bold" Foreground="White" FontSize="10.5"/>
+                            <TextBlock Grid.Column="4" Text="Received By" FontWeight="Bold" Foreground="White" FontSize="10.5"/>
+                            <TextBlock Grid.Column="5" Text="Deposited By" FontWeight="Bold" Foreground="White" FontSize="10.5"/>
+                            <TextBlock Grid.Column="6" Text="Amount" FontWeight="Bold" Foreground="White" FontSize="10.5" TextAlignment="Right"/>
+                        </Grid>
+                    </Border>
+
+                    <ItemsControl ItemsSource="{Binding MultiItems}" Margin="0,0,0,8">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#CBD5E1" BorderThickness="1,0,1,1" Padding="8,4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="48"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="95"/>
+                                            <ColumnDefinition Width="85"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding VoucherNo}" FontSize="10" Foreground="#334155"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding ChequeNo}" FontSize="10" Foreground="#0F172A"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SlipNo}" FontSize="10" Foreground="#334155"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding BankName}" FontSize="10" Foreground="#0F172A" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding PayToName}" FontSize="10" Foreground="#0F172A" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding DepositedBy}" FontSize="10" Foreground="#334155" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="6" Text="{Binding Amount, StringFormat='{}{0:#,##0.##}'}" FontSize="10" FontWeight="SemiBold" Foreground="#0F172A" TextAlignment="Right"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Border Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="10,6" Margin="0,0,0,10" HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding MultiTotalAmount, StringFormat='Total Amount: Rs. {0:#,##0.##}'}" FontWeight="Bold" FontSize="13" Foreground="#0F172A"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Signatures & Footer (English Only) -->
+                <pc:SignatureBlock Labels="Prepared By,Checked By,Depositor Signature" Margin="0,36,0,12"/>
+                <pc:PrintFooter CopyLabel="Original Voucher" PrintedBy="{Binding UserName}"/>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+</ResourceDictionary>
+

@@ -35,4 +35,35 @@ public class PestroInvoice : AuditBase
     public virtual PestroInvoice? LinkedInvoice { get; set; }
 
     public virtual ICollection<PestroInvoiceDetail> Details { get; set; } = new List<PestroInvoiceDetail>();
+
+    // Extended fields for full AgenSoft compatibility
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public string BillNo { get; set; } = string.Empty;
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public DateTime? BillDate { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal Expenses { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal PaidAmount { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal ReceivedAmount { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal SpecialDiscount { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public DateTime? DueDate { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public bool IsCashInvoice { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public string Remarks { get; set; } = string.Empty;
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public string NarrationUrdu { get; set; } = string.Empty;
 }

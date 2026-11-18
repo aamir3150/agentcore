@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Bank Statement - بینک سٹیٹمنٹ" 
+        Title="{Binding WindowTitle}" 
         Height="520" Width="680"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize"
@@ -118,9 +118,9 @@
                             <Border Width="34" Height="34" CornerRadius="8" Background="#1E3A8A" Margin="0,0,10,0">
                                 <materialDesign:PackIcon Kind="BankOutline" Width="22" Height="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-                            <TextBlock Text="Bank Statement" FontSize="21" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding HeaderTitle}" FontSize="21" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="بینک سٹیٹمنٹ رپورٹ (کھاتہ بینک تفصیلی)" FontSize="14" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
+                        <TextBlock Text="{Binding HeaderSubtitle}" FontSize="14" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
                     </StackPanel>
 
                     <!-- Right Graphic Emblem -->
@@ -169,12 +169,7 @@
                     </StackPanel>
 
                     <!-- Urdu Print Checkbox -->
-                    <CheckBox Grid.Column="1" IsChecked="{Binding UrduPrint}" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="Urdu Print" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBlock Text="(اردو پرنٹ)" FontFamily="{StaticResource FontJameelNooriNastaleeq}" FontSize="14" Foreground="#475569" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </CheckBox>
+                    <CheckBox Grid.Column="1" Content="Urdu Print" IsChecked="{Binding UrduPrint}" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
                 </Grid>
             </Border>
 
@@ -282,7 +277,7 @@
                             </Border>
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="Select Bank Account" FontSize="16" FontWeight="Bold" Foreground="#0F172A"/>
-                                <TextBlock Text="بینک کھاتہ منتخب کریں" FontSize="13" Foreground="#64748B" FontFamily="{StaticResource FontJameelNooriNastaleeq}"/>
+                                <TextBlock Text="Search and pick bank account (F1)" FontSize="12" Foreground="#64748B"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -357,7 +352,6 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
 
-                            <DataGridTextColumn Header="Urdu Name / نام" Binding="{Binding UrduName}" Width="160" ElementStyle="{StaticResource ModernUrduDataGridText}"/>
 
                             <DataGridTextColumn Header="Balance" Binding="{Binding CurrentBalance, StringFormat=N2}" Width="120">
                                 <DataGridTextColumn.ElementStyle>

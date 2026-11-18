@@ -14,6 +14,11 @@ public sealed class AmountInWordsConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is not decimal amount) return "";
+        return FormatAmountInWords(amount);
+    }
+
+    public static string FormatAmountInWords(decimal amount)
+    {
         if (amount == 0) return "Rupees Zero Only";
 
         long intPart = (long)Math.Abs(Math.Truncate(amount));

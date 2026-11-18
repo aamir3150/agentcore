@@ -3,28 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="agentcore - Starting" 
-        Height="390" Width="660" 
+        Height="360" Width="640" 
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
-        AllowsTransparency="True"
-        Background="Transparent"
+        AllowsTransparency="False"
+        Background="#FFFFFF"
         ShowInTaskbar="False"
         Topmost="True">
     
-    <Window.Resources>
-        <Storyboard x:Key="FadeInStoryboard">
-            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:0.35"/>
-        </Storyboard>
-    </Window.Resources>
-
-    <Window.Triggers>
-        <EventTrigger RoutedEvent="Window.Loaded">
-            <BeginStoryboard Storyboard="{StaticResource FadeInStoryboard}"/>
-        </EventTrigger>
-    </Window.Triggers>
-
-    <!-- Main Container with Luxurious Ambient Shadow -->
-    <Border Margin="18" CornerRadius="22" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1.5" Effect="{StaticResource EffectModalShadow}">
+    <!-- Main Container with Crisp Modern Border -->
+    <Border Margin="0" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1.5">
         <Grid ClipToBounds="True">
             
             <!-- Soft Pastel Ambient Glow Rings (Daytime Luxurious Feel) -->

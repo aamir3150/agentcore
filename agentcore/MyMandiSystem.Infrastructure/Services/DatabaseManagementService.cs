@@ -467,4 +467,114 @@ public class DatabaseManagementService : IDatabaseManagementService
         if (lower.Contains("pestro")) return "Pestro Chemicals";
         return "System Foundation";
     }
+
+    public async Task<bool> AttachDatabaseAsync(string databaseName, string mdfPath, string? ldfPath = null)
+    {
+        if (string.IsNullOrWhiteSpace(databaseName) || string.IsNullOrWhiteSpace(mdfPath) || !File.Exists(mdfPath))
+        {
+            throw new FileNotFoundException($"MDF database file not found at: {mdfPath}");
+        }
+
+        var masterConnStr = _configService.GetConnectionString("master");
+        await using var conn = new SqlConnection(masterConnStr);
+        await conn.OpenAsync();
+
+        string sql;
+        var cleanMdf = mdfPath.Replace("'", "''");
+        if (!string.IsNullOrWhiteSpace(ldfPath) && File.Exists(ldfPath))
+        {
+            var cleanLdf = ldfPath.Replace("'", "''");
+            sql = $"CREATE DATABASE [{databaseName}] ON (FILENAME = '{cleanMdf}'), (FILENAME = '{cleanLdf}') FOR ATTACH;";
+        }
+        else
+        {
+            sql = $"CREATE DATABASE [{databaseName}] ON (FILENAME = '{cleanMdf}') FOR ATTACH_REBUILD_LOG;";
+        }
+
+        await using var cmd = new SqlCommand(sql, conn);
+        cmd.CommandTimeout = 120;
+        await cmd.ExecuteNonQueryAsync();
+        return true;
+    }
+
+    public async Task<bool> DetachDatabaseAsync(string databaseName)
+    {
+        if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentException("Database name is required.");
+
+        var masterConnStr = _configService.GetConnectionString("master");
+        await using var conn = new SqlConnection(masterConnStr);
+        await conn.OpenAsync();
+
+        var sql = $@"
+ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+EXEC sp_detach_db '{databaseName.Replace("'", "''")}';";
+
+        await using var cmd = new SqlCommand(sql, conn);
+        cmd.CommandTimeout = 120;
+        await cmd.ExecuteNonQueryAsync();
+        return true;
+    }
+
+    public async Task<bool> BackupDatabaseAsync(string databaseName, string destinationFilePath)
+    {
+        if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentException("Database name is required.");
+        if (string.IsNullOrWhiteSpace(destinationFilePath)) throw new ArgumentException("Destination file path is required.");
+
+        var dir = Path.GetDirectoryName(destinationFilePath);
+        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
+        var masterConnStr = _configService.GetConnectionString("master");
+        await using var conn = new SqlConnection(masterConnStr);
+        await conn.OpenAsync();
+
+        var sql = $"BACKUP DATABASE [{databaseName}] TO DISK = '{destinationFilePath.Replace("'", "''")}' WITH INIT, STATS = 10;";
+        await using var cmd = new SqlCommand(sql, conn);
+        cmd.CommandTimeout = 300;
+        await cmd.ExecuteNonQueryAsync();
+        return true;
+    }
+
+    public async Task<bool> RestoreDatabaseAsync(string databaseName, string sourceBakFilePath)
+    {
+        if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentException("Database name is required.");
+        if (string.IsNullOrWhiteSpace(sourceBakFilePath) || !File.Exists(sourceBakFilePath))
+        {
+            throw new FileNotFoundException($"Backup file not found at: {sourceBakFilePath}");
+        }
+
+        var masterConnStr = _configService.GetConnectionString("master");
+        await using var conn = new SqlConnection(masterConnStr);
+        await conn.OpenAsync();
+
+        var sql = $@"
+IF EXISTS (SELECT name FROM sys.databases WHERE name = '{databaseName}')
+BEGIN
+    ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+END
+RESTORE DATABASE [{databaseName}] FROM DISK = '{sourceBakFilePath.Replace("'", "''")}' WITH REPLACE;
+ALTER DATABASE [{databaseName}] SET MULTI_USER;";
+
+        await using var cmd = new SqlCommand(sql, conn);
+        cmd.CommandTimeout = 300;
+        await cmd.ExecuteNonQueryAsync();
+        return true;
+    }
+
+    public async Task<bool> ShrinkDatabaseAsync(string databaseName)
+    {
+        if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentException("Database name is required.");
+
+        var masterConnStr = _configService.GetConnectionString("master");
+        await using var conn = new SqlConnection(masterConnStr);
+        await conn.OpenAsync();
+
+        var sql = $"DBCC SHRINKDATABASE ([{databaseName}]);";
+        await using var cmd = new SqlCommand(sql, conn);
+        cmd.CommandTimeout = 180;
+        await cmd.ExecuteNonQueryAsync();
+        return true;
+    }
 }

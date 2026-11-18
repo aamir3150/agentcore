@@ -24,12 +24,52 @@ public class ProductService : IProductService
     public async Task<IEnumerable<Product>> GetAllProductsAsync()
     {
         using var context = await _contextFactory.CreateDbContextAsync();
-        return await context.Products
-            .Include(p => p.Company)
-            .Include(p => p.Unit)
-            .Include(p => p.ProductGroup)
-            .Where(p => !p.IsDeleted)
-            .ToListAsync();
+        try
+        {
+            return await context.Products
+                .Include(p => p.Company)
+                .Include(p => p.Unit)
+                .Include(p => p.ProductGroup)
+                .Where(p => !p.IsDeleted)
+                .ToListAsync();
+        }
+        catch
+        {
+            var list = new List<Product>();
+            try
+            {
+                var conn = context.Database.GetDbConnection();
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
+
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = @"
+                    IF OBJECT_ID('Products', 'U') IS NOT NULL
+                    BEGIN
+                        SELECT ProductID, ProductName, ISNULL(PurchasePrice, 0), ISNULL(SalePrice, 0), ISNULL(NameUrdu, ''), ISNULL(BarCode, '')
+                        FROM Products
+                        ORDER BY ProductName;
+                    END";
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    list.Add(new Product
+                    {
+                        ProductCode = reader[0]?.ToString()?.Trim() ?? string.Empty,
+                        Name = reader[1]?.ToString()?.Trim() ?? string.Empty,
+                        PurchasePrice = reader[2] != DBNull.Value ? Convert.ToDecimal(reader[2]) : 0m,
+                        SalePrice = reader[3] != DBNull.Value ? Convert.ToDecimal(reader[3]) : 0m,
+                        UrduName = reader[4]?.ToString()?.Trim() ?? string.Empty,
+                        BarcodeNo = reader[5]?.ToString()?.Trim() ?? string.Empty
+                    });
+                }
+            }
+            catch
+            {
+            }
+            return list;
+        }
     }
 
     public async Task<IEnumerable<ProductGroup>> GetAllProductGroupsAsync()
@@ -57,6 +97,18 @@ public class ProductService : IProductService
 
         context.Products.Add(product);
         await context.SaveChangesAsync();
+
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                UPDATE Products 
+                SET ProductID = CAST(Id AS VARCHAR(5)),
+                    ProductName = Name,
+                    NameUrdu = ISNULL(UrduName, Name),
+                    PurchasePrice = CostPrice
+                WHERE Id = {0}", product.Id);
+        }
+        catch { }
     }
 
     public async Task UpdateProductAsync(Product product)
@@ -64,6 +116,18 @@ public class ProductService : IProductService
         using var context = await _contextFactory.CreateDbContextAsync();
         context.Products.Update(product);
         await context.SaveChangesAsync();
+
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                UPDATE Products 
+                SET ProductID = CAST(Id AS VARCHAR(5)),
+                    ProductName = Name,
+                    NameUrdu = ISNULL(UrduName, Name),
+                    PurchasePrice = CostPrice
+                WHERE Id = {0}", product.Id);
+        }
+        catch { }
     }
 
     public async Task DeleteProductAsync(int productId)

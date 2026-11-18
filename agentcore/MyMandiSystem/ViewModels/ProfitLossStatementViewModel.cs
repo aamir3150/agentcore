@@ -51,14 +51,20 @@ public partial class ProfitLossStatementViewModel : ObservableObject
     [RelayCommand]
     private async Task PreviewAsync()
     {
-        var data = await _reportService.GetProfitabilityReportAsync(FromDate.Date, ToDate.Date.AddDays(1).AddSeconds(-1), "Summary");
+        var data = await _reportService.GetProfitLossStatementReportAsync(
+            FromDate.Date,
+            ToDate.Date.AddDays(1).AddSeconds(-1),
+            WithoutOpening,
+            ProfitIncludingCurrentStock,
+            ProfitIncludingCurrentStockCrops,
+            ProfitIncludingCurrentStockPestro);
 
         var reportWindow = new ReportWindow(
-            reportPath: "Reports/ProfitabilityReport.rdlc",
-            dataSourceName: "DataSet1",
+            reportPath: "Reports/ProfitLossStatementReport.rdlc",
+            dataSourceName: "DS_ProfitLoss",
             data: data
         );
-        reportWindow.Title = $"Profit & Loss Statement ({FromDate.ToShortDateString()} To {ToDate.ToShortDateString()})";
+        reportWindow.Title = $"PROFIT & LOSS STATEMENT ({FromDate:dd/MM/yyyy} To {ToDate:dd/MM/yyyy})";
         reportWindow.ShowDialog();
     }
 

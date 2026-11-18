@@ -19,6 +19,7 @@
     <Color x:Key="ColorAccentEmeraldDark">#047857</Color>
     <Color x:Key="ColorAccentAmber">#F59E0B</Color>
     <Color x:Key="ColorAccentRose">#F43F5E</Color>
+    <Color x:Key="ColorAccentRuby">#E11D48</Color>
     <Color x:Key="ColorAccentSky">#0284C7</Color>
     <Color x:Key="ColorAccentCyan">#06B6D4</Color>
     <Color x:Key="ColorAccentPurple">#8B5CF6</Color>
@@ -46,6 +47,7 @@
     <SolidColorBrush x:Key="BrushAccentEmeraldDark" Color="{StaticResource ColorAccentEmeraldDark}" />
     <SolidColorBrush x:Key="BrushAccentAmber" Color="{StaticResource ColorAccentAmber}" />
     <SolidColorBrush x:Key="BrushAccentRose" Color="{StaticResource ColorAccentRose}" />
+    <SolidColorBrush x:Key="BrushAccentRuby" Color="{StaticResource ColorAccentRuby}" />
     <SolidColorBrush x:Key="BrushAccentSky" Color="{StaticResource ColorAccentSky}" />
     <SolidColorBrush x:Key="BrushAccentCyan" Color="{StaticResource ColorAccentCyan}" />
     <SolidColorBrush x:Key="BrushAccentPurple" Color="{StaticResource ColorAccentPurple}" />
@@ -59,6 +61,7 @@
 
     <!-- Jameel Noori Nastaleeq Font Family (Assembly Pack URI + System Fonts Fallback) -->
     <FontFamily x:Key="FontJameelNooriNastaleeq">pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, pack://application:,,,/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Urdu Typesetting, Tahoma, Arial</FontFamily>
+    <FontFamily x:Key="FontJameelNoori">pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, pack://application:,,,/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Urdu Typesetting, Tahoma, Arial</FontFamily>
 
     <!-- Professional Floating Hint Urdu TextBox Style -->
     <Style x:Key="ModernUrduTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
@@ -482,6 +485,27 @@
     <!--                     MODERN DATAGRID                        -->
     <!-- ══════════════════════════════════════════════════════════ -->
 
+    <!-- Global Compact & Vertically Centered DataGridCell to prevent MaterialDesign clipping -->
+    <Style TargetType="DataGridCell">
+        <Setter Property="Padding" Value="6,2"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridCell">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center" SnapsToDevicePixels="True"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="ModernDataGrid" TargetType="DataGrid">
         <Setter Property="Background" Value="#FFFFFF"/>
         <Setter Property="BorderBrush" Value="{StaticResource BrushSurfaceBorder}"/>
@@ -494,6 +518,7 @@
         <Setter Property="HeadersVisibility" Value="Column"/>
         <Setter Property="SelectionUnit" Value="FullRow"/>
         <Setter Property="AlternatingRowBackground" Value="#F8FAFC"/>
+        <Setter Property="materialDesign:DataGridAssist.CellPadding" Value="6,2,6,2"/>
         <Setter Property="ColumnHeaderStyle">
             <Setter.Value>
                 <Style TargetType="DataGridColumnHeader">

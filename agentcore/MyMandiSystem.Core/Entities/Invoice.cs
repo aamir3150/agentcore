@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyMandiSystem.Core.Entities;
 
@@ -53,6 +54,32 @@ public class Invoice : AuditBase
     
     public int? LinkedInvoiceId { get; set; }
     public virtual Invoice? LinkedInvoice { get; set; }
+
+    // AgenSoft Legacy Compatibility Fields
+    [NotMapped] public string? BillNo { get; set; }
+    [NotMapped] public DateTime? BillDate { get; set; }
+    [NotMapped] public decimal ExpPlus { get; set; }
+    [NotMapped] public decimal ExpMinus { get; set; }
+    [NotMapped] public decimal ComRatio { get; set; }
+    [NotMapped] public decimal ComAmount { get; set; }
+    [NotMapped] public decimal PaidAmount { get; set; }
+    [NotMapped] public decimal ReceivedAmount { get; set; }
+    [NotMapped] public decimal SpecialDiscount { get; set; }
+    [NotMapped] public decimal BankTax { get; set; }
+    [NotMapped] public bool IsMulti { get; set; }
+    [NotMapped] public decimal Freight { get; set; }
+    [NotMapped] public bool IsFreightPlus { get; set; }
+    [NotMapped] public string? VehicleNo { get; set; }
+    [NotMapped] public string? Narration { get; set; }
+    [NotMapped] public string? NarrationUrdu { get; set; }
+    [NotMapped] public decimal WHTRatio { get; set; }
+    [NotMapped] public decimal WHTAmount { get; set; }
+    [NotMapped] public bool WHTPlus { get; set; }
+    [NotMapped] public int? AssociatedSaleId { get; set; }
+    [NotMapped] public int? AssociatedPurchaseId { get; set; }
+    [NotMapped] public string? CustomerIDCom { get; set; }
+    [NotMapped] public decimal CustomerComRatio { get; set; }
+    [NotMapped] public int? SectorId { get; set; }
 
     public virtual ICollection<InvoiceDetail> Details { get; set; } = new List<InvoiceDetail>();
 }

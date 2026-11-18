@@ -14,6 +14,10 @@ public partial class DailyVouchersDetailViewModel : ObservableObject
     private readonly IReportService _reportService;
     private readonly ISystemService _systemService;
 
+    [ObservableProperty] private string _windowTitle = "Daily Vouchers Detail";
+    [ObservableProperty] private string _headerTitle = "Daily Vouchers Detail";
+    [ObservableProperty] private string _headerSubtitle = "Detailed Register of Daily Cash, Bank & Journal Vouchers";
+
     // Date Filters
     [ObservableProperty] private bool _isAllDates = true;
     [ObservableProperty] private bool _isSingleDate = false;
@@ -23,10 +27,22 @@ public partial class DailyVouchersDetailViewModel : ObservableObject
     [ObservableProperty] private DateTime _fromDate = new DateTime(DateTime.Today.Year, 7, 1);
     [ObservableProperty] private DateTime _toDate = DateTime.Today;
 
+    public void SetGLJournalMode()
+    {
+        WindowTitle = "G/L Journal";
+        HeaderTitle = "G/L Journal Register";
+        HeaderSubtitle = "General Ledger Journal Vouchers & Double Entry Register";
+        SelectedVoucherType = "Journal Voucher (JV)";
+    }
+
     // Checkboxes
     [ObservableProperty] private bool _includeBankVouchersAlso = true;
     [ObservableProperty] private bool _excludeAccountsVouchers = false;
     [ObservableProperty] private bool _includeInvoices = true;
+
+    // Voucher Number Filter Range (AgenSoft Specification)
+    [ObservableProperty] private string _fromVoucherNo = "";
+    [ObservableProperty] private string _toVoucherNo = "";
 
     // Voucher Type
     [ObservableProperty] private ObservableCollection<string> _voucherTypes = new();
@@ -47,12 +63,21 @@ public partial class DailyVouchersDetailViewModel : ObservableObject
         VoucherTypes = new ObservableCollection<string>
         {
             "--ALL TYPES--",
-            "Cash Receiving Voucher (CRV)",
-            "Cash Payment Voucher (CPV)",
+            "Credit Voucher (CV)",
+            "Debit Voucher (DV)",
             "Journal Voucher (JV)",
-            "Bank Cheque Deposit (BDV)",
-            "Bank Cheque Issue (BPV)",
-            "Cash Payment WHT"
+            "Bank Issue (BC)",
+            "Bank Deposit (BD)",
+            "Brokerage Purchase (BP)",
+            "Brokerage Sale (BS)",
+            "General Purchase (PI)",
+            "General Purchase Return (PR)",
+            "General Sale (SI)",
+            "General Sale Return (SR)",
+            "Pestro Purchase (PPI)",
+            "Pestro Purchase Return (PPR)",
+            "Pestro Sale (PSI)",
+            "Pestro Sale Return (PSR)"
         };
         SelectedVoucherType = "--ALL TYPES--";
 
@@ -67,15 +92,21 @@ public partial class DailyVouchersDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task PreviewAsync()
     {
-        DateTime date = IsSingleDate ? SingleDate.Date : (IsDateRange ? ToDate.Date : DateTime.Today);
-        var data = await _reportService.GetDayBookReportAsync(date);
+        DateTime? from = IsAllDates ? null : (IsSingleDate ? SingleDate.Date : FromDate.Date);
+        DateTime? to = IsAllDates ? null : (IsSingleDate ? SingleDate.Date.AddDays(1).AddSeconds(-1) : ToDate.Date.AddDays(1).AddSeconds(-1));
+
+        int? fromV = int.TryParse(FromVoucherNo, out int f) ? f : null;
+        int? toV = int.TryParse(ToVoucherNo, out int t) ? t : null;
+
+        var data = await _reportService.GetDailyVouchersDetailReportAsync(
+            from, to, SelectedVoucherType, fromV, toV, ExcludeAccountsVouchers, IncludeInvoices);
 
         var reportWindow = new ReportWindow(
-            reportPath: "Reports/DayBookReport.rdlc",
-            dataSourceName: "DataSet1",
+            reportPath: "Reports/DailyVouchersDetailReport.rdlc",
+            dataSourceName: "DS_Vouchers",
             data: data
         );
-        reportWindow.Title = $"Daily Vouchers Detail - {(IsAllDates ? "All Dates" : (IsSingleDate ? SingleDate.ToShortDateString() : $"{FromDate.ToShortDateString()} To {ToDate.ToShortDateString()}"))}";
+        reportWindow.Title = $"DAILY VOCHURE DETAILS - {(IsAllDates ? "All Dates" : (IsSingleDate ? SingleDate.ToString("dd/MM/yyyy") : $"{FromDate:dd/MM/yyyy} To {ToDate:dd/MM/yyyy}"))}";
         reportWindow.ShowDialog();
     }
 

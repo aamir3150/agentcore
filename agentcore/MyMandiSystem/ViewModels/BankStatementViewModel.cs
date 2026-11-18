@@ -12,11 +12,26 @@ using System.Windows;
 
 namespace MyMandiSystem.ViewModels;
 
+public enum BankReportMode
+{
+    Statement,
+    Position,
+    ChequesRegister,
+    UnclearedCheques,
+    LostCheques,
+    BouncedCheques
+}
+
 public partial class BankStatementViewModel : ObservableObject
 {
     private readonly IReportService _reportService;
     private readonly IAccountService _accountService;
     private readonly ISystemService _systemService;
+
+    [ObservableProperty] private BankReportMode _mode = BankReportMode.Statement;
+    [ObservableProperty] private string _windowTitle = "Bank Statement";
+    [ObservableProperty] private string _headerTitle = "Bank Statement";
+    [ObservableProperty] private string _headerSubtitle = "Bank Account Statement & Transaction History";
 
     // Date Range
     [ObservableProperty] private DateTime _fromDate = new DateTime(DateTime.Today.Year, 7, 1);
@@ -38,6 +53,44 @@ public partial class BankStatementViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<Account> _filteredAccounts = new();
 
     public Action? RequestClose { get; set; }
+
+    public void SetMode(BankReportMode mode)
+    {
+        Mode = mode;
+        switch (mode)
+        {
+            case BankReportMode.Statement:
+                WindowTitle = "Bank Statement";
+                HeaderTitle = "Bank Statement";
+                HeaderSubtitle = "Bank Account Statement & Transaction History";
+                break;
+            case BankReportMode.Position:
+                WindowTitle = "Bank Position";
+                HeaderTitle = "Bank Position";
+                HeaderSubtitle = "Bank Position Summary (Total Balance, Cleared & Uncleared Cheques)";
+                break;
+            case BankReportMode.ChequesRegister:
+                WindowTitle = "Bank Cheques Register";
+                HeaderTitle = "Bank Cheques Register";
+                HeaderSubtitle = "Detailed Register of Issued & Deposited Cheques";
+                break;
+            case BankReportMode.UnclearedCheques:
+                WindowTitle = "Uncleared Cheques";
+                HeaderTitle = "Uncleared Cheques";
+                HeaderSubtitle = "Uncleared Bank Cheques Report";
+                break;
+            case BankReportMode.LostCheques:
+                WindowTitle = "Lost Cheques";
+                HeaderTitle = "Lost Cheques";
+                HeaderSubtitle = "Lost & Cancelled Bank Cheques Register";
+                break;
+            case BankReportMode.BouncedCheques:
+                WindowTitle = "Bounced Cheques";
+                HeaderTitle = "Bounced Cheques";
+                HeaderSubtitle = "Bounced & Dishonoured Bank Cheques Report";
+                break;
+        }
+    }
 
     public BankStatementViewModel(IReportService reportService, IAccountService accountService, ISystemService systemService)
     {
@@ -163,11 +216,15 @@ public partial class BankStatementViewModel : ObservableObject
             AccountName = match.Name;
         }
 
-        var data = await _reportService.GetLedgerReportAsync(SelectedAccount.Id, FromDate.Date, ToDate.Date.AddDays(1).AddSeconds(-1));
+        var data = await _reportService.GetBankStatementReportAsync(
+            SelectedAccount.Id, 
+            FromDate.Date, 
+            ToDate.Date.AddDays(1).AddSeconds(-1), 
+            IncludeAllVouchers);
 
         var reportWindow = new ReportWindow(
-            reportPath: "Reports/LedgerReport.rdlc",
-            dataSourceName: "DS_Ledger",
+            reportPath: "Reports/BankStatementReport.rdlc",
+            dataSourceName: "DS_BankStatement",
             data: data
         );
         reportWindow.Title = $"Bank Statement - {SelectedAccount.AccountNo} ({SelectedAccount.Name})";

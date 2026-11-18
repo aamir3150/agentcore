@@ -1,0 +1,798 @@
+<UserControl x:Class="MyMandiSystem.Views.BankChequeIssueView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:helpers="clr-namespace:MyMandiSystem.Helpers"
+             mc:Ignorable="d" 
+             Background="#F1F5F9"
+             d:DesignHeight="850" d:DesignWidth="1100"
+             FontFamily="Segoe UI" FontSize="12"
+             Loaded="UserControl_Loaded"
+             PreviewKeyDown="UserControl_PreviewKeyDown">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- Classic Button Style (Exact match to ChequeBookGenerationWindow) -->
+        <Style x:Key="ClassicButton" TargetType="Button">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinWidth" Value="85"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="10,2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#E2E8F0"/>
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#2563EB"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#BFDBFE"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style TargetType="DatePicker">
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,1"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#1E293B"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="12">
+        <DockPanel LastChildFill="True">
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                     TOP HEADER TITLE BAR                   -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#1E3A8A" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="BankTransferOut" Width="22" Height="22" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="Bank Cheque Issuing" FontSize="16" FontWeight="Bold" Foreground="#1E3A8A"/>
+                            <Border Background="#FEE2E2" BorderBrush="#FECACA" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center"
+                                    Visibility="{Binding IsExistingVoucher, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="EDITING EXISTING VOUCHER" FontSize="10" FontWeight="Bold" Foreground="#DC2626"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="Issue bank cheques to parties / vendors with real-time General Ledger and bank reconciliation sync" FontSize="11" Foreground="#64748B"/>
+                    </StackPanel>
+
+                    <!-- Top Voucher Navigation Toolbar -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Branch Indicator -->
+                        <materialDesign:PackIcon Kind="StoreOutline" Width="15" Height="15" Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                        <TextBlock Text="{Binding BranchName, StringFormat='Branch: {0}'}" FontSize="11.5" Foreground="#475569" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                        <!-- Find Past Voucher -->
+                        <Border Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Find #:" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBox Text="{Binding SearchVoucherNo, UpdateSourceTrigger=PropertyChanged}" Width="70" Height="22" FontSize="11.5" FontWeight="Bold"
+                                         Background="#FFFFFF" BorderBrush="#94A3B8" Padding="4,1" VerticalContentAlignment="Center" Margin="0,0,4,0">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding SearchVoucherCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                                
+                                <Button Command="{Binding SearchVoucherCommand}" ToolTip="Search Voucher"
+                                        Style="{StaticResource ClassicButton}" MinWidth="26" Width="26" Height="22" Padding="0" Margin="0,0,2,0">
+                                    <materialDesign:PackIcon Kind="Magnify" Width="14" Height="14" Foreground="#1E293B"/>
+                                </Button>
+
+                                <Button Command="{Binding PreviousVoucherCommand}" ToolTip="Previous Voucher (&lt;)"
+                                        Style="{StaticResource ClassicButton}" MinWidth="26" Width="26" Height="22" Padding="0" Margin="0,0,2,0">
+                                    <materialDesign:PackIcon Kind="ChevronLeft" Width="16" Height="16" Foreground="#1E293B"/>
+                                </Button>
+                                <Button Command="{Binding NextVoucherCommand}" ToolTip="Next Voucher (&gt;)"
+                                        Style="{StaticResource ClassicButton}" MinWidth="26" Width="26" Height="22" Padding="0">
+                                    <materialDesign:PackIcon Kind="ChevronRight" Width="16" Height="16" Foreground="#1E293B"/>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--             TOP METADATA & REAL-TIME BALANCES CARD         -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Voucher # -->
+                    <TextBlock Grid.Column="0" Text="Voucher #:" FontWeight="Bold" Foreground="#1E293B" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox Grid.Column="1" Text="{Binding VoucherNo}" IsReadOnly="True" FontWeight="Bold" Foreground="#1E3A8A" Background="#F8FAFC" Width="85"/>
+
+                    <!-- Voucher Date -->
+                    <TextBlock Grid.Column="2" Text="Date:" FontWeight="Bold" Foreground="#1E293B" VerticalAlignment="Center" Margin="14,0,6,0"/>
+                    <DatePicker Grid.Column="3" SelectedDate="{Binding VoucherDate}" Width="115"/>
+
+                    <!-- Crop Season -->
+                    <TextBlock Grid.Column="4" Text="Crop Season:" FontWeight="Bold" Foreground="#1E293B" VerticalAlignment="Center" Margin="14,0,6,0"/>
+                    <ComboBox Grid.Column="5" ItemsSource="{Binding Seasons}" SelectedItem="{Binding SelectedSeason}" 
+                              DisplayMemberPath="Name" Width="140"/>
+
+                    <!-- Real-time Balances (Cash, Bank, Payee) -->
+                    <StackPanel Grid.Column="7" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Cash In Hand Badge -->
+                        <Border Background="#FEF3C7" BorderBrush="#FDE68A" BorderThickness="1" CornerRadius="4" Padding="8,2" Margin="0,0,6,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Cash: " FontSize="10.5" FontWeight="SemiBold" Foreground="#92400E"/>
+                                <TextBlock Text="{Binding CashInHand, StringFormat='Rs. {0}'}" FontSize="11.5" FontWeight="Bold" Foreground="#B45309"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Bank Balance Badge -->
+                        <Border Background="#EFF6FF" BorderBrush="#BFDBFE" BorderThickness="1" CornerRadius="4" Padding="8,2" Margin="0,0,6,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Bank: " FontSize="10.5" FontWeight="SemiBold" Foreground="#1E3A8A"/>
+                                <TextBlock Text="{Binding BankBalance, StringFormat='Rs. {0}'}" FontSize="11.5" FontWeight="Bold" Foreground="#2563EB"/>
+                                <TextBlock Text="{Binding BankBalanceStatus, StringFormat=' ({0})'}" FontSize="10" FontWeight="SemiBold" Foreground="#1D4ED8" Margin="2,0,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Payee Balance Badge -->
+                        <Border Background="#FEF2F2" BorderBrush="#FECACA" BorderThickness="1" CornerRadius="4" Padding="8,2">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Payee: " FontSize="10.5" FontWeight="SemiBold" Foreground="#991B1B"/>
+                                <TextBlock Text="{Binding AccountBalance, StringFormat='Rs. {0}'}" FontSize="11.5" FontWeight="Bold" Foreground="#DC2626"/>
+                                <TextBlock Text="{Binding AccountBalanceStatus, StringFormat=' ({0})'}" FontSize="10" FontWeight="SemiBold" Foreground="#B91C1C" Margin="2,0,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--                   BOTTOM TOOLBAR BAR                       -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <Border DockPanel.Dock="Bottom" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,6,0,0">
+                <Grid>
+                    <!-- Left: Checkboxes -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <CheckBox IsChecked="{Binding SendSms}" Content="Send SMS" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Right: Action Buttons -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <!-- Delete Button (Only visible on existing voucher) -->
+                        <Button Content="Delete (F4)" Command="{Binding DeleteVoucherCommand}" Style="{StaticResource ClassicButton}"
+                                Background="#DC2626" Foreground="#FFFFFF" BorderBrush="#B91C1C"
+                                Visibility="{Binding IsExistingVoucher, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                        <!-- Search Cheques Button -->
+                        <Button Content="Find Cheques" Command="{Binding OpenSearchModalCommand}" Style="{StaticResource ClassicButton}"/>
+
+                        <!-- Print Cheque Leaf Button -->
+                        <Button Content="Print Cheque Leaf" Command="{Binding PrintChequeCommand}" Style="{StaticResource ClassicButton}" ToolTip="Print Cheque Leaf"/>
+
+                        <!-- Print Voucher Button -->
+                        <Button Content="Print (Ctrl+P)" Command="{Binding PrintCommand}" Style="{StaticResource ClassicButton}" ToolTip="Print Voucher (Ctrl+P)"/>
+
+                        <!-- Clear / New Button -->
+                        <Button Content="Clear / New (F3)" Command="{Binding NewVoucherCommand}" Style="{StaticResource ClassicButton}" ToolTip="Reset / New (F3)"/>
+
+                        <!-- Save Button (Prominent Blue) -->
+                        <Button Content="Save Voucher (F2)" Command="{Binding SaveCommand}" Style="{StaticResource ClassicButton}"
+                                Background="#2563EB" Foreground="#FFFFFF" BorderBrush="#1D4ED8" ToolTip="Save Voucher (F2)"/>
+
+                        <!-- Close Button -->
+                        <Button Content="Close (Esc)" Style="{StaticResource ClassicButton}" Click="CloseButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!--             MAIN CONTENT: ENTRY FORMS & DETAILS            -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+
+                    <!-- TWO MAIN CARDS ROW: BANK PARTICULARS & PAYEE PARTICULARS -->
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- ══ CARD 1: BANK & CHEQUE PARTICULARS ══ -->
+                        <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,10">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Bank" Width="16" Height="16" Foreground="#1E3A8A" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Bank Account &amp; Cheque Particulars" FontSize="12.5" FontWeight="Bold" Foreground="#1E3A8A"/>
+                                    </StackPanel>
+                                    <Button HorizontalAlignment="Right" Command="{Binding OpenBankLookupCommand}" 
+                                            Style="{StaticResource ClassicButton}" MinWidth="75" Height="24" Padding="4,0" ToolTip="Search Bank (F1)">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Magnify" Width="13" Height="13" Foreground="#2563EB" Margin="0,0,2,0"/>
+                                            <TextBlock Text="Search F1" FontSize="10.5" FontWeight="Bold" Foreground="#2563EB"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+
+                                <!-- Bank Account Dropdown -->
+                                <TextBlock Text="Bank Account:" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,3"/>
+                                <ComboBox ItemsSource="{Binding BankAccounts}" SelectedItem="{Binding SelectedBank}"
+                                          DisplayMemberPath="BankName" FontWeight="SemiBold" Margin="0,0,0,8"/>
+
+                                <!-- Cheque Number, Leaves Picker, Date -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="120"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Cheque # -->
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Cheque #:" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,3"/>
+                                        <TextBox Text="{Binding ChequeNo, UpdateSourceTrigger=PropertyChanged}" FontWeight="Bold" Foreground="#1E3A8A"/>
+                                    </StackPanel>
+
+                                    <!-- Chequebook Leaves Quick Picker -->
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Available Leaves:" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,3"/>
+                                        <ComboBox ItemsSource="{Binding AvailableChequeNumbers}" SelectedItem="{Binding SelectedChequeNo}"/>
+                                    </StackPanel>
+
+                                    <!-- Cheque Date -->
+                                    <StackPanel Grid.Column="4">
+                                        <TextBlock Text="Cheque Date:" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,3"/>
+                                        <DatePicker SelectedDate="{Binding ChequeDate}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Cross Cheque & Reconcile Checkboxes -->
+                                <Grid Margin="0,2,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsCrossCheque}" Content="Cross Cheque (A/C Payee)" FontWeight="SemiBold" Foreground="#1E293B"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <CheckBox IsChecked="{Binding IsReconciled}" Content="Reconcile Cheque" FontWeight="SemiBold" Foreground="#15803D" Margin="0,0,6,0"/>
+                                        <DatePicker SelectedDate="{Binding ReconcileDate}" Width="100" Height="22" FontSize="11"
+                                                    Visibility="{Binding IsReconciled, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ══ CARD 2: PAYEE / PARTY PARTICULARS ══ -->
+                        <Border Grid.Column="2" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,10">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="AccountArrowRight" Width="16" Height="16" Foreground="#1E3A8A" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="Payee / Party Particulars" FontSize="12.5" FontWeight="Bold" Foreground="#1E3A8A"/>
+                                    </StackPanel>
+                                    <Button HorizontalAlignment="Right" Command="{Binding OpenPartyLookupCommand}" 
+                                            Style="{StaticResource ClassicButton}" MinWidth="75" Height="24" Padding="4,0" ToolTip="Search Payee (F1)">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="AccountSearch" Width="13" Height="13" Foreground="#2563EB" Margin="0,0,2,0"/>
+                                            <TextBlock Text="Search F1" FontSize="10.5" FontWeight="Bold" Foreground="#2563EB"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+
+                                <!-- Pay To Account Input -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Account Code -->
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="A/c Code:" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,3"/>
+                                        <TextBox x:Name="PartyAccountNoBox" Text="{Binding PartyAccountNo, UpdateSourceTrigger=PropertyChanged}" 
+                                                 FontWeight="SemiBold" KeyDown="PartyAccountNoBox_KeyDown"/>
+                                    </StackPanel>
+
+                                    <!-- Account Name -->
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Payee / Party Title:" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,3"/>
+                                        <TextBox Text="{Binding PartyAccountName}" IsReadOnly="True" FontWeight="Bold" Foreground="#1E3A8A" Background="#F8FAFC"/>
+                                    </StackPanel>
+
+                                    <!-- Search Button -->
+                                    <Button Grid.Column="3" Command="{Binding OpenPartyLookupCommand}" VerticalAlignment="Bottom" Height="26" Width="26" Margin="4,0,0,0"
+                                            Style="{StaticResource ClassicButton}" MinWidth="26" Padding="0">
+                                        <materialDesign:PackIcon Kind="Magnify" Width="14" Height="14" Foreground="#2563EB"/>
+                                    </Button>
+                                </Grid>
+
+                                <!-- Received By (Physical Recipient) -->
+                                <TextBlock Text="Cheque Received By (Person / Representative):" FontWeight="SemiBold" Foreground="#475569" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding ReceivedBy, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8"/>
+
+                                <!-- Multi-Payee Split Option Toggle -->
+                                <CheckBox IsChecked="{Binding IsMultiPayeeMode}" Content="Split across multiple accounts (Multi-Payee Mode)" 
+                                          FontWeight="SemiBold" Foreground="#1E293B"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- ══ MULTI-PAYEE SPLIT GRID (Visible only when IsMultiPayeeMode == true) ══ -->
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8"
+                            Visibility="{Binding IsMultiPayeeMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="Multi-Payee Split Line Items:" FontSize="11.5" FontWeight="Bold" Foreground="#1E3A8A" Margin="0,0,0,6"/>
+                            
+                            <!-- Split Line Entry Controls -->
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="85"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="180"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Grid.Column="0" Text="{Binding SplitAccountNo, UpdateSourceTrigger=PropertyChanged}" 
+                                         materialDesign:HintAssist.Hint="A/C #" KeyDown="SplitAccountNoBox_KeyDown"/>
+
+                                <TextBox Grid.Column="2" Text="{Binding SplitAccountName}" IsReadOnly="True"
+                                         materialDesign:HintAssist.Hint="Account Title" Background="#F8FAFC"/>
+
+                                <TextBox Grid.Column="4" Text="{Binding SplitNarration}" 
+                                         materialDesign:HintAssist.Hint="Narration / Remarks"/>
+
+                                <TextBox Grid.Column="6" Text="{Binding SplitAmount}" 
+                                         materialDesign:HintAssist.Hint="Amount (PKR)" FontWeight="Bold" HorizontalContentAlignment="Right"/>
+
+                                <Button Grid.Column="8" Command="{Binding AddSplitDetailCommand}" Style="{StaticResource ClassicButton}" 
+                                        Background="#2563EB" Foreground="#FFFFFF" BorderBrush="#1D4ED8" Height="26" MinWidth="75" Content="+ Add"/>
+                            </Grid>
+
+                            <!-- DataGrid -->
+                            <DataGrid ItemsSource="{Binding SplitDetails}" AutoGenerateColumns="False" CanUserAddRows="False"
+                                      IsReadOnly="True" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0" RowHeight="26" MaxHeight="140">
+                                <DataGrid.ColumnHeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Background" Value="#1E293B"/>
+                                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Height" Value="26"/>
+                                        <Setter Property="Padding" Value="6,0"/>
+                                    </Style>
+                                </DataGrid.ColumnHeaderStyle>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="A/C #" Binding="{Binding AccountNo}" Width="85"/>
+                                    <DataGridTextColumn Header="ACCOUNT TITLE" Binding="{Binding AccountName}" Width="200"/>
+                                    <DataGridTextColumn Header="NARRATION" Binding="{Binding Narration}" Width="*"/>
+                                    <DataGridTextColumn Header="AMOUNT (PKR)" Binding="{Binding Amount, StringFormat=N0}" Width="120">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTemplateColumn Width="45">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="🗑" Command="{Binding DataContext.RemoveSplitDetailCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}" Foreground="#DC2626" Background="Transparent" BorderThickness="0"
+                                                        Padding="2,0" Cursor="Hand" ToolTip="Remove"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ══ CARD 3: AMOUNT & WITHHOLDING TAX (WHT) PARTICULAR ══ -->
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,10" Margin="0,0,0,8">
+                        <StackPanel>
+                            <!-- Row 1: Amount & Amount in Words -->
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Amount PKR -->
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Cheque Amount (PKR):" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,3"/>
+                                    <TextBox Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:N0}'}" 
+                                             FontSize="15" FontWeight="Black" Foreground="#1E3A8A" HorizontalContentAlignment="Right"/>
+                                </StackPanel>
+
+                                <!-- Amount in Words -->
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Amount in Words (English):" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,3"/>
+                                    <TextBox Text="{Binding AmountInWords, TargetNullValue='Rupees Zero Only'}" IsReadOnly="True" FontWeight="SemiBold" Background="#F8FAFC"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Row 2: WHT Tax Settings -->
+                            <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="4" Padding="10,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- WHT Mode Checkbox -->
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsWhtMode}" Content="Enable WHT Tax" 
+                                              FontWeight="Bold" Foreground="#1E293B" VerticalAlignment="Center"/>
+
+                                    <!-- WHT Ratio % -->
+                                    <StackPanel Grid.Column="2" IsEnabled="{Binding IsWhtMode}">
+                                        <TextBlock Text="WHT Ratio (%)" FontSize="10" FontWeight="SemiBold" Foreground="#64748B"/>
+                                        <TextBox Text="{Binding WhtRatio, UpdateSourceTrigger=PropertyChanged}" FontWeight="Bold" Height="22" Padding="4,1" HorizontalContentAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <!-- WHT Amount -->
+                                    <StackPanel Grid.Column="4" IsEnabled="{Binding IsWhtMode}">
+                                        <TextBlock Text="WHT Amount (Rs)" FontSize="10" FontWeight="SemiBold" Foreground="#64748B"/>
+                                        <TextBox Text="{Binding WhtAmount, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:N0}'}" FontWeight="Bold" Height="22" Padding="4,1" HorizontalContentAlignment="Right"/>
+                                    </StackPanel>
+
+                                    <!-- WHT Minus / Plus Radios -->
+                                    <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" IsEnabled="{Binding IsWhtMode}">
+                                        <RadioButton IsChecked="{Binding IsWhtMinus}" Content="Deduct (-)" FontWeight="SemiBold" Margin="0,0,8,0"/>
+                                        <RadioButton IsChecked="{Binding IsWhtPlus}" Content="Add (+)" FontWeight="SemiBold"/>
+                                    </StackPanel>
+
+                                    <!-- Charge to Payee / Bank Radios -->
+                                    <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center" IsEnabled="{Binding IsWhtMode}">
+                                        <CheckBox IsChecked="{Binding WhtToPayee}" Content="Charge Payee" FontWeight="SemiBold" Margin="0,0,8,0"/>
+                                        <CheckBox IsChecked="{Binding WhtToBank}" Content="Charge Bank" FontWeight="SemiBold"/>
+                                    </StackPanel>
+
+                                    <!-- Net Disbursed Display -->
+                                    <Border Grid.Column="10" Background="#EFF6FF" BorderBrush="#BFDBFE" BorderThickness="1" CornerRadius="4" Padding="8,3" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="Net Cheque: " FontWeight="Bold" Foreground="#1E3A8A" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding NetChequeAmount, StringFormat='{}{0:N0} PKR'}" FontWeight="Black" FontSize="13" Foreground="#2563EB" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ══ CARD 4: NARRATION (ENGLISH & URDU PHONETIC) ══ -->
+                    <Border Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="6" Padding="12,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- English Remarks -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Narration (English Remarks):" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding Narration}" Height="28"/>
+                            </StackPanel>
+
+                            <!-- Urdu Narration -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Narration (Urdu):" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding NarrationUrdu}" Style="{StaticResource ModernUrduStandardTextBox}"
+                                         helpers:UrduHelper.IsUrduOnly="True" Height="28" Padding="6,1" Background="#FFFFFF" BorderBrush="#94A3B8"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+
+        </DockPanel>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!--        ACCOUNT LOOKUP & SEARCH MODAL OVERLAY (F1)          -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <Grid Background="#800F172A" Visibility="{Binding IsAccountLookupOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Width="680" MaxHeight="500" Background="#FFFFFF" CornerRadius="6" BorderBrush="#CBD5E1" BorderThickness="1" 
+                    VerticalAlignment="Center" HorizontalAlignment="Center" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="{Binding LookupTitle}" FontSize="16" FontWeight="Bold" Foreground="#1E3A8A"/>
+                            <TextBlock Text="Search by Account Code, English Name, Urdu Name or Group" FontSize="11" Foreground="#64748B"/>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" 
+                                Command="{Binding CloseLookupCommand}"
+                                Content="✕" Style="{StaticResource ClassicButton}" MinWidth="26" Width="26" Height="26" Padding="0"
+                                Foreground="#64748B" BorderThickness="0" Background="Transparent"/>
+                    </Grid>
+
+                    <!-- Search Bar -->
+                    <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#94A3B8" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,0,10">
+                        <Grid>
+                            <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18" Foreground="#2563EB" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox x:Name="AccountLookupSearchBox"
+                                     Text="{Binding LookupSearchQuery, UpdateSourceTrigger=PropertyChanged}" 
+                                     Margin="24,0,0,0" FontSize="12" Background="Transparent" BorderThickness="0"
+                                     materialDesign:HintAssist.Hint="Type code, customer name or city to filter..."
+                                     IsVisibleChanged="AccountLookupSearchBox_IsVisibleChanged"
+                                     KeyDown="AccountLookupSearchBox_KeyDown"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Grid -->
+                    <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" ClipToBounds="True" MaxHeight="280">
+                        <DataGrid x:Name="AccountsLookupGrid"
+                                  ItemsSource="{Binding FilteredAccounts}" 
+                                  SelectedItem="{Binding SelectedLookupAccount}"
+                                  AutoGenerateColumns="False" CanUserAddRows="False"
+                                  IsReadOnly="True" SelectionMode="Single"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="Horizontal"
+                                  HorizontalGridLinesBrush="#E2E8F0"
+                                  RowHeight="26"
+                                  MouseDoubleClick="AccountsLookupGrid_MouseDoubleClick">
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#1E293B"/>
+                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Height" Value="28"/>
+                                    <Setter Property="Padding" Value="8,0"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="CODE" Binding="{Binding AccountNo}" Width="95">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <DataGridTextColumn Header="NAME (ENGLISH)" Binding="{Binding Name}" Width="200">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Foreground" Value="#1E3A8A"/>
+                                            <Setter Property="Padding" Value="6,0,0,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <DataGridTextColumn Header="NAME (URDU)" Binding="{Binding UrduName}" Width="160">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Padding" Value="6,0,0,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <DataGridTextColumn Header="GROUP" Binding="{Binding AccountGroup.Name}" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Padding" Value="6,0,0,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <!-- Actions -->
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                        <Button Content="Cancel (Esc)" Command="{Binding CloseLookupCommand}" Style="{StaticResource ClassicButton}"/>
+                        <Button Content="Select Account (Enter)" Command="{Binding SelectLookupAccountCommand}" 
+                                CommandParameter="{Binding SelectedLookupAccount}"
+                                Style="{StaticResource ClassicButton}" Background="#2563EB" Foreground="#FFFFFF" BorderBrush="#1D4ED8"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!--        SEARCH BANK CHEQUES MODAL (SchBankCheques)          -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <Grid Background="#800F172A" Visibility="{Binding IsSearchListOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Width="820" MaxHeight="540" Background="#FFFFFF" CornerRadius="6" BorderBrush="#CBD5E1" BorderThickness="1" 
+                    VerticalAlignment="Center" HorizontalAlignment="Center" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="Search Bank Cheques (SchBankCheques)" FontSize="16" FontWeight="Bold" Foreground="#1E3A8A"/>
+                            <TextBlock Text="Double click any cheque to load and edit in form" FontSize="11" Foreground="#64748B"/>
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" 
+                                Command="{Binding CloseSearchModalCommand}"
+                                Content="✕" Style="{StaticResource ClassicButton}" MinWidth="26" Width="26" Height="26" Padding="0"
+                                Foreground="#64748B" BorderThickness="0" Background="Transparent"/>
+                    </Grid>
+
+                    <!-- Search Bar -->
+                    <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#94A3B8" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,0,10">
+                        <Grid>
+                            <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18" Foreground="#2563EB" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox x:Name="SearchListQueryBox"
+                                     Text="{Binding SearchListQuery, UpdateSourceTrigger=PropertyChanged}" 
+                                     Margin="24,0,0,0" FontSize="12" Background="Transparent" BorderThickness="0"
+                                     materialDesign:HintAssist.Hint="Type voucher #, cheque #, bank or payee name to search..."/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Grid -->
+                    <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" ClipToBounds="True" MaxHeight="320">
+                        <DataGrid x:Name="SearchChequesGrid"
+                                  ItemsSource="{Binding SearchListResults}" 
+                                  SelectedItem="{Binding SelectedSearchItem}"
+                                  AutoGenerateColumns="False" CanUserAddRows="False"
+                                  IsReadOnly="True" SelectionMode="Single"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="Horizontal"
+                                  HorizontalGridLinesBrush="#E2E8F0"
+                                  RowHeight="26"
+                                  MouseDoubleClick="SearchChequesGrid_MouseDoubleClick">
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#1E293B"/>
+                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Height" Value="28"/>
+                                    <Setter Property="Padding" Value="8,0"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="VOUCHER #" Binding="{Binding VoucherNo}" Width="90">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <DataGridTextColumn Header="DATE" Binding="{Binding VoucherDate, StringFormat=dd/MM/yyyy}" Width="95">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <DataGridTextColumn Header="CHEQUE #" Binding="{Binding ChequeNo}" Width="100">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Foreground" Value="#1E3A8A"/>
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <DataGridTextColumn Header="BANK ACCOUNT" Binding="{Binding BankAccountName}" Width="170"/>
+                                <DataGridTextColumn Header="PAY TO (PARTY)" Binding="{Binding PartyAccountName}" Width="180"/>
+                                
+                                <DataGridTextColumn Header="AMOUNT (PKR)" Binding="{Binding Amount, StringFormat=N0}" Width="120">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="Padding" Value="0,0,8,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                    <!-- Actions -->
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                        <Button Content="Cancel (Esc)" Command="{Binding CloseSearchModalCommand}" Style="{StaticResource ClassicButton}"/>
+                        <Button Content="Load Cheque (Enter)" Command="{Binding SelectSearchItemCommand}" 
+                                CommandParameter="{Binding SelectedSearchItem}"
+                                Style="{StaticResource ClassicButton}" Background="#2563EB" Foreground="#FFFFFF" BorderBrush="#1D4ED8"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+    </Grid>
+</UserControl>

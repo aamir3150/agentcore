@@ -68,7 +68,7 @@
                             </Border>
                             <TextBlock Text="Profit &amp; Loss Statement" FontSize="21" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="نفع و نقصان گوشوارہ (آمدنی و اخراجات مالی رپورٹ)" FontSize="14" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
+                        <TextBlock Text="Income, Expenditure &amp; Net Profitability Statement" FontSize="12" Foreground="#94A3B8" Margin="44,2,0,0"/>
                     </StackPanel>
 
                     <!-- Right Graphic Emblem -->

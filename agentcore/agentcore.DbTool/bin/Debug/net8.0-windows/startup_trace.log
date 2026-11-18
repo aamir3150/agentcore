@@ -1,4 +1,4 @@
-[11/10/2026 12:33:38 pm] Starting up agentcore.DbTool
+[27/10/2026 12:08:25 pm] Starting up agentcore.DbTool
 Base path: D:\Projects\agentcore\agentcore\agentcore.DbTool\bin\Debug\net8.0-windows\
 DB: MyMandi_2025-26, Conn: Server=.\SQLEXPRESS;Database=MyMandi_2025-26;Trusted_Connection=True;TrustServerCertificate=True;
 DI Built successfully

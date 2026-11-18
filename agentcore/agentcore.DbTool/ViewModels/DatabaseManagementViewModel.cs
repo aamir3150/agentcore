@@ -71,6 +71,16 @@ public partial class DatabaseManagementViewModel : ObservableObject
     [ObservableProperty] private string _yearEndProgressStatus = "";
     [ObservableProperty] private ObservableCollection<string> _yearEndLogs = new();
 
+    // Maintenance Operations (Attach, Detach, Backup, Restore, Shrink)
+    [ObservableProperty] private string _attachDbName = "";
+    [ObservableProperty] private string _attachMdfPath = "";
+    [ObservableProperty] private string _attachLdfPath = "";
+    [ObservableProperty] private string _backupFilePath = "";
+    [ObservableProperty] private string _restoreBakPath = "";
+    [ObservableProperty] private string _restoreDbName = "";
+    [ObservableProperty] private string _maintenanceStatusText = "Ready for database operations.";
+    [ObservableProperty] private bool _isMaintenanceRunning;
+
     public DatabaseManagementViewModel(
         IDatabaseManagementService dbService,
         IYearEndService yearEndService,
@@ -562,6 +572,271 @@ public partial class DatabaseManagementViewModel : ObservableObject
             await _yearEndService.SwitchActiveFinancialYearAsync(target.YearCode);
             MessageBox.Show($"مرکزی سسٹم کا مالی سال {target.YearCode} پر سیٹ کر دیا گیا ہے۔", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             await InitializeAsync(initialTab: 2);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MAINTENANCE: ATTACH, DETACH, BACKUP, RESTORE, SHRINK
+    // ─────────────────────────────────────────────────────────────
+
+    [RelayCommand]
+    public void BrowseAttachMdf()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Filter = "SQL Server Database Files (*.mdf)|*.mdf|All Files (*.*)|*.*",
+            Title = "Select Primary Data File (.mdf) to Attach"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            AttachMdfPath = dialog.FileName;
+            if (string.IsNullOrWhiteSpace(AttachDbName))
+            {
+                AttachDbName = Path.GetFileNameWithoutExtension(dialog.FileName);
+            }
+
+            // Look for matching LDF in same folder
+            var possibleLdf = Path.ChangeExtension(dialog.FileName, ".ldf");
+            if (File.Exists(possibleLdf))
+            {
+                AttachLdfPath = possibleLdf;
+            }
+        }
+    }
+
+    [RelayCommand]
+    public void BrowseAttachLdf()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Filter = "SQL Server Log Files (*.ldf)|*.ldf|All Files (*.*)|*.*",
+            Title = "Select Transaction Log File (.ldf)"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            AttachLdfPath = dialog.FileName;
+        }
+    }
+
+    [RelayCommand]
+    public async Task AttachDatabaseAsync()
+    {
+        if (string.IsNullOrWhiteSpace(AttachDbName))
+        {
+            MessageBox.Show("برائے مہربانی ڈیٹا بیس کا نام درج کریں۔", "انتباہ", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(AttachMdfPath) || !File.Exists(AttachMdfPath))
+        {
+            MessageBox.Show("درست MDF فائل منتخب کریں۔", "انتباہ", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            IsMaintenanceRunning = true;
+            MaintenanceStatusText = $"Attaching [{AttachDbName}] from file...";
+
+            await _dbService.AttachDatabaseAsync(AttachDbName.Trim(), AttachMdfPath.Trim(), string.IsNullOrWhiteSpace(AttachLdfPath) ? null : AttachLdfPath.Trim());
+            MessageBox.Show($"ڈیٹا بیس [{AttachDbName}] کامیابی سے اٹیچ (Attach) ہو گئی ہے!", "کامیابی", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            AttachMdfPath = "";
+            AttachLdfPath = "";
+            AttachDbName = "";
+            MaintenanceStatusText = "Database attached successfully.";
+            await LoadDatabasesAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"ڈیٹا بیس اٹیچ کرتے وقت خرابی:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MaintenanceStatusText = $"Attach Error: {ex.Message}";
+        }
+        finally
+        {
+            IsMaintenanceRunning = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task DetachDatabaseAsync(DatabaseSummary? target = null)
+    {
+        var db = target ?? SelectedDatabase;
+        if (db == null)
+        {
+            MessageBox.Show("برائے مہربانی ڈی ٹیچ (Detach) کرنے کے لیے ڈیٹا بیس منتخب کریں۔", "انتباہ", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var confirm = MessageBox.Show(
+            $"کیا آپ واقعی ڈیٹا بیس [{db.DatabaseName}] کو SQL سرور سے ڈی ٹیچ (Detach) کرنا چاہتے ہیں؟\n\n" +
+            $"نوٹ: ڈی ٹیچ کرنے کے بعد آپ اس کی MDF فائل کو کاپی یا منتقل کر سکتے ہیں۔ جب تک دوبارہ اٹیچ نہیں کریں گے، ایپلیکیشن اس سے ڈیٹا نہیں پڑھ سکے گی۔",
+            "Confirm Detach", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+        if (confirm != MessageBoxResult.Yes) return;
+
+        try
+        {
+            IsMaintenanceRunning = true;
+            MaintenanceStatusText = $"Detaching [{db.DatabaseName}]...";
+
+            await _dbService.DetachDatabaseAsync(db.DatabaseName);
+            MessageBox.Show($"ڈیٹا بیس [{db.DatabaseName}] کامیابی سے ڈی ٹیچ ہو گئی ہے۔", "کامیابی", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            MaintenanceStatusText = $"Database [{db.DatabaseName}] detached.";
+            await LoadDatabasesAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"ڈی ٹیچ کرتے وقت خرابی:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MaintenanceStatusText = $"Detach Error: {ex.Message}";
+        }
+        finally
+        {
+            IsMaintenanceRunning = false;
+        }
+    }
+
+    [RelayCommand]
+    public void BrowseBackupFile()
+    {
+        var db = SelectedDatabase?.DatabaseName ?? "agentcore";
+        var dialog = new SaveFileDialog
+        {
+            FileName = $"{db}_Backup_{DateTime.Now:yyyyMMdd_HHmm}.bak",
+            Filter = "SQL Server Backup (*.bak)|*.bak|All Files (*.*)|*.*",
+            Title = "Save Backup File"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            BackupFilePath = dialog.FileName;
+        }
+    }
+
+    [RelayCommand]
+    public async Task BackupDatabaseAsync()
+    {
+        var db = SelectedDatabase?.DatabaseName;
+        if (string.IsNullOrWhiteSpace(db))
+        {
+            MessageBox.Show("بیک اپ کے لیے ڈیٹا بیس منتخب کریں۔", "انتباہ", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(BackupFilePath))
+        {
+            BrowseBackupFile();
+            if (string.IsNullOrWhiteSpace(BackupFilePath)) return;
+        }
+
+        try
+        {
+            IsMaintenanceRunning = true;
+            MaintenanceStatusText = $"Creating backup for [{db}]...";
+
+            await _dbService.BackupDatabaseAsync(db, BackupFilePath);
+            MessageBox.Show($"ڈیٹا بیس [{db}] کا مکمل بیک اپ کامیابی سے تیار ہو گیا ہے:\n\n{BackupFilePath}", "بیک اپ مکمل", MessageBoxButton.OK, MessageBoxImage.Information);
+            MaintenanceStatusText = "Backup completed successfully.";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"بیک اپ بناتے وقت خرابی:\n{ex.Message}", "Backup Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MaintenanceStatusText = $"Backup Error: {ex.Message}";
+        }
+        finally
+        {
+            IsMaintenanceRunning = false;
+        }
+    }
+
+    [RelayCommand]
+    public void BrowseRestoreBak()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Filter = "SQL Server Backup (*.bak)|*.bak|All Files (*.*)|*.*",
+            Title = "Select Backup (.bak) File to Restore"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            RestoreBakPath = dialog.FileName;
+            if (string.IsNullOrWhiteSpace(RestoreDbName))
+            {
+                RestoreDbName = SelectedDatabase?.DatabaseName ?? "agentcore_Restored";
+            }
+        }
+    }
+
+    [RelayCommand]
+    public async Task RestoreDatabaseAsync()
+    {
+        if (string.IsNullOrWhiteSpace(RestoreDbName))
+        {
+            MessageBox.Show("ٹارگٹ ڈیٹا بیس کا نام درج کریں۔", "انتباہ", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(RestoreBakPath) || !File.Exists(RestoreBakPath))
+        {
+            MessageBox.Show("درست بیک اپ (.bak) فائل منتخب کریں۔", "انتباہ", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var confirm = MessageBox.Show(
+            $"⚠️ انتباہ: کیا آپ واقعی بیک اپ سے ڈیٹا بیس [{RestoreDbName}] کو ری اسٹور (Restore) کرنا چاہتے ہیں؟\n\n" +
+            $"اگر یہ ڈیٹا بیس پہلے سے موجود ہے تو موجودہ ڈیٹا اوور رائٹ ہو جائے گا۔",
+            "Confirm Restore", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+        if (confirm != MessageBoxResult.Yes) return;
+
+        try
+        {
+            IsMaintenanceRunning = true;
+            MaintenanceStatusText = $"Restoring [{RestoreDbName}] from backup...";
+
+            await _dbService.RestoreDatabaseAsync(RestoreDbName.Trim(), RestoreBakPath.Trim());
+            MessageBox.Show($"ڈیٹا بیس [{RestoreDbName}] کامیابی سے ری اسٹور ہو گئی ہے!", "کامیابی", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            MaintenanceStatusText = "Restore completed successfully.";
+            await LoadDatabasesAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"ری اسٹور کرتے وقت خرابی:\n{ex.Message}", "Restore Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MaintenanceStatusText = $"Restore Error: {ex.Message}";
+        }
+        finally
+        {
+            IsMaintenanceRunning = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task ShrinkDatabaseAsync(DatabaseSummary? target = null)
+    {
+        var db = target ?? SelectedDatabase;
+        if (db == null)
+        {
+            MessageBox.Show("شرنک (Shrink) کے لیے ڈیٹا بیس منتخب کریں۔", "انتباہ", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            IsMaintenanceRunning = true;
+            MaintenanceStatusText = $"Shrinking [{db.DatabaseName}]...";
+
+            await _dbService.ShrinkDatabaseAsync(db.DatabaseName);
+            MessageBox.Show($"ڈیٹا بیس [{db.DatabaseName}] کامیابی سے شرنک (Shrink) ہو گئی ہے اور غیر ضروری لاگ خالی ہو گیا ہے!", "Shrink Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            MaintenanceStatusText = "Database shrunk successfully.";
+            await LoadDatabasesAsync();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"شرنک کرتے وقت خرابی:\n{ex.Message}", "Shrink Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MaintenanceStatusText = $"Shrink Error: {ex.Message}";
+        }
+        finally
+        {
+            IsMaintenanceRunning = false;
         }
     }
 }

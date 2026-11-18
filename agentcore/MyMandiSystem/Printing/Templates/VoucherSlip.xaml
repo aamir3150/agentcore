@@ -7,12 +7,12 @@
 
     <cv:AmountInWordsConverter x:Key="AmountInWords"/>
     <cv:PrintDateConverter x:Key="PrintDateConverter"/>
+    <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
     <DataTemplate DataType="{x:Type m:VoucherSlip}">
         <Border Background="White" Padding="24,20" BorderBrush="#0F172A" BorderThickness="1.5">
             <StackPanel>
-                <pc:PrintHeader Title="{Binding VoucherType, StringFormat='{}{0} VOUCHER'}" 
-                                Subtitle="{Binding VoucherTypeUrdu}"/>
+                <pc:PrintHeader Title="{Binding VoucherType, StringFormat='{}{0} VOUCHER'}" ShowUrduCompany="False" />
 
                 <!-- Voucher Header Info -->
                 <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,4,0,10" Background="#F8FAFC">
@@ -26,8 +26,6 @@
                         <StackPanel Grid.Column="0">
                             <TextBlock FontSize="14" FontWeight="Bold" Foreground="#0F172A">
                                 <Run Text="{Binding AccountName, Mode=OneWay}"/>
-                                <Run Text=" "/>
-                                <Run Text="{Binding AccountUrduName, Mode=OneWay}" FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Arial" FontSize="16"/>
                             </TextBlock>
                             <TextBlock Text="{Binding AccountNo, StringFormat='A/C No: {0}'}" FontSize="11" Foreground="#475569" Margin="0,2,0,0"/>
                         </StackPanel>
@@ -53,9 +51,9 @@
                             <ColumnDefinition Width="110"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="A/C No" FontWeight="Bold" Foreground="White" FontSize="11"/>
-                        <TextBlock Grid.Column="1" Text="Account Title / تفصیل کھاتہ" FontWeight="Bold" Foreground="White" FontSize="11"/>
-                        <TextBlock Grid.Column="2" Text="Debit (بنام)" FontWeight="Bold" Foreground="White" FontSize="11" TextAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="Credit (جمع)" FontWeight="Bold" Foreground="White" FontSize="11" TextAlignment="Right"/>
+                        <TextBlock Grid.Column="1" Text="Account Title" FontWeight="Bold" Foreground="White" FontSize="11"/>
+                        <TextBlock Grid.Column="2" Text="Debit" FontWeight="Bold" Foreground="White" FontSize="11" TextAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="Credit" FontWeight="Bold" Foreground="White" FontSize="11" TextAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -94,9 +92,6 @@
                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                             <TextBlock Text="{Binding Narration, StringFormat='Narration: {0}'}" 
                                        FontSize="11.5" Foreground="#334155" TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding NarrationUrdu, StringFormat='تفصیل: {0}'}" 
-                                       FontFamily="pack://application:,,,/agentcore;component/Resources/Fonts/#Jameel Noori Nastaleeq, Jameel Noori Nastaleeq, Nafees Nastaleeq, Arial"
-                                       FontSize="14" Foreground="#1E293B" Margin="0,2,0,0" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding Amount, Converter={StaticResource AmountInWords}}" 
                                        FontStyle="Italic" FontWeight="SemiBold" FontSize="11.5" Foreground="#0F766E" Margin="0,4,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
@@ -107,11 +102,31 @@
                     </Grid>
                 </Border>
 
+                <!-- Currency Denominations (Notes Breakdown) -->
+                <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,0,10" Background="#F8FAFC"
+                        Visibility="{Binding HasDenominations, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="Currency Denominations:" FontSize="10.5" FontWeight="Bold" Foreground="#334155" Margin="0,0,0,3"/>
+                        <WrapPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Count5000, StringFormat='5000: {0}  |  '}" FontSize="10" FontWeight="SemiBold" Foreground="#475569"/>
+                            <TextBlock Text="{Binding Count1000, StringFormat='1000: {0}  |  '}" FontSize="10" FontWeight="SemiBold" Foreground="#475569"/>
+                            <TextBlock Text="{Binding Count500, StringFormat='500: {0}  |  '}" FontSize="10" FontWeight="SemiBold" Foreground="#475569"/>
+                            <TextBlock Text="{Binding Count100, StringFormat='100: {0}  |  '}" FontSize="10" FontWeight="SemiBold" Foreground="#475569"/>
+                            <TextBlock Text="{Binding Count50, StringFormat='50: {0}  |  '}" FontSize="10" FontWeight="SemiBold" Foreground="#475569"/>
+                            <TextBlock Text="{Binding Count20, StringFormat='20: {0}  |  '}" FontSize="10" FontWeight="SemiBold" Foreground="#475569"/>
+                            <TextBlock Text="{Binding Count10, StringFormat='10: {0}  |  '}" FontSize="10" FontWeight="SemiBold" Foreground="#475569"/>
+                            <TextBlock Text="{Binding Count5, StringFormat='5: {0}  |  '}" FontSize="10" FontWeight="SemiBold" Foreground="#475569"/>
+                            <TextBlock Text="{Binding Count2, StringFormat='2: {0}  |  '}" FontSize="10" FontWeight="SemiBold" Foreground="#475569"/>
+                            <TextBlock Text="{Binding Count1, StringFormat='1: {0}'}" FontSize="10" FontWeight="SemiBold" Foreground="#475569"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
                 <!-- Signatures -->
-                <pc:SignatureBlock Labels="منشی / کیشئر (Prepared By),اکاؤنٹنٹ / پڑتال (Checked By),دستخط / تصدیق (Signature)" Margin="0,50,0,14"/>
+                <pc:SignatureBlock Labels="Prepared By,Checked By,Signature" Margin="0,50,0,14"/>
 
                 <!-- Footer -->
-                <pc:PrintFooter CopyLabel="Original Voucher / اصل واؤچر"/>
+                <pc:PrintFooter CopyLabel="Original Voucher"/>
             </StackPanel>
         </Border>
     </DataTemplate>

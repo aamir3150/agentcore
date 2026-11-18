@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © 2026 City Computers Marot 03447436314")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Standalone Database Administrator & Year-End Rollover Tool for agentcore ERP")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("2.5.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e37bd0ccc42819b78a707aee8942858755a002f5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+43c6a38fd1e2b313f2043b67d6c737a30a87664b")]
 [assembly: System.Reflection.AssemblyProductAttribute("agentcore Database Administration Tool")]
 [assembly: System.Reflection.AssemblyTitleAttribute("agentcore - Database & Year-End Management Tool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("2.5.0.0")]

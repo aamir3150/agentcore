@@ -1,45 +1,51 @@
+using MyMandiSystem.ViewModels;
 using System.Windows;
 using System.Windows.Input;
-using MyMandiSystem.ViewModels;
 
 namespace MyMandiSystem.Views;
 
 public partial class BusinessProfileWindow : Window
 {
-    public BusinessProfileWindow()
+    public BusinessProfileWindow(BusinessProfileViewModel viewModel)
     {
         InitializeComponent();
-    }
-
-    public BusinessProfileWindow(BusinessProfileViewModel vm) : this()
-    {
-        DataContext = vm;
+        DataContext = viewModel;
     }
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ButtonState == MouseButtonState.Pressed)
         {
-            try
-            {
-                this.DragMove();
-            }
-            catch
-            {
-            }
-        }
-    }
-
-    private async void SaveButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (DataContext is BusinessProfileViewModel vm)
-        {
-            await vm.SaveAsync(this);
+            DragMove();
         }
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        this.Close();
+        Close();
+    }
+
+    private void Tab1_Checked(object sender, RoutedEventArgs e)
+    {
+        ShowTab(1);
+    }
+
+    private void Tab2_Checked(object sender, RoutedEventArgs e)
+    {
+        ShowTab(2);
+    }
+
+    private void Tab3_Checked(object sender, RoutedEventArgs e)
+    {
+        ShowTab(3);
+    }
+
+    private void ShowTab(int tabIndex)
+    {
+        if (Tab1Panel == null || Tab2Panel == null || Tab3Panel == null) return;
+
+        Tab1Panel.Visibility = tabIndex == 1 ? Visibility.Visible : Visibility.Collapsed;
+        Tab2Panel.Visibility = tabIndex == 2 ? Visibility.Visible : Visibility.Collapsed;
+        Tab3Panel.Visibility = tabIndex == 3 ? Visibility.Visible : Visibility.Collapsed;
     }
 }

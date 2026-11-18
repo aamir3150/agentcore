@@ -1,0 +1,230 @@
+<Window x:Class="MyMandiSystem.Views.MarkupCalculatorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}" 
+        Height="540" Width="680"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize"
+        Background="#F1F5F9"
+        FontFamily="Segoe UI" FontSize="13">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <Style x:Key="ModernActionButton" TargetType="Button">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="MinWidth" Value="92"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#1E293B"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" CornerRadius="6" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="12,5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#E2E8F0"/>
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#94A3B8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernPrimaryButton" TargetType="Button" BasedOn="{StaticResource ModernActionButton}">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#1D4ED8"/>
+        </Style>
+
+        <Style x:Key="ModernDangerButton" TargetType="Button" BasedOn="{StaticResource ModernActionButton}">
+            <Setter Property="Background" Value="#FFF1F2"/>
+            <Setter Property="Foreground" Value="#E11D48"/>
+            <Setter Property="BorderBrush" Value="#FECDD3"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <DockPanel LastChildFill="True">
+
+            <!-- HEADER BANNER -->
+            <Border DockPanel.Dock="Top" Height="82" Background="#0F172A">
+                <Grid>
+                    <Grid.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#0F172A" Offset="0"/>
+                            <GradientStop Color="#1E293B" Offset="0.6"/>
+                            <GradientStop Color="#1E3A8A" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Grid.Background>
+
+                    <StackPanel VerticalAlignment="Center" Margin="24,0,0,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="34" Height="34" CornerRadius="8" Background="#1E3A8A" Margin="0,0,10,0">
+                                <materialDesign:PackIcon Kind="Calculator" Width="22" Height="22" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="{Binding HeaderTitle}" FontSize="20" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding HeaderSubtitle}" FontSize="13" Foreground="#94A3B8" FontFamily="{StaticResource FontJameelNooriNastaleeq}" Margin="44,2,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- BOTTOM ACTION BAR -->
+            <Border DockPanel.Dock="Bottom" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="16,12">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource ModernPrimaryButton}" Command="{Binding PreviewCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="FileEyeOutline" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="Preview Report" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ModernActionButton}" Command="{Binding PrintCommand}" Margin="8,0,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="PrinterOutline" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="Print" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ModernDangerButton}" Command="{Binding CloseCommand}" Margin="8,0,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Close" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="Close" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- MAIN FORM BODY -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20">
+                <StackPanel>
+
+                    <!-- Account / Party Card -->
+                    <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="کھاتہ یا پارٹی کا انتخاب (Select Account / Party)" FontSize="13.5" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding AccountNo, UpdateSourceTrigger=PropertyChanged}" 
+                                         materialDesign:HintAssist.Hint="Account No"
+                                         Style="{StaticResource MaterialDesignOutlinedTextBox}" Height="40" Padding="8,6"/>
+                                <Button Grid.Column="1" Style="{StaticResource ModernActionButton}" Command="{Binding OpenAccountLookupCommand}" Margin="8,0" Height="40" MinWidth="40" Padding="8">
+                                    <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" Foreground="#2563EB"/>
+                                </Button>
+                                <TextBox Grid.Column="2" Text="{Binding AccountName}" IsReadOnly="True"
+                                         materialDesign:HintAssist.Hint="Account / Party Name"
+                                         Style="{StaticResource MaterialDesignOutlinedTextBox}" Height="40" Background="#F8FAFC" Padding="8,6"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Dates Card -->
+                    <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="مدت برائے مارک اپ (Markup Date Period)" FontSize="13.5" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                <DatePicker SelectedDate="{Binding FromDate}" 
+                                            materialDesign:HintAssist.Hint="From Date"
+                                            Style="{StaticResource MaterialDesignOutlinedDatePicker}" Height="40"/>
+                                <DatePicker Grid.Column="2" SelectedDate="{Binding ToDate}" 
+                                            materialDesign:HintAssist.Hint="To Date"
+                                            Style="{StaticResource MaterialDesignOutlinedDatePicker}" Height="40"/>
+                                <TextBox Grid.Column="4" Text="{Binding TotalDays}" IsReadOnly="True"
+                                         materialDesign:HintAssist.Hint="Days (کل دن)"
+                                         Style="{StaticResource MaterialDesignOutlinedTextBox}" Height="40" Background="#F8FAFC"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Calculation Parameters Card -->
+                    <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="16">
+                        <StackPanel>
+                            <TextBlock Text="مارک اپ کی شرح اور حساب کتاب (Rate &amp; Markup Calculation)" FontSize="13.5" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12"/>
+                            
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding PrincipalBalance, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
+                                         materialDesign:HintAssist.Hint="Principal Balance (اصل رقم)"
+                                         Style="{StaticResource MaterialDesignOutlinedTextBox}" Height="40"/>
+                                <TextBox Grid.Column="2" Text="{Binding AnnualRate, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
+                                         materialDesign:HintAssist.Hint="Annual Rate % (سالانہ شرح فیصد)"
+                                         Style="{StaticResource MaterialDesignOutlinedTextBox}" Height="40"/>
+                            </Grid>
+
+                            <!-- Calculation Result Preview Pill -->
+                            <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="6" Padding="14,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="مارک اپ رقم (Calculated Markup):" FontSize="12" Foreground="#166534" FontWeight="Medium"/>
+                                        <TextBlock Text="{Binding CalculatedMarkup, StringFormat='Rs. {0:N2}'}" FontSize="18" FontWeight="Bold" Foreground="#15803D" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="کل قابل وصول / واجب الادا رقم:" FontSize="12" Foreground="#166534" FontWeight="Medium"/>
+                                        <TextBlock Text="{Binding TotalWithMarkup, StringFormat='Rs. {0:N2}'}" FontSize="18" FontWeight="Bold" Foreground="#047857" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+
+        </DockPanel>
+
+        <!-- Account Lookup Modal -->
+        <Grid Visibility="{Binding IsAccountLookupOpen, Converter={StaticResource BooleanToVisibilityConverter}}" Background="#80000000">
+            <Border Background="White" CornerRadius="10" Width="480" Height="420" Padding="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <DockPanel LastChildFill="True">
+                    <TextBlock DockPanel.Dock="Top" Text="Select Account" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBox DockPanel.Dock="Top" Text="{Binding LookupSearchQuery, UpdateSourceTrigger=PropertyChanged}" 
+                             materialDesign:HintAssist.Hint="Search Name / No..." 
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}" Height="40" Margin="0,0,0,10"/>
+                    <Border DockPanel.Dock="Bottom" Margin="0,10,0,0">
+                        <Button Style="{StaticResource ModernDangerButton}" Content="Cancel" Command="{Binding CloseAccountLookupCommand}" HorizontalAlignment="Right"/>
+                    </Border>
+                    <ListBox ItemsSource="{Binding FilteredAccounts}" SelectedItem="{Binding SelectedAccount}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="4">
+                                    <TextBlock Text="{Binding AccountNo}" FontWeight="Bold" Width="100"/>
+                                    <TextBlock Text="{Binding Name}" Margin="10,0,0,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
